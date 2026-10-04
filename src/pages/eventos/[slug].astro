@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import UIcon from '../../components/icons/UIcon.astro';
+import Button from '../../components/ui/Button.astro';
 import { getEventoBySlug } from '../../lib/sanityQueries';
 import { urlFor } from '../../lib/sanity';
 
@@ -73,14 +74,23 @@ const jsonLdEvento = {
 
   <article class="py-10 md:py-16">
     <div class="max-w-7xl mx-auto px-5 md:px-7">
-      <a href="/eventos" class="inline-flex items-center gap-2 bg-ink text-white font-mono text-xs tracking-widest uppercase py-3 px-5 rounded-sm mb-8 transition-all duration-150 hover:bg-black hover:-translate-y-px">
+      <Button href="/eventos" variant="secondary" size="sm" class="mb-8">
         <UIcon name="arrow-left" size={16} />
         Volver a eventos
-      </a>
+      </Button>
 
       <div class="flex flex-wrap items-center gap-3 mb-8">
         <span class="font-mono text-xs tracking-wider uppercase text-text-soft">{labelTipo(evento.tipo)}</span>
-        <span class="font-mono text-xs tracking-wider text-text-soft">{fecha}</span>
+        <span class="font-mono text-xs tracking-wider text-text-soft">
+          {fecha}
+          {evento.fechaFin && (
+            <> – {new Date(evento.fechaFin).toLocaleDateString('es-CL', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}</>
+          )}
+        </span>
         {evento.lugar && <span class="font-mono text-xs tracking-wider text-text-soft">{evento.lugar}</span>}
       </div>
 

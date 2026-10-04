@@ -98,15 +98,20 @@ const jsonLdEventoPrincipal = eventoPrincipal
       {
         eventoPrincipal && (
           <article class="bg-white border border-line rounded-sm overflow-hidden text-ink">
-            <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
+            <div class="grid grid-cols-1 lg:grid-cols-5">
               {eventoPrincipal.flyer && (
-                <img
-                  src={urlFor(eventoPrincipal.flyer).width(1000).auto('format').url()}
-                  alt={`Afiche de ${eventoPrincipal.titulo}`}
-                  class="w-full h-full min-h-64 object-cover"
-                />
+                <div class="bg-paper p-5 lg:col-span-2 flex items-center justify-center">
+                  <img
+                    src={urlFor(eventoPrincipal.flyer).width(700).auto('format').url()}
+                    alt={`Afiche de ${eventoPrincipal.titulo}`}
+                    width="210"
+                    height="297"
+                    style="aspect-ratio: 210 / 297"
+                    class="w-full max-w-sm object-contain"
+                  />
+                </div>
               )}
-              <div class="p-6 md:p-10 flex flex-col">
+              <div class:list={['p-6 md:p-10 flex flex-col', eventoPrincipal.flyer ? 'lg:col-span-3' : 'lg:col-span-5']}>
                 <span class="font-mono text-xs tracking-wider uppercase text-red">
                   Próximo evento
                 </span>
@@ -119,9 +124,12 @@ const jsonLdEventoPrincipal = eventoPrincipal
                       <UIcon name="map-pin" size={14} /> {eventoPrincipal.lugar}
                     </span>
                   )}
-                  <time datetime={eventoPrincipal.fecha}>
-                    {fechaLarga(eventoPrincipal.fecha)}
-                  </time>
+                  <span>
+                    <time datetime={eventoPrincipal.fecha}>{fechaLarga(eventoPrincipal.fecha)}</time>
+                    {eventoPrincipal.fechaFin && (
+                      <> – <time datetime={eventoPrincipal.fechaFin}>{fechaLarga(eventoPrincipal.fechaFin)}</time></>
+                    )}
+                  </span>
                 </div>
                 {eventoPrincipal.descripcion && (
                   <p class="text-text-soft mt-4 mb-6 max-w-[48ch] text-sm md:text-base">
@@ -129,22 +137,18 @@ const jsonLdEventoPrincipal = eventoPrincipal
                   </p>
                 )}
                 <div class="mt-auto flex flex-wrap gap-3">
-                  <a
+                  <Button
                     href={
                       puedeAbrirEvento(eventoPrincipal)
                         ? `/eventos/${eventoPrincipal.slug.current}`
                         : undefined
                     }
-                    aria-disabled={
-                      !puedeAbrirEvento(eventoPrincipal) ? "true" : undefined
-                    }
-                    class:list={[
-                      "inline-flex items-center gap-2 bg-red text-white font-mono text-xs tracking-widest uppercase py-2.5 px-5 rounded-sm transition-all duration-150 hover:bg-red-dark hover:-translate-y-px",
-                      !puedeAbrirEvento(eventoPrincipal) && "pointer-events-none opacity-60",
-                    ]}
+                    disabled={!puedeAbrirEvento(eventoPrincipal)}
+                    variant="primary"
+                    size="sm"
                   >
                     Ver detalle del evento
-                  </a>
+                  </Button>
                   <BotonCalendario
                     evento={eventoPrincipal}
                     className="border border-ink text-ink"
@@ -195,7 +199,12 @@ const jsonLdEventoPrincipal = eventoPrincipal
                             <UIcon name="map-pin" size={12} /> {evento.lugar}
                           </span>
                         )}
-                        <time datetime={evento.fecha}>{fechaLarga(evento.fecha)}</time>
+                        <span>
+                          <time datetime={evento.fecha}>{fechaLarga(evento.fecha)}</time>
+                          {evento.fechaFin && (
+                            <> – <time datetime={evento.fechaFin}>{fechaLarga(evento.fechaFin)}</time></>
+                          )}
+                        </span>
                       </div>
                       {evento.descripcion && (
                         <p class="text-text-soft text-sm mt-2">{evento.descripcion}</p>
@@ -238,13 +247,18 @@ const jsonLdEventoPrincipal = eventoPrincipal
             {pasados.map((evento) => (
               <article class="bg-white border border-line rounded-sm overflow-hidden flex flex-col">
                 {evento.flyer && (
-                  <img
-                    src={urlFor(evento.flyer).width(600).auto('format').url()}
-                    alt={`Afiche de ${evento.titulo}`}
-                    loading="lazy"
-                    decoding="async"
-                    class="w-full aspect-[16/10] object-cover"
-                  />
+                  <div class="bg-paper p-4">
+                    <img
+                      src={urlFor(evento.flyer).width(600).auto('format').url()}
+                      alt={`Afiche de ${evento.titulo}`}
+                      width="210"
+                      height="297"
+                      style="aspect-ratio: 210 / 297"
+                      loading="lazy"
+                      decoding="async"
+                      class="w-full max-w-xs mx-auto object-contain"
+                    />
+                  </div>
                 )}
                 <div class="p-4 md:p-5 flex-1 flex flex-col">
                   {puedeAbrirEvento(evento) ? (
@@ -262,6 +276,17 @@ const jsonLdEventoPrincipal = eventoPrincipal
                           month: "short",
                         })}
                       </time>
+                      {evento.fechaFin && (
+                        <>
+                          <span>–</span>
+                          <time datetime={evento.fechaFin}>
+                            {new Date(evento.fechaFin).toLocaleDateString("es-CL", {
+                              day: "numeric",
+                              month: "short",
+                            })}
+                          </time>
+                        </>
+                      )}
                     </span>
                     {evento.lugar && (
                       <>
@@ -317,11 +342,11 @@ const jsonLdEventoPrincipal = eventoPrincipal
             const href = conDetalle && e.slug?.current ? `/eventos/${e.slug.current}` : null;
             return `
             <article class="bg-white border border-line rounded-sm overflow-hidden flex flex-col">
-              ${e.flyerUrl ? `<div class="aspect-[16/10] bg-cover" style="background-image:url('${e.flyerUrl}');"></div>` : ''}
+              ${e.flyerUrl ? `<div class="bg-paper p-4"><div class="w-full max-w-xs mx-auto bg-contain bg-center bg-no-repeat" style="aspect-ratio: 210 / 297; background-image:url('${e.flyerUrl}');"></div></div>` : ''}
               <div class="p-4 md:p-5 flex-1 flex flex-col">
                 ${href ? `<a href="${href}" class="text-ink hover:text-red"><h3 class="text-sm md:text-base mb-1">${e.titulo}</h3></a>` : `<h3 class="text-sm md:text-base mb-1">${e.titulo}</h3>`}
                 <div class="flex items-center gap-2 text-text-soft text-sm mt-auto">
-                  <span>${new Date(e.fecha).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}</span>
+                  <span>${new Date(e.fecha).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}${e.fechaFin ? ` – ${new Date(e.fechaFin).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}` : ''}</span>
                 </div>
               </div>
             </article>

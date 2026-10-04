@@ -1,10 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Tag from '../components/Tag.astro';
 import PageHero from '../components/PageHero.astro';
-import UIcon from '../components/icons/UIcon.astro';
+import EscuelaCard from '../components/EscuelaCard.astro';
 import { getEscuelas } from '../lib/sanityQueries';
-import { urlFor } from '../lib/sanity';
+import { normalizarTexto } from '../lib/utils';
 
 export const prerender = true;
 export const revalidate = 3600;
@@ -25,6 +24,7 @@ const escuelasPorRegion = escuelas.reduce((acc: any, escuela: any) => {
 }, {});
 
 const regiones = Object.keys(escuelasPorRegion).sort();
+
 const jsonLdEscuelas = {
   "@context": "https://schema.org",
   "@graph": escuelas
@@ -53,7 +53,7 @@ const jsonLdEscuelas = {
     description="Encuentra la escuela más cercana a tu ubicación. Todas las escuelas afiliadas a FECHITAT están certificadas por la ITF."
   />
 
-  {/* Buscador */}
+  {/* Buscador y filtros de región */}
   <section class="py-10 md:py-16 border-b border-line">
     <div class="max-w-7xl mx-auto px-5 md:px-7">
       <div class="flex flex-col sm:flex-row gap-4">
@@ -76,7 +76,7 @@ const jsonLdEscuelas = {
           {regiones.map((region) => (
             <button
               class="filtro-region px-4 py-2 font-medium font-mono text-xs tracking-wider uppercase border border-line rounded-sm bg-white hover:bg-ink hover:text-white hover:border-ink transition-colors duration-150"
-              data-region={region}
+              data-region={normalizarTexto(region)}
             >
               {region}
             </button>
@@ -89,113 +89,17 @@ const jsonLdEscuelas = {
   {/* Listado de escuelas */}
   <section class="py-10 md:py-16">
     <div class="max-w-7xl mx-auto px-5 md:px-7">
-      {/* Contador */}
-      <div class="mb-6">
-        <p class="text-text-soft text-sm">
-          Mostrando <span id="contador">{escuelas.length}</span> escuelas afiliadas
-        </p>
-      </div>
-
       {/* Escuelas por región */}
       <div id="lista-escuelas">
         {regiones.map((region) => (
-          <div class="region-grupo mb-10" data-region={region}>
+          <div class="region-grupo mb-10" data-region={normalizarTexto(region)}>
             <div class="flex items-center gap-3 mb-4">
               <span class="font-mono text-xs tracking-wider uppercase text-text-soft">{region}</span>
               <span class="text-text-soft text-sm font-mono">({escuelasPorRegion[region].length})</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {escuelasPorRegion[region].map((escuela: any) => (
-                <div class="escuela-card bg-white border border-slate-200 rounded-lg overflow-hidden transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between" data-nombre={escuela.nombre.toLowerCase()} data-ciudad={(escuela.ciudad || '').toLowerCase()} data-region={region.toLowerCase()}>
-                  <div>
-                    {/* Foto de la escuela como portada */}
-                    {escuela.foto ? (
-                      escuela.slug?.current ? (
-                        <a href={`/escuelas/${escuela.slug.current}`} class="block aspect-video overflow-hidden group">
-                          <img
-                            src={urlFor(escuela.foto).width(800).auto('format').url()}
-                            alt={`Escuela ${escuela.nombre}`}
-                            loading="lazy"
-                            decoding="async"
-                            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        </a>
-                      ) : (
-                        <div class="aspect-video overflow-hidden">
-                          <img
-                            src={urlFor(escuela.foto).width(800).auto('format').url()}
-                            alt={`Escuela ${escuela.nombre}`}
-                            loading="lazy"
-                            decoding="async"
-                            class="w-full h-full object-cover"
-                          />
-                        </div>
-                      )
-                    ) : null}
-
-                    {/* Contenido */}
-                    <div class="p-5">
-                      <div class="flex items-center gap-3 mb-3">
-                        {escuela.logo && (
-                          <img
-                            src={urlFor(escuela.logo).width(80).height(80).url()}
-                            alt={escuela.nombre}
-                            class="w-12 h-12 object-contain rounded-md flex-none bg-slate-50 border border-slate-100 p-1"
-                          />
-                        )}
-                        <div>
-                          <h3 class="text-base md:text-lg font-bold text-slate-900 m-0">
-                            {escuela.slug?.current ? (
-                              <a href={`/escuelas/${escuela.slug.current}`} class="hover:text-itf-red transition-colors">
-                                {escuela.nombre}
-                              </a>
-                            ) : (
-                              escuela.nombre
-                            )}
-                          </h3>
-                          {escuela.instructor && (
-                            <p class="text-slate-500 text-xs flex items-center gap-1 mt-0.5">
-                              <UIcon name="user" size={12} />
-                              {escuela.instructor}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {escuela.ciudad && (
-                        <p class="text-slate-600 text-sm flex items-center gap-1.5 mb-2">
-                          <UIcon name="map-pin" size={14} />
-                          {escuela.ciudad}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div class="px-5 pb-5 pt-0">
-                    <div class="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
-                      {escuela.slug?.current && (
-                        <a
-                          href={`/escuelas/${escuela.slug.current}`}
-                          class="inline-flex items-center gap-1.5 font-medium font-mono text-xs tracking-wider uppercase bg-slate-900 text-white px-3 py-1.5 rounded-sm transition-colors duration-150 hover:bg-itf-red"
-                        >
-                          Ver escuela
-                        </a>
-                      )}
-                      {escuela.email && (
-                        <a href={`mailto:${escuela.email}`} class="inline-flex items-center gap-1.5 font-medium font-mono text-xs tracking-wider uppercase border border-slate-200 text-slate-700 px-3 py-1.5 rounded-sm transition-colors duration-150 hover:bg-slate-100">
-                          <UIcon name="mail" size={12} />
-                          Email
-                        </a>
-                      )}
-                      {escuela.whatsapp && (
-                        <a href={`https://wa.me/${escuela.whatsapp}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 font-medium font-mono text-xs tracking-wider uppercase border border-slate-200 text-slate-700 px-3 py-1.5 rounded-sm transition-colors duration-150 hover:bg-slate-100">
-                          <UIcon name="whatsapp" size={12} />
-                          WhatsApp
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <EscuelaCard escuela={escuela} regionNombre={region} />
               ))}
             </div>
           </div>
@@ -229,85 +133,69 @@ const jsonLdEscuelas = {
   </section>
 
   <script>
-    // Buscador
-    const input = document.getElementById('buscar-escuela') as HTMLInputElement;
-    const contador = document.getElementById('contador');
-    const sinResultados = document.getElementById('sin-resultados');
-    const listaEscuelas = document.getElementById('lista-escuelas');
-    const regionGrupos = document.querySelectorAll('.region-grupo');
-    const escuelaCards = document.querySelectorAll('.escuela-card');
-    const filtroBtns = document.querySelectorAll('.filtro-region');
+    function inicializarFiltroEscuelas() {
+      const input = document.getElementById('buscar-escuela') as HTMLInputElement | null;
+      const sinResultados = document.getElementById('sin-resultados');
+      const listaEscuelas = document.getElementById('lista-escuelas');
+      const regionGrupos = document.querySelectorAll('.region-grupo');
+      const filtroBtns = document.querySelectorAll('.filtro-region');
 
-    let regionActiva = 'todas';
+      if (!input || !listaEscuelas || input.dataset.filtroInicializado) return;
+      input.dataset.filtroInicializado = 'true';
 
-    function filtrar() {
-      const busqueda = input?.value.toLowerCase().trim() || '';
-      let total = 0;
+      let regionActiva = 'todas';
+      const normalizar = (texto: string) =>
+        texto.toLocaleLowerCase('es-CL').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 
-      regionGrupos.forEach((grupo) => {
-        const region = (grupo as HTMLElement).dataset.region || '';
-        const cards = grupo.querySelectorAll('.escuela-card');
-        let visiblesEnRegion = 0;
+      function filtrar() {
+        const busqueda = normalizar(input ? input.value : '');
+        let total = 0;
 
-        cards.forEach((card) => {
-          const el = card as HTMLElement;
-          const nombre = el.dataset.nombre || '';
-          const ciudad = el.dataset.ciudad || '';
-          const regionCard = el.dataset.region || '';
+        regionGrupos.forEach((grupo) => {
+          const cards = grupo.querySelectorAll('.escuela-card');
+          let visiblesEnRegion = 0;
 
-          const coincideRegion = regionActiva === 'todas' || regionCard === regionActiva;
-          const coincideBusqueda = !busqueda || nombre.includes(busqueda) || ciudad.includes(busqueda) || regionCard.includes(busqueda);
+          cards.forEach((card) => {
+            const el = card as HTMLElement;
+            const nombre = el.dataset.nombre || '';
+            const ciudad = el.dataset.ciudad || '';
+            const regionCard = el.dataset.region || '';
+            const coincideRegion = regionActiva === 'todas' || regionCard === regionActiva;
+            const coincideBusqueda = !busqueda || nombre.includes(busqueda) || ciudad.includes(busqueda) || regionCard.includes(busqueda);
 
-          if (coincideRegion && coincideBusqueda) {
-            el.style.display = '';
-            visiblesEnRegion++;
-            total++;
-          } else {
-            el.style.display = 'none';
-          }
+            el.style.display = coincideRegion && coincideBusqueda ? '' : 'none';
+            if (coincideRegion && coincideBusqueda) {
+              visiblesEnRegion++;
+              total++;
+            }
+          });
+
+          (grupo as HTMLElement).style.display = visiblesEnRegion > 0 ? '' : 'none';
         });
 
-        // Mostrar/ocultar grupo de región
-        (grupo as HTMLElement).style.display = visiblesEnRegion > 0 ? '' : 'none';
+        if (sinResultados) sinResultados.classList.toggle('hidden', total > 0);
+        listaEscuelas.classList.toggle('hidden', total === 0);
+      }
+
+      input.addEventListener('input', filtrar);
+      filtroBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          regionActiva = (btn as HTMLElement).dataset.region || 'todas';
+          filtroBtns.forEach((elemento) => {
+            const el = elemento as HTMLElement;
+            const isActive = el.dataset.region === regionActiva;
+            el.classList.toggle('bg-ink', isActive);
+            el.classList.toggle('text-white', isActive);
+            el.classList.toggle('bg-white', !isActive);
+          });
+          filtrar();
+        });
       });
 
-      // Actualizar contador
-      if (contador) contador.textContent = total.toString();
-
-      // Mostrar mensaje de sin resultados
-      if (sinResultados && listaEscuelas) {
-        if (total === 0) {
-          sinResultados.classList.remove('hidden');
-          listaEscuelas.classList.add('hidden');
-        } else {
-          sinResultados.classList.add('hidden');
-          listaEscuelas.classList.remove('hidden');
-        }
-      }
+      filtrar();
     }
 
-    // Event listeners
-    input?.addEventListener('input', filtrar);
-
-    filtroBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const region = (btn as HTMLElement).dataset.region || 'todas';
-        regionActiva = region;
-
-        // Actualizar estilos de botones
-        filtroBtns.forEach((b) => {
-          const el = b as HTMLElement;
-          if (el.dataset.region === region) {
-            el.classList.add('bg-ink', 'text-white');
-            el.classList.remove('bg-white');
-          } else {
-            el.classList.remove('bg-ink', 'text-white');
-            el.classList.add('bg-white');
-          }
-        });
-
-        filtrar();
-      });
-    });
+    inicializarFiltroEscuelas();
+    document.addEventListener('astro:page-load', inicializarFiltroEscuelas);
   </script>
 </BaseLayout>

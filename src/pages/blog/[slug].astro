@@ -4,7 +4,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import UIcon from '../../components/icons/UIcon.astro';
 import SocialShare from '../../components/SocialShare.astro';
-import { getBlogPostBySlug, getBlogPosts } from '../../lib/sanityQueries';
+import { getBlogPostBySlug } from '../../lib/blog';
+import { getBlogPosts } from '../../lib/sanityQueries';
 import { urlFor } from '../../lib/sanity';
 import { renderPortableText } from '../../lib/portableText';
 
@@ -25,7 +26,7 @@ if (!post) {
   return Astro.redirect('/blog');
 }
 
-const html = renderPortableText(post.contenido);
+const html = post.contenidoHtml ?? renderPortableText(post.contenido);
 
 const fecha = post.fecha
   ? new Date(post.fecha).toLocaleDateString('es-CL', {
@@ -35,7 +36,7 @@ const fecha = post.fecha
     })
   : null;
 
-const imagenUrl = post.imagen ? urlFor(post.imagen).width(1200).format('jpg').url() : undefined;
+const imagenUrl = post.imagenUrl ?? (post.imagen ? urlFor(post.imagen).width(1200).format('jpg').url() : undefined);
 
 const jsonLd = JSON.stringify({
   '@context': 'https://schema.org',

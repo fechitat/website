@@ -1,0 +1,139 @@
+---
+import { urlFor } from '../lib/sanity';
+import UIcon from './icons/UIcon.astro';
+import Button from './ui/Button.astro';
+import Card from './ui/Card.astro';
+import { normalizarTexto } from '../lib/utils';
+
+interface Props {
+  escuela: {
+    _id?: string;
+    nombre: string;
+    slug?: { current?: string };
+    instructor?: string;
+    ciudad?: string;
+    region?: string;
+    foto?: any;
+    logo?: any;
+    email?: string;
+    whatsapp?: string;
+  };
+  regionNombre?: string;
+  class?: string;
+}
+
+const { escuela, regionNombre, class: className = '' } = Astro.props;
+
+const slug = escuela.slug?.current;
+const instructor = escuela.instructor;
+const ciudad = escuela.ciudad;
+const region = regionNombre || escuela.region || '';
+---
+
+<Card
+  as="article"
+  hoverable
+  class:list={['escuela-card flex flex-col justify-between h-full group', className]}
+  data-nombre={normalizarTexto(escuela.nombre)}
+  data-ciudad={normalizarTexto(ciudad || '')}
+  data-region={normalizarTexto(region)}
+>
+  <div>
+    {/* Portada / foto de la escuela */}
+    {escuela.foto ? (
+      slug ? (
+        <a href={`/escuelas/${slug}`} class="block aspect-video overflow-hidden group">
+          <img
+            src={urlFor(escuela.foto).width(800).auto('format').url()}
+            alt={`Escuela ${escuela.nombre}`}
+            loading="lazy"
+            decoding="async"
+            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </a>
+      ) : (
+        <div class="aspect-video overflow-hidden">
+          <img
+            src={urlFor(escuela.foto).width(800).auto('format').url()}
+            alt={`Escuela ${escuela.nombre}`}
+            loading="lazy"
+            decoding="async"
+            class="w-full h-full object-cover"
+          />
+        </div>
+      )
+    ) : null}
+
+    {/* Contenido principal */}
+    <div class="p-5">
+      <div class="flex items-center gap-3 mb-3">
+        {escuela.logo && (
+          <img
+            src={urlFor(escuela.logo).width(80).height(80).url()}
+            alt={escuela.nombre}
+            class="w-12 h-12 object-contain rounded-md flex-none bg-slate-50 border border-slate-100 p-1"
+          />
+        )}
+        <div>
+          <h3 class="text-base md:text-lg font-bold text-slate-900 m-0">
+            {slug ? (
+              <a href={`/escuelas/${slug}`} class="hover:text-itf-red transition-colors">
+                {escuela.nombre}
+              </a>
+            ) : (
+              escuela.nombre
+            )}
+          </h3>
+          {instructor && (
+            <p class="text-slate-500 text-xs flex items-center gap-1 mt-0.5">
+              <UIcon name="user" size={12} />
+              {instructor}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {ciudad && (
+        <p class="text-slate-600 text-sm flex items-center gap-1.5 mb-2">
+          <UIcon name="map-pin" size={14} />
+          {ciudad}
+        </p>
+      )}
+    </div>
+  </div>
+
+  {/* Acciones */}
+  <div class="px-5 pb-5 pt-0">
+    <div class="flex items-center gap-2 border-t border-slate-100 pt-3">
+      {slug && (
+        <Button href={`/escuelas/${slug}`} variant="secondary" size="sm" class="flex-1">
+          Ver escuela
+        </Button>
+      )}
+      {escuela.email && (
+        <Button
+          href={`mailto:${escuela.email}`}
+          variant="dark-ghost"
+          size="icon"
+          class="border-0"
+          ariaLabel={`Enviar email a ${escuela.nombre}`}
+        >
+          <UIcon name="mail" size={16} />
+        </Button>
+      )}
+      {escuela.whatsapp && (
+        <Button
+          href={`https://wa.me/${escuela.whatsapp}`}
+          variant="dark-ghost"
+          size="icon"
+          class="border-0"
+          target="_blank"
+          rel="noopener noreferrer"
+          ariaLabel={`Contactar a ${escuela.nombre} por WhatsApp`}
+        >
+          <UIcon name="whatsapp" size={16} />
+        </Button>
+      )}
+    </div>
+  </div>
+</Card>

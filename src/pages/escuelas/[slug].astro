@@ -42,7 +42,7 @@ const mensajeWhatsapp = encodeURIComponent(
 const enlaceWhatsapp = numeroWhatsapp ? `https://wa.me/${numeroWhatsapp}?text=${mensajeWhatsapp}` : null;
 
 const titulo = `Taekwon-Do ITF en ${ciudad} | ${escuela.nombre}`;
-const descripcion = `Conoce ${escuela.nombre} en ${ciudad}, ${region}. Doyang oficial acreditado por FECHITAT e ITF. Horarios, instructor a cargo, dirección y clases de prueba.`;
+const descripcion = `Conoce ${escuela.nombre} en ${ciudad}, ${region}. Dojang oficial acreditado por FECHITAT e ITF. Horarios, instructor a cargo, dirección y clases de prueba.`;
 
 // Coordenadas para el mapa
 const lat = escuela.ubicacion?.lat ?? null;
@@ -123,7 +123,7 @@ const structuredData = {
 
           <div>
             <div class="flex flex-wrap items-center gap-2 mb-2">
-              <Badge variant="oficial">Doyang Acreditado ITF</Badge>
+              <Badge variant="oficial">Dojang Acreditado ITF</Badge>
               {region && <Badge variant="noticia">{region}</Badge>}
             </div>
             <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight m-0">
@@ -165,17 +165,17 @@ const structuredData = {
             <div class="aspect-video rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white">
               <img
                 src={fotoUrl}
-                alt={`Instalaciones del Doyang ${escuela.nombre}`}
+                alt={`Instalaciones del Dojang ${escuela.nombre}`}
                 class="w-full h-full object-cover"
                 loading="eager"
               />
             </div>
           )}
 
-          <!-- Sobre el Doyang -->
+          <!-- Sobre el Dojang -->
           <Card class="p-6 md:p-8">
             <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-4">
-              Acerca de este doyang
+              Acerca de este dojang
             </h2>
             {escuela.descripcion ? (
               <p class="text-slate-700 text-base leading-relaxed whitespace-pre-line">
@@ -186,58 +186,6 @@ const structuredData = {
                 {escuela.nombre} es un centro oficial de enseñanza y entrenamiento del Taekwon-Do ITF tradicional en la ciudad de {ciudad}. Respaldada por la Federación Chilena de Taekwon-Do Tradicional (FECHITAT), esta escuela ofrece un ambiente seguro, disciplinado y formativo para practicantes de todas las edades y niveles técnicos.
               </p>
             )}
-          </Card>
-
-          <!-- Niveles Impartidos -->
-          <Card class="p-6 md:p-8">
-            <div class="flex items-center gap-2 mb-6">
-              <Badge variant="formacion">Programa Pedagógico</Badge>
-              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 m-0">
-                Niveles impartidos
-              </h2>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div class="flex items-center gap-2 text-itf-red font-bold text-sm mb-1">
-                  <span>🥋</span>
-                  <span>Infantil (Kids)</span>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                  Para niños y niñas de 4 a 11 años. Foco en motricidad, disciplina, respeto a los compañeros, compañerismo y bases técnicas.
-                </p>
-              </div>
-
-              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div class="flex items-center gap-2 text-itf-blue font-bold text-sm mb-1">
-                  <span>🥊</span>
-                  <span>Juvenil y Adultos</span>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                  Desde los 12 años en adelante. Condicionamiento físico integral, defensa personal práctica, formas fundamentales (Tul) y combate.
-                </p>
-              </div>
-
-              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div class="flex items-center gap-2 text-amber-800 font-bold text-sm mb-1">
-                  <span>🏆</span>
-                  <span>Competición y Alto Rendimiento</span>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                  Preparación para torneos regionales, campeonatos nacionales federativos y proyección a la Selección Chilena ITF.
-                </p>
-              </div>
-
-              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-1">
-                  <span>📜</span>
-                  <span>Cinturones de Color a Negros</span>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                  Pase de grados Gup y Dan avalados con certificación y homologación oficial ante FECHITAT e ITF internacional.
-                </p>
-              </div>
-            </div>
           </Card>
 
           <!-- Horarios Estructurados -->
@@ -324,16 +272,6 @@ const structuredData = {
                 </div>
               </div>
 
-              {instructor && (
-                <div class="flex items-start gap-3">
-                  <span class="text-itf-blue mt-0.5"><UIcon name="user" size={18} /></span>
-                  <div>
-                    <strong class="block text-slate-900">Instructor</strong>
-                    <span class="text-slate-600">{instructor}</span>
-                  </div>
-                </div>
-              )}
-
               {escuela.email && (
                 <div class="flex items-start gap-3">
                   <span class="text-slate-600 mt-0.5"><UIcon name="mail" size={18} /></span>
@@ -390,7 +328,7 @@ const structuredData = {
             </div>
           </Card>
 
-          <!-- Mapa interactivo de ubicación del doyang -->
+          <!-- Mapa interactivo de ubicación del dojang -->
           <Card class="p-3">
             <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-600 px-2 pt-1 mb-2">
               Ubicación en el mapa
@@ -419,7 +357,7 @@ const structuredData = {
   if (contenedor) {
     const latAttr = contenedor.dataset.lat;
     const lngAttr = contenedor.dataset.lng;
-    const nombre = contenedor.dataset.nombre || "Doyang";
+    const nombre = contenedor.dataset.nombre || "Dojang";
     const ciudad = contenedor.dataset.ciudad || "";
     const direccion = contenedor.dataset.direccion || "";
 
