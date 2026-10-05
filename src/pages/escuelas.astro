@@ -2,200 +2,99 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import EscuelaCard from '../components/EscuelaCard.astro';
-import { getEscuelas } from '../lib/sanityQueries';
-import { normalizarTexto } from '../lib/utils';
+import { getDirectorioEscuelas } from '../lib/sanityQueries';
 
-export const prerender = true;
-export const revalidate = 3600;
+export const prerender = false;
 
 const titulo = 'Escuelas Afiliadas — FECHITAT';
-const descripcion =
-  'Busca escuelas afiliadas a FECHITAT por ciudad o región y encuentra dónde entrenar Taekwon-Do ITF en Chile.';
-
-// Datos de Sanity
-const escuelas = await getEscuelas();
-
-// Agrupar por región
-const escuelasPorRegion = escuelas.reduce((acc: any, escuela: any) => {
-  const region = escuela.region || 'Sin región';
-  if (!acc[region]) acc[region] = [];
-  acc[region].push(escuela);
-  return acc;
-}, {});
-
-const regiones = Object.keys(escuelasPorRegion).sort();
-
-const jsonLdEscuelas = {
-  "@context": "https://schema.org",
-  "@graph": escuelas
-    .filter((escuela: any) => escuela.ciudad || escuela.direccion)
-    .map((escuela: any) => ({
-      "@type": "SportsActivityLocation",
-      name: escuela.nombre,
-      url: "https://fechitat-website.vercel.app/escuelas",
-      ...(escuela.email ? { email: escuela.email } : {}),
-      ...(escuela.whatsapp ? { telephone: escuela.whatsapp } : {}),
-      address: {
-        "@type": "PostalAddress",
-        ...(escuela.direccion ? { streetAddress: escuela.direccion } : {}),
-        ...(escuela.ciudad ? { addressLocality: escuela.ciudad } : {}),
-        ...(escuela.region ? { addressRegion: escuela.region } : {}),
-        addressCountry: "CL",
-      },
-    })),
+const descripcion = 'Busca escuelas afiliadas a FECHITAT por ciudad o región y encuentra dónde entrenar Taekwon-Do ITF en Chile.';
+const busqueda = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 80);
+const ciudad = Astro.url.searchParams.get('ciudad') ?? '';
+const region = Astro.url.searchParams.get('region') ?? '';
+const paginaSolicitada = Number(Astro.url.searchParams.get('pagina') ?? '1');
+const pagina = Number.isSafeInteger(paginaSolicitada) && paginaSolicitada > 0 ? Math.min(paginaSolicitada, 10000) : 1;
+const porPagina = 6;
+const { escuelas, total, ubicaciones } = await getDirectorioEscuelas({ busqueda, ciudad, region, pagina }, porPagina);
+const regiones = [...new Set(ubicaciones.map((u) => u.region || 'Sin región'))].sort((a, b) => a.localeCompare(b, 'es-CL'));
+const ciudades = [...new Set(ubicaciones.map((u) => u.ciudad).filter((c): c is string => Boolean(c)))].sort((a, b) => a.localeCompare(b, 'es-CL'));
+const totalPaginas = Math.ceil(total / porPagina);
+const urlPagina = (numero: number) => {
+  const params = new URLSearchParams();
+  if (busqueda) params.set('q', busqueda);
+  if (region) params.set('region', region);
+  if (ciudad) params.set('ciudad', ciudad);
+  if (numero > 1) params.set('pagina', String(numero));
+  return `/escuelas${params.size ? `?${params.toString()}` : ''}`;
 };
 ---
 
-<BaseLayout title={titulo} description={descripcion} structuredData={jsonLdEscuelas}>
+<BaseLayout title={titulo} description={descripcion}>
   <PageHero
     title="Escuelas afiliadas"
     crumb="Escuelas"
-    description="Encuentra la escuela más cercana a tu ubicación. Todas las escuelas afiliadas a FECHITAT están certificadas por la ITF."
+    description="Encuentra una escuela afiliada por nombre, ciudad o región."
   />
 
-  {/* Buscador y filtros de región */}
-  <section class="py-10 md:py-16 border-b border-line">
-    <div class="max-w-7xl mx-auto px-5 md:px-7">
-      <div class="flex flex-col sm:flex-row gap-4">
-        <div class="flex-1">
-          <label for="buscar-escuela" class="sr-only">Buscar escuela por nombre, ciudad o región</label>
-          <input
-            id="buscar-escuela"
-            type="text"
-            class="w-full border border-line bg-white p-3 md:p-4 font-body text-base rounded-sm focus:outline-2 focus:outline-blue focus:outline-offset-1"
-            placeholder="Buscar por nombre, ciudad o región..."
-          />
+  <section class="py-8 md:py-12 bg-paper border-b border-line" aria-label="Buscar escuelas">
+    <form action="/escuelas" method="get" class="max-w-7xl mx-auto px-5 md:px-7">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <div class="sm:col-span-2 lg:col-span-2">
+          <label for="buscar-escuela" class="block text-sm font-semibold text-slate-900 mb-2">Nombre o ubicación</label>
+          <input id="buscar-escuela" name="q" type="search" value={busqueda} maxlength="80"
+            class="w-full min-h-12 border border-slate-300 bg-white px-4 rounded-lg font-body text-base focus:outline-2 focus:outline-itf-blue focus:outline-offset-1"
+            placeholder="Ej. Taekwon-Do, Ovalle, Coquimbo…" />
         </div>
-        <div class="flex gap-2 flex-wrap">
-          <button
-            class="filtro-region px-4 py-2 font-medium font-mono text-xs tracking-wider uppercase border border-line rounded-sm bg-ink text-white transition-colors duration-150"
-            data-region="todas"
-          >
-            Todas
-          </button>
-          {regiones.map((region) => (
-            <button
-              class="filtro-region px-4 py-2 font-medium font-mono text-xs tracking-wider uppercase border border-line rounded-sm bg-white hover:bg-ink hover:text-white hover:border-ink transition-colors duration-150"
-              data-region={normalizarTexto(region)}
-            >
-              {region}
-            </button>
-          ))}
+        <div>
+          <label for="filtrar-region" class="block text-sm font-semibold text-slate-900 mb-2">Región</label>
+          <select id="filtrar-region" name="region" class="w-full min-h-12 border border-slate-300 bg-white px-3 rounded-lg text-base focus:outline-2 focus:outline-itf-blue">
+            <option value="">Todas las regiones</option>
+            {regiones.map((opcion) => <option value={opcion} selected={opcion === region}>{opcion}</option>)}
+          </select>
+        </div>
+        <div>
+          <label for="filtrar-ciudad" class="block text-sm font-semibold text-slate-900 mb-2">Ciudad</label>
+          <select id="filtrar-ciudad" name="ciudad" class="w-full min-h-12 border border-slate-300 bg-white px-3 rounded-lg text-base focus:outline-2 focus:outline-itf-blue">
+            <option value="">Todas las ciudades</option>
+            {ciudades.map((opcion) => <option value={opcion} selected={opcion === ciudad}>{opcion}</option>)}
+          </select>
         </div>
       </div>
+      <div class="flex flex-col sm:flex-row gap-3 mt-5">
+        <button type="submit" class="min-h-11 px-6 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-itf-blue">Buscar escuelas</button>
+        <a href="/escuelas" class="min-h-11 px-6 inline-flex items-center justify-center rounded-lg border border-slate-300 text-slate-800 font-semibold hover:bg-white">Limpiar filtros</a>
+      </div>
+    </form>
+  </section>
+
+  <section class="py-10 md:py-16" aria-label="Resultados de escuelas">
+    <div class="max-w-7xl mx-auto px-5 md:px-7">
+      <p class="text-sm text-text-soft mb-6" role="status">{total} {total === 1 ? 'escuela encontrada' : 'escuelas encontradas'}{total > 0 ? ` · Página ${pagina} de ${totalPaginas}` : ''}</p>
+      {escuelas.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {escuelas.map((escuela) => <EscuelaCard escuela={escuela} />)}
+        </div>
+      ) : (
+        <div class="bg-paper rounded-xl border border-line p-8 text-center">
+          <p class="text-slate-900 font-semibold">No se encontraron escuelas con esos filtros.</p>
+          <p class="text-text-soft text-sm mt-2">Prueba otra ciudad, región o término de búsqueda.</p>
+          <a href="/escuelas" class="inline-block text-itf-red font-semibold mt-4 hover:underline">Ver todas las escuelas</a>
+        </div>
+      )}
+      {totalPaginas > 1 && (
+        <nav aria-label="Páginas de escuelas" class="flex items-center justify-center gap-4 mt-10">
+          {pagina > 1 && <a href={urlPagina(pagina - 1)} class="min-h-11 px-4 inline-flex items-center rounded-lg border border-line hover:bg-paper">← Anterior</a>}
+          <span class="text-sm text-text-soft">{pagina} de {totalPaginas}</span>
+          {pagina < totalPaginas && <a href={urlPagina(pagina + 1)} class="min-h-11 px-4 inline-flex items-center rounded-lg border border-line hover:bg-paper">Siguiente →</a>}
+        </nav>
+      )}
     </div>
   </section>
 
-  {/* Listado de escuelas */}
-  <section class="py-10 md:py-16">
-    <div class="max-w-7xl mx-auto px-5 md:px-7">
-      {/* Escuelas por región */}
-      <div id="lista-escuelas">
-        {regiones.map((region) => (
-          <div class="region-grupo mb-10" data-region={normalizarTexto(region)}>
-            <div class="flex items-center gap-3 mb-4">
-              <span class="font-mono text-xs tracking-wider uppercase text-text-soft">{region}</span>
-              <span class="text-text-soft text-sm font-mono">({escuelasPorRegion[region].length})</span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {escuelasPorRegion[region].map((escuela: any) => (
-                <EscuelaCard escuela={escuela} regionNombre={region} />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Sin resultados */}
-      <div id="sin-resultados" class="hidden text-center py-12">
-        <p class="text-text-soft text-lg mb-2">No se encontraron escuelas</p>
-        <p class="text-text-soft text-sm">Intenta con otro término de búsqueda</p>
-      </div>
-    </div>
-  </section>
-
-  {/* CTA */}
   <section class="py-10 md:py-16">
     <div class="max-w-7xl mx-auto px-5 md:px-7 text-center">
       <h2 class="max-w-[20ch] mx-auto mb-4">Afilia tu escuela a FECHITAT</h2>
-      <p class="text-text-soft max-w-[50ch] mx-auto mb-6">
-        Si tienes una escuela de Taekwon-Do ITF y quieres ser parte de la federación, contáctanos para conocer los requisitos de afiliación.
-      </p>
-      <div class="flex justify-center">
-        <a
-          href="/federacion#directivos"
-          class="inline-flex items-center justify-center gap-2 bg-ink text-white font-medium font-mono text-xs tracking-widest uppercase py-3.5 px-6 rounded-sm transition-all duration-150 hover:bg-black hover:-translate-y-px w-full sm:w-auto max-w-xs sm:max-w-none text-center"
-        >
-          Contactar directiva
-        </a>
-      </div>
+      <p class="text-text-soft max-w-[50ch] mx-auto mb-6">Si tienes una escuela de Taekwon-Do ITF y quieres ser parte de la federación, contáctanos para conocer los requisitos de afiliación.</p>
+      <a href="/federacion#directivos" class="inline-flex min-h-11 items-center justify-center bg-ink text-white font-medium font-mono text-xs tracking-widest uppercase py-3.5 px-6 rounded-sm hover:bg-black">Contactar directiva</a>
     </div>
   </section>
-
-  <script>
-    function inicializarFiltroEscuelas() {
-      const input = document.getElementById('buscar-escuela') as HTMLInputElement | null;
-      const sinResultados = document.getElementById('sin-resultados');
-      const listaEscuelas = document.getElementById('lista-escuelas');
-      const regionGrupos = document.querySelectorAll('.region-grupo');
-      const filtroBtns = document.querySelectorAll('.filtro-region');
-
-      if (!input || !listaEscuelas || input.dataset.filtroInicializado) return;
-      input.dataset.filtroInicializado = 'true';
-
-      let regionActiva = 'todas';
-      const normalizar = (texto: string) =>
-        texto.toLocaleLowerCase('es-CL').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-
-      function filtrar() {
-        const busqueda = normalizar(input ? input.value : '');
-        let total = 0;
-
-        regionGrupos.forEach((grupo) => {
-          const cards = grupo.querySelectorAll('.escuela-card');
-          let visiblesEnRegion = 0;
-
-          cards.forEach((card) => {
-            const el = card as HTMLElement;
-            const nombre = el.dataset.nombre || '';
-            const ciudad = el.dataset.ciudad || '';
-            const regionCard = el.dataset.region || '';
-            const coincideRegion = regionActiva === 'todas' || regionCard === regionActiva;
-            const coincideBusqueda = !busqueda || nombre.includes(busqueda) || ciudad.includes(busqueda) || regionCard.includes(busqueda);
-
-            el.style.display = coincideRegion && coincideBusqueda ? '' : 'none';
-            if (coincideRegion && coincideBusqueda) {
-              visiblesEnRegion++;
-              total++;
-            }
-          });
-
-          (grupo as HTMLElement).style.display = visiblesEnRegion > 0 ? '' : 'none';
-        });
-
-        if (sinResultados) sinResultados.classList.toggle('hidden', total > 0);
-        listaEscuelas.classList.toggle('hidden', total === 0);
-      }
-
-      input.addEventListener('input', filtrar);
-      filtroBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          regionActiva = (btn as HTMLElement).dataset.region || 'todas';
-          filtroBtns.forEach((elemento) => {
-            const el = elemento as HTMLElement;
-            const isActive = el.dataset.region === regionActiva;
-            el.classList.toggle('bg-ink', isActive);
-            el.classList.toggle('text-white', isActive);
-            el.classList.toggle('bg-white', !isActive);
-          });
-          filtrar();
-        });
-      });
-
-      filtrar();
-    }
-
-    inicializarFiltroEscuelas();
-    document.addEventListener('astro:page-load', inicializarFiltroEscuelas);
-  </script>
 </BaseLayout>

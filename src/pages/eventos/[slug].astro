@@ -16,8 +16,8 @@ if (!evento) {
 const fotos = evento.galeria ?? [];
 const fotosConUrl = fotos.map((foto, indice) => ({
   alt: foto.alt || `${evento.titulo} — foto ${indice + 1}`,
-  miniatura: urlFor(foto).width(900).height(650).fit('crop').url(),
-  original: urlFor(foto).width(1800).url(),
+  miniatura: urlFor(foto).width(480).height(360).fit('crop').auto('format').quality(75).url(),
+  original: urlFor(foto).width(1400).auto('format').quality(80).url(),
 }));
 
 const labelTipo = (tipo: string) => {
@@ -68,8 +68,9 @@ const jsonLdEvento = {
   <PageHero
     title={evento.titulo}
     crumb="Eventos"
-    image={evento.flyer ? urlFor(evento.flyer).width(900).url() : undefined}
+    image={evento.flyer ? urlFor(evento.flyer).width(600).auto('format').quality(75).url() : undefined}
     imageAlt={`Flyer de ${evento.titulo}`}
+    imageStyle="object-fit:contain;max-height:24rem"
   />
 
   <article class="py-10 md:py-16">
@@ -106,16 +107,14 @@ const jsonLdEvento = {
             {fotosConUrl.map((foto, indice) => (
               <button
                 type="button"
-                class="block w-full bg-white border border-line rounded-sm overflow-hidden cursor-zoom-in p-0 border-none"
+                class="relative block w-full aspect-[4/3] bg-slate-200 rounded-sm overflow-hidden cursor-zoom-in p-0 border-none"
                 data-galeria-boton={indice}
                 aria-label={`Ver foto en tamaño completo`}
               >
-                <img
-                  src={foto.miniatura}
-                  alt={foto.alt}
-                  loading="lazy"
-                  class="w-full aspect-[4/3] object-cover transition-transform duration-300 hover:scale-105"
-                />
+                <span class="absolute inset-0 bg-slate-200 animate-pulse" data-esqueleto aria-hidden="true"></span>
+                <img src={foto.miniatura} alt={foto.alt} width="480" height="360" loading="lazy" decoding="async"
+                  class="relative w-full h-full object-cover opacity-0 transition-opacity duration-300"
+                  data-miniatura />
               </button>
             ))}
           </div>
@@ -132,7 +131,8 @@ const jsonLdEvento = {
           >
             ✕
           </button>
-          <img id="galeria-imagen" src="" alt="" class="max-w-full max-h-[85vh] object-contain rounded-sm" />
+          <div id="galeria-cargando" class="min-w-48 w-[80vw] max-w-2xl h-[60vh] bg-slate-700 animate-pulse flex items-center justify-center text-white text-sm" role="status">Cargando fotografía…</div>
+          <img id="galeria-imagen" alt="" class="hidden max-w-full max-h-[75vh] object-contain rounded-sm" />
         </div>
       </dialog>
     </div>
@@ -142,6 +142,30 @@ const jsonLdEvento = {
     const imagen = document.getElementById('galeria-imagen');
     const botones = document.querySelectorAll('[data-galeria-boton]');
     const cerrar = document.getElementById('galeria-cerrar');
+    const cargando = document.getElementById('galeria-cargando');
+
+    document.querySelectorAll<HTMLImageElement>('[data-miniatura]').forEach((miniatura) => {
+      const terminar = () => {
+        miniatura.classList.remove('opacity-0');
+        miniatura.parentElement?.querySelector('[data-esqueleto]')?.remove();
+      };
+      if (miniatura.complete) terminar();
+      else {
+        miniatura.addEventListener('load', terminar, { once: true });
+        miniatura.addEventListener('error', terminar, { once: true });
+      }
+    });
+
+    imagen?.addEventListener('load', () => {
+      cargando?.classList.add('hidden');
+      imagen.classList.remove('hidden');
+    });
+    imagen?.addEventListener('error', () => {
+      if (cargando) {
+        cargando.textContent = 'No se pudo cargar la fotografía.';
+        cargando.classList.remove('animate-pulse');
+      }
+    });
 
     if (dialogo && imagen && botones.length && cerrar) {
       botones.forEach((boton) => {
@@ -149,6 +173,12 @@ const jsonLdEvento = {
           const indice = Number((boton as HTMLElement).dataset.galeriaBoton);
           const foto = fotos[indice];
           if (!foto) return;
+          imagen.classList.add('hidden');
+          if (cargando) {
+            cargando.textContent = 'Cargando fotografía…';
+            cargando.classList.remove('hidden');
+            cargando.classList.add('animate-pulse');
+          }
           imagen.src = foto.original;
           imagen.alt = foto.alt;
           (dialogo as HTMLDialogElement).showModal();

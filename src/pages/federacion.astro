@@ -39,7 +39,7 @@ const [directivos, comisiones, campeones, hitos] = await Promise.all([
           FECHITAT agrupa escuelas de todo Chile bajo un mismo sello: el Taekwon-Do ITF Original. Certificación oficial de grados por la ITF, competencias nacionales e internacionales y una comunidad que entrena con disciplina, respeto y proyección de excelencia.
         </p>
         <p class="text-slate-600 text-sm md:text-base mt-3 leading-relaxed">
-          Detrás de cada técnica hay una filosofía de vida: cortesía, integridad, perseverancia, autocontrol y espíritu indómito. Principios que nuestros instructores transmiten en cada clase, dentro y fuera de la escuela.
+Reunimos a escuelas e instructores para fortalecer la formación, organizar encuentros y abrir oportunidades de participación a practicantes de distintas edades y regiones.
         </p>
       </div>
       <div>
@@ -60,7 +60,6 @@ const [directivos, comisiones, campeones, hitos] = await Promise.all([
       <div class="max-w-7xl mx-auto px-5 md:px-7">
         <div class="mb-8">
           <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Línea de tiempo de la federación</h2>
-          <p class="text-slate-600 text-sm md:text-base mt-1">Los hitos institucionales y deportivos más relevantes en la historia de FECHITAT.</p>
         </div>
         <Timeline hitos={hitos} />
       </div>
@@ -73,15 +72,14 @@ const [directivos, comisiones, campeones, hitos] = await Promise.all([
       <div class="max-w-7xl mx-auto px-5 md:px-7">
         <div class="mb-8">
           <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Directorio Oficial</h2>
-          <p class="text-slate-600 text-sm md:text-base mt-1">Autoridades electas responsables de la dirección estratégica y administrativa de la federación.</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {directivos.map((d) => (
-            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
-              <div>
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-shadow flex flex-row sm:flex-col justify-between">
+              <div class="flex items-center sm:block min-w-0">
                 {/* Foto o iniciales */}
-                <div class="aspect-4/5 overflow-hidden bg-slate-100">
+                <div class="w-20 h-20 flex-none sm:w-full sm:h-auto sm:aspect-4/5 overflow-hidden bg-slate-100">
                   {d.foto ? (
                     <img
                       src={urlFor(d.foto).width(400).height(500).url()}
@@ -98,7 +96,7 @@ const [directivos, comisiones, campeones, hitos] = await Promise.all([
                 </div>
 
                 {/* Info */}
-                <div class="p-5 text-center">
+                <div class="p-3 sm:p-5 text-left sm:text-center min-w-0">
                   <h3 class="text-base md:text-lg font-bold text-slate-900 leading-snug">{d.nombre}</h3>
                   <p class="text-xs font-semibold text-itf-blue uppercase tracking-wider mt-1">{d.cargo}</p>
                   {d.grado && <p class="text-xs text-slate-500 mt-0.5">{d.grado}</p>}
@@ -107,7 +105,7 @@ const [directivos, comisiones, campeones, hitos] = await Promise.all([
 
               {/* Botón de contacto */}
               {d.email && (
-                <div class="px-5 pb-5 pt-0">
+                <div class="p-3 sm:px-5 sm:pb-5 sm:pt-0 flex items-center sm:block">
                   <Button href={`mailto:${d.email}`} variant="secondary" size="sm" class="w-full justify-center">
                     Contactar
                   </Button>

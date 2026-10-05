@@ -28,7 +28,7 @@ const [metricas, proximoEvento, noticias, escuelas] = await Promise.all([
   getBlogPostsDestacados(),
   getEscuelasPorRegion(),
 ]);
-const escuelasMapa = escuelas.map((escuela: any) => ({
+const escuelasMapa = escuelas.map((escuela) => ({
   _id: escuela._id,
   nombre: escuela.nombre,
   slug: escuela.slug?.current ?? '',
@@ -36,6 +36,7 @@ const escuelasMapa = escuelas.map((escuela: any) => ({
   region: escuela.region ?? '',
   lat: escuela.ubicacion?.lat ?? null,
   lng: escuela.ubicacion?.lng ?? null,
+  logoUrl: escuela.logoUrl ?? null,
 }));
 ---
 
@@ -61,13 +62,12 @@ const escuelasMapa = escuelas.map((escuela: any) => ({
     >
       <div class="max-w-3xl">
         <h1 class="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold uppercase tracking-tight leading-[1.08] mb-5">
-          Encuentra tu camino<br />en el Taekwon-Do
+Taekwon-Do para crecer,<br />dentro y fuera del dojang
         </h1>
         <p
           class="text-base sm:text-lg md:text-xl text-slate-200 max-w-2xl mb-8 font-normal leading-relaxed"
         >
-          Escuelas certificadas de Arica a Punta Arenas, instructores oficiales de ITF y una
-          comunidad que entrena con disciplina, respeto y proyección internacional.
+Encuentra una escuela afiliada, conoce nuestras actividades y entrena junto a la comunidad FECHITAT.
         </p>
         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <Button href="#dojangs" variant="primary" size="md">
@@ -133,13 +133,12 @@ const escuelasMapa = escuelas.map((escuela: any) => ({
     >
       <div>
         <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
-          Formamos artistas marciales,<br />no solo competidores
+Una comunidad que crece<br />entrenando junta
         </h2>
         <p class="text-text-soft max-w-[54ch] mt-4 leading-relaxed text-base sm:text-lg">
-          Trabajamos junto a instituciones deportivas que apoyan el desarrollo
-          del Taekwon-Do ITF en Chile. Cada medalla representa el trabajo
-          constante de nuestros dojangs y el orgullo de vestir la bandera
-          chilena.
+Conectamos escuelas, instructores y practicantes para compartir formación,
+          encuentros y experiencias de Taekwon-Do ITF en Chile. Cada dojang
+          aporta su historia a esta comunidad.
         </p>
         <div class="h-px bg-line my-8"></div>
         <div class="grid grid-cols-2 gap-6">
@@ -215,6 +214,7 @@ const escuelasMapa = escuelas.map((escuela: any) => ({
           role="region"
         >
         </div>
+        <p id="aviso-mapa" class="text-sm text-text-soft lg:col-start-2" role="status">Las ubicaciones sin coordenadas se consultan al abrir el mapa. Si no aparecen, puedes usar la lista para ver la escuela.</p>
       </div>
     </div>
   </section>
@@ -334,6 +334,7 @@ const escuelasMapa = escuelas.map((escuela: any) => ({
     if (!input || !lista || !estado || !contenedorMapa || contenedorMapa.dataset.inicializado) return;
     contenedorMapa.dataset.inicializado = 'true';
     const escuelas = JSON.parse(contenedorMapa.dataset.escuelas || '[]');
+    const avisoMapa = document.getElementById('aviso-mapa');
 
   /** Cache de coordenadas geocodificadas (Nominatim) por ciudad, en localStorage. */
   const CACHE_GEO = 'fechitat:geo';
@@ -348,14 +349,16 @@ const escuelasMapa = escuelas.map((escuela: any) => ({
   /** Geocodifica una ciudad chilena con Nominatim (1 request/seg, sin API key). */
   async function geocodificar(ciudad: string, region = ''): Promise<[number, number] | null> {
     const cache = leerCache();
-    if (cache[ciudad]) return cache[ciudad];
+    const clave = `${ciudad}|${region}`;
+    if (cache[clave]) return cache[clave];
     try {
       const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=cl&accept-language=es&q=${encodeURIComponent(`${ciudad}${region ? ', ' + region : ''}`)}`;
-      const resp = await fetch(url, { headers: { Accept: 'application/json' } });
+      const resp = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) return null;
       const datos = await resp.json();
       if (datos?.[0]) {
         const coord: [number, number] = [parseFloat(datos[0].lat), parseFloat(datos[0].lon)];
-        cache[ciudad] = coord;
+        cache[clave] = coord;
         guardarEnCache(cache);
         return coord;
       }
@@ -393,7 +396,22 @@ const escuelasMapa = escuelas.map((escuela: any) => ({
         link.textContent = 'Ver dojang →';
         popup.append(link);
       }
-      const marker = L.marker(coords).addTo(mapa).bindPopup(popup);
+      const icono = document.createElement('div');
+      icono.className = 'w-11 h-11 bg-white border-2 border-itf-red rounded-full shadow-lg flex items-center justify-center overflow-hidden';
+      if (escuela.logoUrl) {
+        const logo = document.createElement('img');
+        logo.src = escuela.logoUrl;
+        logo.alt = '';
+        logo.className = 'w-9 h-9 object-contain';
+        logo.onerror = () => logo.replaceWith(document.createTextNode('🥋'));
+        icono.appendChild(logo);
+      } else {
+        icono.textContent = '🥋';
+      }
+      const marker = L.marker(coords, {
+        icon: L.divIcon({ html: icono, className: '', iconSize: [44, 44], iconAnchor: [22, 22] }),
+        title: escuela.nombre,
+      }).addTo(mapa).bindPopup(popup);
       markers.set(escuela._id, { marker, coords });
     };
 
@@ -419,7 +437,18 @@ const escuelasMapa = escuelas.map((escuela: any) => ({
         const ubicacionElemento = document.createElement('span');
         ubicacionElemento.className = 'block text-xs text-text-soft';
         ubicacionElemento.textContent = `${ciudad}${region ? ` · ${region}` : ''}`;
-        btn.append(nombreElemento, ubicacionElemento);
+        if (e.logoUrl) {
+          const logo = document.createElement('img');
+          logo.src = e.logoUrl;
+          logo.alt = '';
+          logo.loading = 'lazy';
+          logo.className = 'w-9 h-9 object-contain mr-2';
+          btn.appendChild(logo);
+          btn.classList.add('flex', 'items-center');
+        }
+        const textos = document.createElement('span');
+        textos.append(nombreElemento, ubicacionElemento);
+        btn.appendChild(textos);
         btn.addEventListener('click', () => {
           const marcador = markers.get(e._id);
           if (marcador) {
@@ -459,11 +488,14 @@ const escuelasMapa = escuelas.map((escuela: any) => ({
         const coord = await geocodificar(ciudad, region);
         if (coord) {
           escuelas
-            .filter((e) => !tieneCoordenadas(e) && (e.ciudad ?? '') === ciudad)
+            .filter((e) => !tieneCoordenadas(e) && (e.ciudad ?? '') === ciudad && (e.region ?? '') === region)
             .forEach((e) => agregarMarcador(e, coord));
         }
         await new Promise((r) => setTimeout(r, 1100));
       }
+      if (avisoMapa) avisoMapa.textContent = markers.size
+        ? `${markers.size} escuelas ubicadas en el mapa. Las demás se pueden consultar en la lista.`
+        : 'No hay coordenadas disponibles para el mapa. Usa la lista para consultar las escuelas.';
     })();
 
     input.addEventListener('input', () => pintarLista(input.value));

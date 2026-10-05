@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import UIcon from '../components/icons/UIcon.astro';
 import PageHero from '../components/PageHero.astro';
 import BlogGrid from '../components/BlogGrid.astro';
 import Paginacion from '../components/Paginacion.astro';
@@ -41,25 +40,6 @@ const etiquetas = ['todos', ...new Set(posts.flatMap((p) => p.categorias ?? []))
 
   <section class="py-10 md:py-16">
     <div class="max-w-7xl mx-auto px-5 md:px-7">
-      <!-- Acceso a material de estudio -->
-      <section id="recursos" class="bg-white text-ink border border-line rounded-sm p-5 mb-10">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h2 class="text-ink text-xl md:text-2xl m-0">Aprende para tu próximo grado</h2>
-            <p class="text-text-soft text-sm md:text-base mt-2 max-w-[60ch]">
-              Material de apoyo para estudiar en casa y complementar tu entrenamiento. Todas las guías están reunidas en una página dedicada.
-            </p>
-          </div>
-          <a
-            href="/recursos/formacion/material-estudio"
-            class="inline-flex items-center gap-2 bg-red text-white font-mono text-xs tracking-widest uppercase py-3 px-5 rounded-sm transition-all duration-150 hover:bg-red-dark hover:-translate-y-px flex-none"
-          >
-            Ver material de estudio
-            <UIcon name="arrow-right" size={16} />
-          </a>
-        </div>
-      </section>
-
       {
         etiquetas.length > 1 && (
           <div

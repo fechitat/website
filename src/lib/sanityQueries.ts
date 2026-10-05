@@ -254,9 +254,48 @@ export async function getProximoEventoDestacado() {
   )
 }
 
-/** Obtener escuelas agrupadas por región */
+/** Obtener sólo los campos necesarios para el mapa de la portada. */
 export async function getEscuelasPorRegion() {
-  return sanity.fetch(`*[_type == "escuela" && activo == true] | order(region asc, nombre asc)`)
+  return sanity.fetch<Array<{
+    _id: string; nombre: string; slug?: {current: string}; ciudad?: string;
+    region?: string; ubicacion?: {lat?: number; lng?: number}; logoUrl?: string;
+  }>>(`*[_type == "escuela" && activo == true] | order(region asc, nombre asc) {
+    _id, nombre, slug, ciudad, region, ubicacion, "logoUrl": logo.asset->url
+  }`)
+}
+
+export interface FiltrosEscuelas {
+  busqueda: string;
+  ciudad: string;
+  region: string;
+  pagina: number;
+}
+
+const FILTRO_ESCUELAS = `*[_type == "escuela" && activo == true
+  && ($region == "" || coalesce(region, "Sin región") == $region)
+  && ($ciudad == "" || ciudad == $ciudad)
+  && ($busqueda == "" || nombre match $patron || ciudad match $patron || region match $patron)]`;
+
+/** Obtiene una página de escuelas, su total y las ubicaciones disponibles sin enviar todas las fichas. */
+export async function getDirectorioEscuelas(filtros: FiltrosEscuelas, porPagina = 6) {
+  const {busqueda, ciudad, region, pagina} = filtros;
+  const params = {busqueda, ciudad, region, patron: `*${busqueda.replace(/[\*?]/g, ' ').trim()}*`};
+  const inicio = (pagina - 1) * porPagina;
+  return sanity.fetch<{
+    total: number;
+    escuelas: Array<{
+      _id: string; nombre: string; slug?: {current: string}; instructor?: string;
+      ciudad?: string; region?: string; foto?: unknown; logo?: unknown;
+      email?: string; whatsapp?: string;
+    }>;
+    ubicaciones: Array<{ciudad?: string; region?: string}>;
+  }>(`{
+    "total": count(${FILTRO_ESCUELAS}),
+    "escuelas": ${FILTRO_ESCUELAS} | order(nombre asc) [${inicio}...${inicio + porPagina}] {
+      _id, nombre, slug, instructor, ciudad, region, foto, logo, email, whatsapp
+    },
+    "ubicaciones": *[_type == "escuela" && activo == true] {ciudad, region}
+  }`, params);
 }
 
 /** Obtener las tres publicaciones destacadas para la portada. */

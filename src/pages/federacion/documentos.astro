@@ -13,54 +13,30 @@ const descripcion =
 
 const documentos = await getDocumentosOficiales();
 const formateadorFecha = new Intl.DateTimeFormat('es-CL', {dateStyle: 'long'});
-const etiquetasPorTipo: Record<string, string> = {
-  protocolo: 'Protocolo',
-  reglamento: 'Reglamento',
-  estatuto: 'Estatuto',
-  politica: 'Política',
-  formulario: 'Formulario',
-  comunicado: 'Comunicado',
-  otro: 'Documento',
-};
 ---
 
 <BaseLayout title={titulo} description={descripcion}>
   <PageHero
     title="Documentos oficiales"
     crumb="Federación"
-    description="Protocolos, reglamentos y documentos que establecen el funcionamiento oficial de FECHITAT."
+    description="Descarga los protocolos, reglamentos y estatutos oficiales vigentes de FECHITAT. Los documentos archivados se mantienen como registro histórico institucional."
   />
 
 
   <section class="py-10 md:py-16 bg-slate-50 min-h-screen">
     <div class="max-w-6xl mx-auto px-5 md:px-7">
-      <div class="mb-10 max-w-3xl">
-        <span class="font-mono text-xs tracking-wider uppercase text-itf-blue font-semibold block mb-1">Repositorio Federativo</span>
-        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Documentos oficiales</h2>
-        <p class="text-slate-600 text-sm md:text-base mt-2 leading-relaxed">
-          Consulta y descarga los protocolos, reglamentos, estatutos y comunicados oficiales vigentes de FECHITAT. Los documentos archivados se mantienen como registro histórico institucional.
-        </p>
-      </div>
-
       {documentos.length > 0 ? (
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {documentos.map((documento) => (
             <article
               class:list={[
-                'bg-white border border-slate-200 rounded-xl p-6 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between',
+                'bg-white border border-slate-200 rounded-xl p-6 md:p-8 shadow-xs hover:shadow-lg hover:border-slate-300 transition-all flex flex-col justify-between',
                 documento.estado === 'archivado' ? 'opacity-75 bg-slate-50/70' : '',
               ]}
             >
               <div>
-                <!-- Encabezado de la Card con Tipo y Estado -->
-                <div class="flex items-center justify-between gap-3 mb-4">
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                    </svg>
-                    <span>{etiquetasPorTipo[documento.tipo] ?? 'Documento'}</span>
-                  </span>
-
+                <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                  <h3 class="text-lg md:text-xl font-bold text-slate-900 leading-snug flex-1 min-w-40 m-0">{documento.titulo}</h3>
                   {documento.estado === 'archivado' ? (
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
                       <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
@@ -74,10 +50,7 @@ const etiquetasPorTipo: Record<string, string> = {
                   )}
                 </div>
 
-                <!-- Título y Descripción -->
-                <h3 class="text-lg md:text-xl font-bold text-slate-900 leading-snug">
-                  {documento.titulo}
-                </h3>
+                <!-- Descripción -->
                 {documento.descripcion && (
                   <p class="text-slate-600 text-sm leading-relaxed mt-2.5 line-clamp-3">
                     {documento.descripcion}
@@ -124,7 +97,7 @@ const etiquetasPorTipo: Record<string, string> = {
                     href={documento.archivoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-itf-red transition-colors"
+                    class="inline-flex min-h-12 items-center justify-center gap-3 w-full px-6 py-3 text-sm font-bold rounded-lg bg-slate-900 text-white hover:bg-itf-red transition-colors"
                   >
                     <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />

@@ -100,15 +100,18 @@ const jsonLdEventoPrincipal = eventoPrincipal
           <article class="bg-white border border-line rounded-sm overflow-hidden text-ink">
             <div class="grid grid-cols-1 lg:grid-cols-5">
               {eventoPrincipal.flyer && (
-                <div class="bg-paper p-5 lg:col-span-2 flex items-center justify-center">
-                  <img
-                    src={urlFor(eventoPrincipal.flyer).width(700).auto('format').url()}
-                    alt={`Afiche de ${eventoPrincipal.titulo}`}
-                    width="210"
-                    height="297"
-                    style="aspect-ratio: 210 / 297"
-                    class="w-full max-w-sm object-contain"
-                  />
+                <div class="bg-paper lg:col-span-2 flex items-center justify-center">
+                  {puedeAbrirEvento(eventoPrincipal) ? (
+                    <a href={`/eventos/${eventoPrincipal.slug.current}`} class="block w-full" aria-label={`Ver ${eventoPrincipal.titulo}`}>
+                      <img src={urlFor(eventoPrincipal.flyer).width(640).auto('format').quality(75).url()}
+                        alt={`Afiche de ${eventoPrincipal.titulo}`} width="640" height="900"
+                        class="w-full h-auto object-contain" fetchpriority="high" decoding="async" />
+                    </a>
+                  ) : (
+                    <img src={urlFor(eventoPrincipal.flyer).width(640).auto('format').quality(75).url()}
+                      alt={`Afiche de ${eventoPrincipal.titulo}`} width="640" height="900"
+                      class="w-full h-auto object-contain" decoding="async" />
+                  )}
                 </div>
               )}
               <div class:list={['p-6 md:p-10 flex flex-col', eventoPrincipal.flyer ? 'lg:col-span-3' : 'lg:col-span-5']}>
@@ -247,17 +250,18 @@ const jsonLdEventoPrincipal = eventoPrincipal
             {pasados.map((evento) => (
               <article class="bg-white border border-line rounded-sm overflow-hidden flex flex-col">
                 {evento.flyer && (
-                  <div class="bg-paper p-4">
-                    <img
-                      src={urlFor(evento.flyer).width(600).auto('format').url()}
-                      alt={`Afiche de ${evento.titulo}`}
-                      width="210"
-                      height="297"
-                      style="aspect-ratio: 210 / 297"
-                      loading="lazy"
-                      decoding="async"
-                      class="w-full max-w-xs mx-auto object-contain"
-                    />
+                  <div class="bg-paper w-full aspect-[210/297] overflow-hidden">
+                    {puedeAbrirEvento(evento) ? (
+                      <a href={`/eventos/${evento.slug.current}`} class="block w-full h-full" aria-label={`Ver ${evento.titulo}`}>
+                        <img src={urlFor(evento.flyer).width(480).auto('format').quality(75).url()}
+                          alt={`Afiche de ${evento.titulo}`} width="480" height="679" loading="lazy" decoding="async"
+                          class="w-full h-full object-contain" />
+                      </a>
+                    ) : (
+                      <img src={urlFor(evento.flyer).width(480).auto('format').quality(75).url()}
+                        alt={`Afiche de ${evento.titulo}`} width="480" height="679" loading="lazy" decoding="async"
+                        class="w-full h-full object-contain" />
+                    )}
                   </div>
                 )}
                 <div class="p-4 md:p-5 flex-1 flex flex-col">
@@ -337,21 +341,48 @@ const jsonLdEventoPrincipal = eventoPrincipal
 
           const fragmento = document.createElement('div');
           fragmento.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 col-span-full';
-          fragmento.innerHTML = datos.eventos.map((e: any) => {
-            const conDetalle = Boolean(e.descripcion || e.tieneGaleria);
-            const href = conDetalle && e.slug?.current ? `/eventos/${e.slug.current}` : null;
-            return `
-            <article class="bg-white border border-line rounded-sm overflow-hidden flex flex-col">
-              ${e.flyerUrl ? `<div class="bg-paper p-4"><div class="w-full max-w-xs mx-auto bg-contain bg-center bg-no-repeat" style="aspect-ratio: 210 / 297; background-image:url('${e.flyerUrl}');"></div></div>` : ''}
-              <div class="p-4 md:p-5 flex-1 flex flex-col">
-                ${href ? `<a href="${href}" class="text-ink hover:text-red"><h3 class="text-sm md:text-base mb-1">${e.titulo}</h3></a>` : `<h3 class="text-sm md:text-base mb-1">${e.titulo}</h3>`}
-                <div class="flex items-center gap-2 text-text-soft text-sm mt-auto">
-                  <span>${new Date(e.fecha).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}${e.fechaFin ? ` – ${new Date(e.fechaFin).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}` : ''}</span>
-                </div>
-              </div>
-            </article>
-          `;
-          }).join('');
+          for (const e of datos.eventos) {
+            const href = e.slug?.current ? `/eventos/${encodeURIComponent(e.slug.current)}` : null;
+            const article = document.createElement('article');
+            article.className = 'bg-white border border-line rounded-sm overflow-hidden flex flex-col';
+            if (e.flyerUrl) {
+              const imagen = document.createElement('img');
+              const flyerUrl = new URL(e.flyerUrl);
+              flyerUrl.searchParams.set('w', '480');
+              flyerUrl.searchParams.set('auto', 'format');
+              flyerUrl.searchParams.set('q', '75');
+              imagen.src = flyerUrl.toString();
+              imagen.alt = `Afiche de ${e.titulo}`;
+              imagen.loading = 'lazy';
+              imagen.decoding = 'async';
+              imagen.width = 480;
+              imagen.height = 679;
+              imagen.className = 'w-full h-full object-contain';
+              const marco = document.createElement(href ? 'a' : 'div');
+              marco.className = 'block bg-paper w-full aspect-[210/297] overflow-hidden';
+              if (href && marco instanceof HTMLAnchorElement) marco.href = href;
+              marco.appendChild(imagen);
+              article.appendChild(marco);
+            }
+            const contenido = document.createElement('div');
+            contenido.className = 'p-4 md:p-5 flex-1 flex flex-col';
+            const titulo = document.createElement('h3');
+            titulo.className = 'text-sm md:text-base mb-1';
+            titulo.textContent = e.titulo;
+            if (href) {
+              const link = document.createElement('a');
+              link.href = href;
+              link.className = 'text-ink hover:text-red';
+              link.appendChild(titulo);
+              contenido.appendChild(link);
+            } else contenido.appendChild(titulo);
+            const fecha = document.createElement('p');
+            fecha.className = 'text-text-soft text-sm mt-auto';
+            fecha.textContent = new Date(e.fecha).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' });
+            contenido.appendChild(fecha);
+            article.appendChild(contenido);
+            fragmento.appendChild(article);
+          }
 
           contenedor.appendChild(fragmento);
           offset += datos.eventos.length;

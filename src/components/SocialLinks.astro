@@ -16,10 +16,10 @@ interface Props {
 }
 
 const enlacesPorDefecto: EnlaceSocial[] = [
-  { href: '#', icono: 'instagram', etiqueta: 'Instagram' },
-  { href: '#', icono: 'facebook', etiqueta: 'Facebook' },
-  { href: '#', icono: 'youtube', etiqueta: 'YouTube' },
-];
+  { href: import.meta.env.PUBLIC_FECHITAT_INSTAGRAM, icono: 'instagram', etiqueta: 'Instagram' },
+  { href: import.meta.env.PUBLIC_FECHITAT_FACEBOOK, icono: 'facebook', etiqueta: 'Facebook' },
+  { href: import.meta.env.PUBLIC_FECHITAT_YOUTUBE, icono: 'youtube', etiqueta: 'YouTube' },
+].filter((enlace) => typeof enlace.href === 'string' && /^https:\/\//.test(enlace.href));
 
 const {
   class: clase = 'flex gap-3 items-center',
@@ -28,7 +28,7 @@ const {
 } = Astro.props;
 ---
 
-<div class={clase}>
+{enlaces.length > 0 && <div class={clase}>
   {
     enlaces.map((enlace) => (
       <a
@@ -43,4 +43,4 @@ const {
       </a>
     ))
   }
-</div>
+</div>}
