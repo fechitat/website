@@ -100,17 +100,17 @@ const jsonLdEventoPrincipal = eventoPrincipal
           <article class="bg-white border border-line rounded-sm overflow-hidden text-ink">
             <div class="grid grid-cols-1 lg:grid-cols-5">
               {eventoPrincipal.flyer && (
-                <div class="bg-paper lg:col-span-2 flex items-center justify-center">
+                <div class="bg-paper lg:col-span-2">
                   {puedeAbrirEvento(eventoPrincipal) ? (
-                    <a href={`/eventos/${eventoPrincipal.slug.current}`} class="block w-full" aria-label={`Ver ${eventoPrincipal.titulo}`}>
-                      <img src={urlFor(eventoPrincipal.flyer).width(640).auto('format').quality(75).url()}
-                        alt={`Afiche de ${eventoPrincipal.titulo}`} width="640" height="900"
-                        class="w-full h-auto object-contain" fetchpriority="high" decoding="async" />
+                    <a href={`/eventos/${eventoPrincipal.slug.current}`} class="block w-full aspect-square overflow-hidden" aria-label={`Ver ${eventoPrincipal.titulo}`}>
+                      <img src={urlFor(eventoPrincipal.flyer).width(640).height(640).fit('crop').auto('format').quality(75).url()}
+                        alt={`Afiche de ${eventoPrincipal.titulo}`} width="640" height="640"
+                        class="w-full h-full object-cover" fetchpriority="high" decoding="async" />
                     </a>
                   ) : (
-                    <img src={urlFor(eventoPrincipal.flyer).width(640).auto('format').quality(75).url()}
-                      alt={`Afiche de ${eventoPrincipal.titulo}`} width="640" height="900"
-                      class="w-full h-auto object-contain" decoding="async" />
+                    <img src={urlFor(eventoPrincipal.flyer).width(640).height(640).fit('crop').auto('format').quality(75).url()}
+                      alt={`Afiche de ${eventoPrincipal.titulo}`} width="640" height="640"
+                      class="w-full aspect-square object-cover" decoding="async" />
                   )}
                 </div>
               )}
@@ -250,17 +250,17 @@ const jsonLdEventoPrincipal = eventoPrincipal
             {pasados.map((evento) => (
               <article class="bg-white border border-line rounded-sm overflow-hidden flex flex-col">
                 {evento.flyer && (
-                  <div class="bg-paper w-full aspect-[210/297] overflow-hidden">
+                  <div class="bg-paper w-full aspect-square overflow-hidden">
                     {puedeAbrirEvento(evento) ? (
                       <a href={`/eventos/${evento.slug.current}`} class="block w-full h-full" aria-label={`Ver ${evento.titulo}`}>
-                        <img src={urlFor(evento.flyer).width(480).auto('format').quality(75).url()}
-                          alt={`Afiche de ${evento.titulo}`} width="480" height="679" loading="lazy" decoding="async"
-                          class="w-full h-full object-contain" />
+                        <img src={urlFor(evento.flyer).width(480).height(480).fit('crop').auto('format').quality(75).url()}
+                          alt={`Afiche de ${evento.titulo}`} width="480" height="480" loading="lazy" decoding="async"
+                          class="w-full h-full object-cover" />
                       </a>
                     ) : (
-                      <img src={urlFor(evento.flyer).width(480).auto('format').quality(75).url()}
-                        alt={`Afiche de ${evento.titulo}`} width="480" height="679" loading="lazy" decoding="async"
-                        class="w-full h-full object-contain" />
+                      <img src={urlFor(evento.flyer).width(480).height(480).fit('crop').auto('format').quality(75).url()}
+                        alt={`Afiche de ${evento.titulo}`} width="480" height="480" loading="lazy" decoding="async"
+                        class="w-full h-full object-cover" />
                     )}
                   </div>
                 )}
@@ -349,6 +349,8 @@ const jsonLdEventoPrincipal = eventoPrincipal
               const imagen = document.createElement('img');
               const flyerUrl = new URL(e.flyerUrl);
               flyerUrl.searchParams.set('w', '480');
+              flyerUrl.searchParams.set('h', '480');
+              flyerUrl.searchParams.set('fit', 'crop');
               flyerUrl.searchParams.set('auto', 'format');
               flyerUrl.searchParams.set('q', '75');
               imagen.src = flyerUrl.toString();
@@ -356,10 +358,10 @@ const jsonLdEventoPrincipal = eventoPrincipal
               imagen.loading = 'lazy';
               imagen.decoding = 'async';
               imagen.width = 480;
-              imagen.height = 679;
-              imagen.className = 'w-full h-full object-contain';
+              imagen.height = 480;
+              imagen.className = 'w-full h-full object-cover';
               const marco = document.createElement(href ? 'a' : 'div');
-              marco.className = 'block bg-paper w-full aspect-[210/297] overflow-hidden';
+              marco.className = 'block bg-paper w-full aspect-square overflow-hidden';
               if (href && marco instanceof HTMLAnchorElement) marco.href = href;
               marco.appendChild(imagen);
               article.appendChild(marco);

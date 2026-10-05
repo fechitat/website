@@ -214,7 +214,6 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
           role="region"
         >
         </div>
-        <p id="aviso-mapa" class="text-sm text-text-soft lg:col-start-2" role="status">Las ubicaciones sin coordenadas se consultan al abrir el mapa. Si no aparecen, puedes usar la lista para ver la escuela.</p>
       </div>
     </div>
   </section>
@@ -334,7 +333,6 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
     if (!input || !lista || !estado || !contenedorMapa || contenedorMapa.dataset.inicializado) return;
     contenedorMapa.dataset.inicializado = 'true';
     const escuelas = JSON.parse(contenedorMapa.dataset.escuelas || '[]');
-    const avisoMapa = document.getElementById('aviso-mapa');
 
   /** Cache de coordenadas geocodificadas (Nominatim) por ciudad, en localStorage. */
   const CACHE_GEO = 'fechitat:geo';
@@ -392,7 +390,7 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
       if (escuela.slug) {
         const link = document.createElement('a');
         link.href = `/escuelas/${escuela.slug}`;
-        link.className = 'block text-xs text-red mt-1 font-semibold';
+        link.className = 'inline-flex min-h-10 items-center justify-center mt-2 px-4 rounded-md bg-slate-900 text-white text-xs font-semibold hover:bg-slate-700 transition-colors';
         link.textContent = 'Ver dojang →';
         popup.append(link);
       }
@@ -461,7 +459,7 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
         if (e.slug) {
           const a = document.createElement('a');
           a.href = `/escuelas/${e.slug}`;
-          a.className = 'text-xs text-red hover:underline whitespace-nowrap';
+          a.className = 'inline-flex min-h-10 flex-none items-center justify-center rounded-md bg-slate-900 px-3 text-xs font-semibold text-white hover:bg-slate-700 transition-colors';
           a.textContent = 'Ver dojang';
           li.appendChild(a);
         }
@@ -493,9 +491,6 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
         }
         await new Promise((r) => setTimeout(r, 1100));
       }
-      if (avisoMapa) avisoMapa.textContent = markers.size
-        ? `${markers.size} escuelas ubicadas en el mapa. Las demás se pueden consultar en la lista.`
-        : 'No hay coordenadas disponibles para el mapa. Usa la lista para consultar las escuelas.';
     })();
 
     input.addEventListener('input', () => pintarLista(input.value));

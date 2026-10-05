@@ -16,7 +16,7 @@ if (!evento) {
 const fotos = evento.galeria ?? [];
 const fotosConUrl = fotos.map((foto, indice) => ({
   alt: foto.alt || `${evento.titulo} — foto ${indice + 1}`,
-  miniatura: urlFor(foto).width(480).height(360).fit('crop').auto('format').quality(75).url(),
+  miniatura: urlFor(foto).width(480).height(480).fit('crop').auto('format').quality(75).url(),
   original: urlFor(foto).width(1400).auto('format').quality(80).url(),
 }));
 
@@ -107,12 +107,12 @@ const jsonLdEvento = {
             {fotosConUrl.map((foto, indice) => (
               <button
                 type="button"
-                class="relative block w-full aspect-[4/3] bg-slate-200 rounded-sm overflow-hidden cursor-zoom-in p-0 border-none"
+                class="relative block w-full aspect-square bg-slate-200 rounded-sm overflow-hidden cursor-zoom-in p-0 border-none"
                 data-galeria-boton={indice}
                 aria-label={`Ver foto en tamaño completo`}
               >
                 <span class="absolute inset-0 bg-slate-200 animate-pulse" data-esqueleto aria-hidden="true"></span>
-                <img src={foto.miniatura} alt={foto.alt} width="480" height="360" loading="lazy" decoding="async"
+                <img src={foto.miniatura} alt={foto.alt} width="480" height="480" loading="lazy" decoding="async"
                   class="relative w-full h-full object-cover opacity-0 transition-opacity duration-300"
                   data-miniatura />
               </button>
@@ -144,7 +144,7 @@ const jsonLdEvento = {
     const cerrar = document.getElementById('galeria-cerrar');
     const cargando = document.getElementById('galeria-cargando');
 
-    document.querySelectorAll<HTMLImageElement>('[data-miniatura]').forEach((miniatura) => {
+    document.querySelectorAll('[data-miniatura]').forEach((miniatura) => {
       const terminar = () => {
         miniatura.classList.remove('opacity-0');
         miniatura.parentElement?.querySelector('[data-esqueleto]')?.remove();
@@ -170,7 +170,7 @@ const jsonLdEvento = {
     if (dialogo && imagen && botones.length && cerrar) {
       botones.forEach((boton) => {
         boton.addEventListener('click', () => {
-          const indice = Number((boton as HTMLElement).dataset.galeriaBoton);
+          const indice = Number(boton.dataset.galeriaBoton);
           const foto = fotos[indice];
           if (!foto) return;
           imagen.classList.add('hidden');
@@ -181,18 +181,18 @@ const jsonLdEvento = {
           }
           imagen.src = foto.original;
           imagen.alt = foto.alt;
-          (dialogo as HTMLDialogElement).showModal();
+          dialogo.showModal();
         });
       });
 
-      cerrar.addEventListener('click', () => (dialogo as HTMLDialogElement).close());
+      cerrar.addEventListener('click', () => dialogo.close());
 
       dialogo.addEventListener('click', (eventoClick) => {
-        if (eventoClick.target === dialogo) (dialogo as HTMLDialogElement).close();
+        if (eventoClick.target === dialogo) dialogo.close();
       });
 
       document.addEventListener('keydown', (eventoTeclado) => {
-        if (eventoTeclado.key === 'Escape' && (dialogo as HTMLDialogElement).open) (dialogo as HTMLDialogElement).close();
+        if (eventoTeclado.key === 'Escape' && dialogo.open) dialogo.close();
       });
     }
   </script>
