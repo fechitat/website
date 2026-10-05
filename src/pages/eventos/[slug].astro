@@ -121,19 +121,22 @@ const jsonLdEvento = {
         </section>
       )}
 
-      <dialog id="galeria-dialogo" class="m-auto bg-ink p-2 rounded-sm border-none max-w-[92vw] max-h-[90vh]">
-        <div class="relative">
+      <dialog id="galeria-dialogo" class="m-auto w-fit max-w-[96vw] max-h-[92vh] overflow-visible bg-ink p-2 rounded-sm border-none">
+        <div class="relative flex items-center justify-center touch-pan-y">
           <button
             type="button"
             id="galeria-cerrar"
-            class="absolute -top-3 -right-3 w-9 h-9 bg-red text-white rounded-full flex items-center justify-center cursor-pointer border-none text-base"
-            aria-label="Cerrar foto"
+            class="absolute -top-3 -right-3 z-20 w-9 h-9 bg-red text-white rounded-full flex items-center justify-center cursor-pointer border-none text-base"
+            aria-label="Cerrar galería"
           >
             ✕
           </button>
+          <button type="button" id="galeria-anterior" class="absolute left-2 top-1/2 z-10 -translate-y-1/2 w-11 h-11 rounded-full bg-black/70 text-white text-2xl flex items-center justify-center border border-white/30 hover:bg-black" aria-label="Ver fotografía anterior">‹</button>
           <div id="galeria-cargando" class="min-w-48 w-[80vw] max-w-2xl h-[60vh] bg-slate-700 animate-pulse flex items-center justify-center text-white text-sm" role="status">Cargando fotografía…</div>
-          <img id="galeria-imagen" alt="" class="hidden max-w-full max-h-[75vh] object-contain rounded-sm" />
+          <img id="galeria-imagen" alt="" draggable="false" class="hidden max-w-[92vw] max-h-[82vh] object-contain rounded-sm select-none" />
+          <button type="button" id="galeria-siguiente" class="absolute right-2 top-1/2 z-10 -translate-y-1/2 w-11 h-11 rounded-full bg-black/70 text-white text-2xl flex items-center justify-center border border-white/30 hover:bg-black" aria-label="Ver fotografía siguiente">›</button>
         </div>
+        <p id="galeria-contador" class="m-0 pt-2 text-center text-xs text-white/80" aria-live="polite"></p>
       </dialog>
     </div>
   </article>
@@ -142,6 +145,9 @@ const jsonLdEvento = {
     const imagen = document.getElementById('galeria-imagen');
     const botones = document.querySelectorAll('[data-galeria-boton]');
     const cerrar = document.getElementById('galeria-cerrar');
+    const anterior = document.getElementById('galeria-anterior');
+    const siguiente = document.getElementById('galeria-siguiente');
+    const contador = document.getElementById('galeria-contador');
     const cargando = document.getElementById('galeria-cargando');
 
     document.querySelectorAll('[data-miniatura]').forEach((miniatura) => {
@@ -167,32 +173,66 @@ const jsonLdEvento = {
       }
     });
 
-    if (dialogo && imagen && botones.length && cerrar) {
+    if (dialogo && imagen && botones.length && cerrar && anterior && siguiente) {
+      let indiceActual = 0;
+      const mostrarFoto = (indice) => {
+        indiceActual = (indice + fotos.length) % fotos.length;
+        const foto = fotos[indiceActual];
+        if (!foto) return;
+        imagen.classList.add('hidden');
+        if (cargando) {
+          cargando.textContent = 'Cargando fotografía…';
+          cargando.classList.remove('hidden');
+          cargando.classList.add('animate-pulse');
+        }
+        if (contador) contador.textContent = `${indiceActual + 1} / ${fotos.length}`;
+        imagen.src = foto.original;
+        imagen.alt = foto.alt;
+      };
+
       botones.forEach((boton) => {
         boton.addEventListener('click', () => {
-          const indice = Number(boton.dataset.galeriaBoton);
-          const foto = fotos[indice];
-          if (!foto) return;
-          imagen.classList.add('hidden');
-          if (cargando) {
-            cargando.textContent = 'Cargando fotografía…';
-            cargando.classList.remove('hidden');
-            cargando.classList.add('animate-pulse');
-          }
-          imagen.src = foto.original;
-          imagen.alt = foto.alt;
-          dialogo.showModal();
+          mostrarFoto(Number(boton.dataset.galeriaBoton));
+          if (!dialogo.open) dialogo.showModal();
         });
       });
 
+      anterior.addEventListener('click', () => mostrarFoto(indiceActual - 1));
+      siguiente.addEventListener('click', () => mostrarFoto(indiceActual + 1));
       cerrar.addEventListener('click', () => dialogo.close());
+
+      let inicioX = null;
+      const superficie = imagen.parentElement;
+      superficie?.addEventListener('pointerdown', (evento) => {
+        if (evento.target === imagen) {
+          inicioX = evento.clientX;
+          superficie.setPointerCapture(evento.pointerId);
+        }
+      });
+      superficie?.addEventListener('pointerup', (evento) => {
+        if (inicioX === null) return;
+        const desplazamiento = evento.clientX - inicioX;
+        inicioX = null;
+        if (Math.abs(desplazamiento) < 45) return;
+        mostrarFoto(desplazamiento < 0 ? indiceActual + 1 : indiceActual - 1);
+      });
+      superficie?.addEventListener('pointercancel', () => { inicioX = null; });
 
       dialogo.addEventListener('click', (eventoClick) => {
         if (eventoClick.target === dialogo) dialogo.close();
       });
 
       document.addEventListener('keydown', (eventoTeclado) => {
-        if (eventoTeclado.key === 'Escape' && dialogo.open) dialogo.close();
+        if (!dialogo.open) return;
+        if (eventoTeclado.key === 'ArrowLeft') {
+          eventoTeclado.preventDefault();
+          mostrarFoto(indiceActual - 1);
+        } else if (eventoTeclado.key === 'ArrowRight') {
+          eventoTeclado.preventDefault();
+          mostrarFoto(indiceActual + 1);
+        } else if (eventoTeclado.key === 'Escape') {
+          dialogo.close();
+        }
       });
     }
   </script>
