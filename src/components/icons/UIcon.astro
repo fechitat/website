@@ -3,7 +3,7 @@
 // https://lucide.dev — iconos 24×24, stroke-width 2, stroke-linecap/linejoin round.
 // El icono 'whatsapp' es un caso especial (relleno, no trazo).
 interface Props {
-  name: 'mail' | 'phone' | 'map-pin' | 'arrow-right' | 'search' | 'external-link' | 'whatsapp' | 'user' | 'share';
+  name: 'mail' | 'phone' | 'map-pin' | 'arrow-right' | 'arrow-up-right' | 'search' | 'external-link' | 'whatsapp' | 'user' | 'share' | 'book-open' | 'wrench' | 'newspaper' | 'file-text';
   size?: number;
   class?: string;
 }
@@ -22,6 +22,11 @@ const strokePaths: Record<string, string> = {
   phone: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z',
   'map-pin': 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
   'arrow-right': 'M5 12h14 M12 5l7 7-7 7',
+  'arrow-up-right': 'M7 17L17 7 M7 7h10v10',
+  'book-open': 'M12 7v14 M3 3h4a5 5 0 0 1 5 4 5 5 0 0 1 5-4h4v16h-4a5 5 0 0 0-5 2 5 5 0 0 0-5-2H3z',
+  wrench: 'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z',
+  newspaper: 'M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0V9h4 M8 6h10 M8 10h10 M8 14h4 M8 18h4 M16 14h2 M16 18h2',
+  'file-text': 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M8 13h8 M8 17h8',
   search: 'M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16z M21 21l-4.35-4.35',
   'external-link': 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6 M15 3h6v6 M10 14L21 3',
   user: 'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',

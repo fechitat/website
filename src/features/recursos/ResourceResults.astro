@@ -1,0 +1,100 @@
+---
+import ResourceCard from './ResourceCard.astro';
+import UIcon from '../../components/icons/UIcon.astro';
+import { CATALOG_SORTS, getCatalogUrl, type CatalogFilters, type CatalogPage } from './catalogo';
+
+interface Props {
+  result: CatalogPage;
+  filters: CatalogFilters;
+  url: URL;
+  hasError?: boolean;
+}
+
+const { result, filters, url, hasError = false } = Astro.props;
+const pageUrl = (page: number): string => {
+  const target = getCatalogUrl(url, { ...filters, page });
+  return `${target.pathname}${target.search}`;
+};
+---
+
+<div data-catalog-results data-page={result.page} data-total={result.total}>
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4 md:mb-5 lg:mb-6">
+    <h2 class="sr-only">Biblioteca de recursos</h2>
+    <p data-filter-status class="min-w-0 flex-1 text-sm text-text-soft">
+      {hasError ? 'Catálogo no disponible' : result.total === 1 ? '1 recurso encontrado' : `${result.total} recursos encontrados`}
+    </p>
+    <div class="flex items-center gap-2">
+      <label for="orden-recursos" class="sr-only md:not-sr-only text-sm text-text-soft">Ordenar</label>
+      <select id="orden-recursos" name="orden" form="catalog-filters" class="catalog-sort min-h-11 border border-line bg-white px-2 text-sm text-ink">
+        {CATALOG_SORTS.map((sort) => <option value={sort.id} selected={sort.id === (filters.sort ?? 'recomendados')}>{sort.label}</option>)}
+      </select>
+    </div>
+  </div>
+
+  {hasError ? (
+    <div class="border border-line bg-white p-6 text-center" data-load-error>
+      <h3 class="text-xl">No pudimos cargar el catálogo</h3>
+      <p class="text-text-soft mt-2">La fuente de recursos no está disponible. Inténtalo de nuevo.</p>
+      <a href={`${url.pathname}${url.search}`} data-retry class="inline-flex min-h-11 items-center gap-2 mt-3 text-red font-bold underline underline-offset-4">Reintentar <UIcon name="arrow-up-right" size={18} /></a>
+    </div>
+  ) : result.inventoryTotal === 0 ? (
+    <div class="border border-line bg-white p-6 text-center" data-catalog-empty>
+      <h3 class="text-xl">Todavía no hay recursos publicados</h3>
+      <p class="text-text-soft mt-2">Los contenidos aparecerán aquí cuando estén disponibles.</p>
+    </div>
+  ) : result.total === 0 ? (
+    <div class="border border-dashed border-line bg-white p-6 md:py-10 text-center" data-filter-empty>
+      <h3 class="text-xl">No encontramos coincidencias</h3>
+      <p class="text-text-soft mt-2">Prueba otra búsqueda o selecciona otros filtros.</p>
+      <a href="/recursos" data-clear-filters class="inline-flex min-h-11 items-center gap-2 mt-3 text-red font-bold underline underline-offset-4">Limpiar todos los filtros <UIcon name="arrow-up-right" size={18} /></a>
+    </div>
+  ) : (
+    <>
+      {result.featured.length > 0 && (
+        <section aria-label="Recursos destacados" class="mb-6">
+          <h2 class="text-base mb-3">Destacados</h2>
+          <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+            {result.featured.map((resource) => <li class="featured-item min-w-0"><ResourceCard resource={resource} headingLevel="h3" variant="featured" /></li>)}
+          </ul>
+        </section>
+      )}
+      <ul id="catalogo-recursos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6">
+        {result.resources.map((resource) => (
+          <li data-resource data-id={resource.id} data-format={resource.format} class="min-w-0">
+            <ResourceCard resource={resource} headingLevel="h3" />
+          </li>
+        ))}
+      </ul>
+      {result.pages > 1 && (
+        <nav aria-label="Páginas de recursos" class="flex flex-wrap items-center justify-center gap-3 mt-6">
+          {result.page > 1 && <a href={pageUrl(result.page - 1)} data-page-link class="inline-flex min-h-11 items-center px-3 border border-line bg-white text-sm font-bold text-red hover:border-red">← Anterior</a>}
+          <span class="text-sm text-text-soft">Página {result.page} de {result.pages}</span>
+          {result.page < result.pages && <a href={pageUrl(result.page + 1)} data-page-link class="inline-flex min-h-11 items-center px-3 border border-line bg-white text-sm font-bold text-red hover:border-red">Siguiente →</a>}
+        </nav>
+      )}
+    </>
+  )}
+</div>
+
+<style>
+  .catalog-sort,
+  a {
+    border-radius: 0;
+  }
+
+  a:focus-visible,
+  .catalog-sort:focus-visible {
+    outline: 2px solid var(--color-red);
+    outline-offset: 3px;
+  }
+
+  a:active {
+    background: var(--color-itf-red-light);
+  }
+
+  @media (max-width: 767px) {
+    .featured-item:nth-child(n + 2) {
+      display: none;
+    }
+  }
+</style>

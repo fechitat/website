@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {catalogoFields} from './catalogoFields'
 
 export default defineType({
   name: 'blogPost',
@@ -34,6 +35,7 @@ export default defineType({
       title: 'Imagen principal',
       type: 'image',
       options: {hotspot: true},
+      fields: [{name: 'alt', title: 'Texto alternativo', type: 'string'}],
     }),
     defineField({
       name: 'extracto',
@@ -55,15 +57,19 @@ export default defineType({
     }),
     defineField({
       name: 'categorias',
-      title: 'Categorías',
+      title: 'Categoría',
+      description: 'Selecciona una sola categoría temática para el recurso.',
       type: 'array',
       of: [{type: 'string'}],
+      validation: (Rule) => Rule.required().min(1).max(1).error('Selecciona una sola categoría.'),
       options: {
         list: [
           {title: 'Noticias', value: 'noticias'},
+          {title: 'Teoría', value: 'teoria'},
           {title: 'Técnica', value: 'tecnica'},
+          {title: 'Formas', value: 'formas'},
+          {title: 'Arbitraje', value: 'arbitraje'},
           {title: 'Entrevistas', value: 'entrevistas'},
-          {title: 'Eventos', value: 'eventos'},
           {title: 'Historia', value: 'historia'},
         ],
       },
@@ -74,6 +80,7 @@ export default defineType({
       type: 'boolean',
       initialValue: false,
     }),
+    ...catalogoFields,
   ],
   preview: {
     select: {

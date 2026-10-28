@@ -1,29 +1,22 @@
 ---
-// Detalle de un artículo del blog, renderizado desde Portable Text de Sanity.
+// Conserva las URLs editoriales existentes dentro de la biblioteca de Recursos.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import UIcon from '../../components/icons/UIcon.astro';
 import SocialShare from '../../components/SocialShare.astro';
 import { getBlogPostBySlug } from '../../lib/blog';
-import { getBlogPosts } from '../../lib/sanityQueries';
 import { urlFor } from '../../lib/sanity';
+import Badge from '../../components/ui/Badge.astro';
+import { articleToResource } from '../../features/recursos/catalogo';
 import { renderPortableText } from '../../lib/portableText';
 
-export const prerender = true;
-export const revalidate = 3600;
-
-/** Pre-renderiza todos los artículos publicados. */
-export async function getStaticPaths() {
-  const posts = await getBlogPosts(1, 500);
-  return posts
-    .filter((p: any) => p.slug?.current)
-    .map((p: any) => ({ params: { slug: p.slug.current } }));
-}
+export const prerender = false;
 
 const post = await getBlogPostBySlug(Astro.params.slug!);
 
 if (!post) {
-  return Astro.redirect('/blog');
+  Astro.response.status = 404;
+  return Astro.rewrite('/404');
 }
 
 const html = post.contenidoHtml ?? renderPortableText(post.contenido);
@@ -36,7 +29,10 @@ const fecha = post.fecha
     })
   : null;
 
-const imagenUrl = post.imagenUrl ?? (post.imagen ? urlFor(post.imagen).width(1200).format('jpg').url() : undefined);
+const imagenUrl = post.imagenUrl || (post.imagen ? urlFor(post.imagen).width(1200).format('jpg').url() : undefined);
+const imagenAlt = post.imagenAlt || post.titulo;
+const category = articleToResource(post).category;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 
 const jsonLd = JSON.stringify({
   '@context': 'https://schema.org',
@@ -45,33 +41,46 @@ const jsonLd = JSON.stringify({
   ...(post.fecha ? { datePublished: post.fecha } : {}),
   ...(post.autor ? { author: { '@type': 'Person', name: post.autor } } : {}),
   ...(post.extracto ? { description: post.extracto } : {}),
-  ...(imagenUrl ? { image: imagenUrl } : {}),
+  ...(imagenUrl ? { image: new URL(imagenUrl, Astro.site).href } : {}),
+  articleSection: category.label,
   mainEntityOfPage: {
     '@type': 'WebPage',
-    '@id': `https://fechitat-website.vercel.app/blog/${post.slug?.current ?? ''}`,
+    '@id': canonicalUrl.href,
   },
 });
 ---
 
 <BaseLayout
-  title={`${post.titulo} — Blog FECHITAT`}
-  description={post.extracto ?? `Lee ${post.titulo} en el blog de FECHITAT.`}
+  title={`${post.titulo} — Recursos FECHITAT`}
+  description={post.extracto ?? `Lee ${post.titulo} en Recursos de FECHITAT.`}
   ogImage={imagenUrl}
-  structuredData={JSON.parse(jsonLd)}
+  structuredData={[JSON.parse(jsonLd), {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: new URL('/', Astro.site).href },
+      { '@type': 'ListItem', position: 2, name: 'Recursos', item: new URL('/recursos', Astro.site).href },
+      { '@type': 'ListItem', position: 3, name: post.titulo, item: canonicalUrl.href },
+    ],
+  }]}
 >
   <PageHero
     title={post.titulo}
-    crumb="Blog"
+    crumb="Recursos"
+    crumbHref="/recursos"
     image={imagenUrl}
-    imageAlt={`Imagen del artículo: ${post.titulo}`}
+    imageAlt={imagenAlt}
   />
 
   <article class="py-10 md:py-16">
     <div class="max-w-3xl mx-auto px-5 md:px-7">
-      <a href="/blog" class="inline-flex items-center gap-2 bg-ink text-white font-mono text-xs tracking-widest uppercase py-3 px-5 rounded-sm mb-8 transition-all duration-150 hover:bg-black hover:-translate-y-px">
-        <UIcon name="arrow-left" size={16} />
-        Volver al blog
+      <a href="/recursos" class="inline-flex items-center gap-2 bg-ink text-white font-mono text-xs tracking-widest uppercase py-3 px-5 rounded-sm mb-8 transition-colors hover:bg-black">
+        <UIcon name="arrow-right" size={16} class="rotate-180" />
+        Volver a Recursos
       </a>
+      <div class="flex flex-wrap items-center gap-3 mb-6">
+        <a href={`/recursos?categoria=${encodeURIComponent(category.id)}`}><Badge variant="noticia">{category.label}</Badge></a>
+      </div>
 
       {post.autor || fecha ? (
         <p class="text-text-soft text-sm flex flex-wrap items-center gap-x-3 gap-y-1 mb-6">

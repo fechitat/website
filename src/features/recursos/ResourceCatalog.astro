@@ -1,0 +1,338 @@
+---
+import ResourceResults from './ResourceResults.astro';
+import UIcon from '../../components/icons/UIcon.astro';
+import Button from '../../components/ui/Button.astro';
+import {
+  RESOURCE_FORMATS, RESOURCE_TOPICS, getCatalogPage, getCatalogUrl,
+  getResourceCategory, getResourceTopics, readCatalogFilters, type CatalogResource,
+} from './catalogo';
+
+interface Props {
+  resources: CatalogResource[];
+  hasError?: boolean;
+}
+
+const { resources, hasError = false } = Astro.props;
+const filters = readCatalogFilters(Astro.url.searchParams);
+const published = resources.filter((resource) => resource.isPublished !== false);
+const formats = RESOURCE_FORMATS.filter((format) => published.some((resource) => resource.format === format.id));
+const categories = [{ id: '', label: 'Todos' }, ...formats];
+const availableTopics = new Set(published.flatMap((resource) => getResourceTopics(resource).map((topic) => topic.id)));
+const selectedTopics = filters.topics ?? [];
+const topics = [...new Map([...RESOURCE_TOPICS.filter((topic) => availableTopics.has(topic.id)), ...selectedTopics.map(getResourceCategory)].map((topic) => [topic.id, topic])).values()];
+const result = getCatalogPage(resources, filters);
+const hasFilters = Boolean(filters.query || filters.category || selectedTopics.length || filters.sort || filters.page);
+---
+
+<resource-filter class="block min-w-0">
+  <form id="catalog-filters" action="/recursos" method="get" aria-label="Buscar recursos">
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-6">
+      <div class="min-w-0 lg:flex-1">
+        <label for="buscar-recurso" class="block text-sm font-bold text-ink mb-2">Buscar recursos</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-4 flex items-center text-text-soft pointer-events-none"><UIcon name="search" size={20} /></span>
+          <input id="buscar-recurso" name="q" value={filters.query} type="search" maxlength="200" placeholder="Título, tema o palabra clave" class="catalog-control w-full min-h-12 border border-line bg-white pl-12 pr-4 py-3 text-base text-ink" aria-controls="catalogo-recursos" />
+        </div>
+      </div>
+      <input name="categoria" type="hidden" value={filters.category} />
+      <nav aria-label="Tipos de recursos" class="category-navigation min-w-0 lg:shrink-0">
+        <ul class="category-selector flex flex-nowrap md:flex-wrap gap-2">
+          {categories.map((category) => {
+            const url = getCatalogUrl(Astro.url, { ...filters, category: category.id, page: undefined });
+            return (
+              <li>
+                <a href={`${url.pathname}${url.search}`} data-category-filter={category.id} aria-controls="catalogo-recursos" aria-current={filters.category === category.id ? 'true' : undefined} class="inline-flex min-h-11 lg:min-h-12 items-center px-3 lg:px-4 py-2 border border-line bg-white text-sm font-bold whitespace-nowrap transition-colors hover:border-red hover:text-red">{category.label}</a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </div>
+    <p data-filter-hint class="md:hidden text-xs text-text-soft mt-2">Desliza para ver más tipos →</p>
+    <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
+      {topics.length > 0 && (
+        <details class="topic-menu relative">
+          <summary class="min-h-11 px-3 py-2 border border-line bg-white text-sm font-bold text-ink cursor-pointer">Temas <span data-topic-count>{selectedTopics.length ? `(${selectedTopics.length})` : ''}</span></summary>
+          <fieldset class="topic-panel border border-line bg-white p-3">
+            <legend class="sr-only">Combinar temáticas</legend>
+            <p class="text-xs text-text-soft mb-2">Se aplican todos los temas seleccionados.</p>
+            {topics.map((topic) => (
+              <label class="flex min-h-11 items-center gap-3 text-sm cursor-pointer">
+                <input type="checkbox" name="tema" value={topic.id} checked={selectedTopics.includes(topic.id)} class="w-4 h-4 accent-red" />
+                {topic.label}
+              </label>
+            ))}
+          </fieldset>
+        </details>
+      )}
+      <a href="/recursos" data-clear-filters hidden={!hasFilters} class="catalog-clear min-h-11 items-center text-sm font-bold text-red underline underline-offset-4">Limpiar filtros</a>
+      <noscript><Button type="submit" variant="secondary" size="sm" class="catalog-button">Aplicar filtros</Button></noscript>
+    </div>
+  </form>
+
+  <p data-announcement role="status" aria-atomic="true" class="sr-only"></p>
+  <div data-request-error role="alert" hidden class="border border-line bg-white p-4 mb-4">
+    <p>No se pudieron actualizar los recursos. Se mantienen los resultados anteriores.</p>
+    <button type="button" data-retry class="min-h-11 text-sm font-bold text-red underline underline-offset-4">Reintentar</button>
+  </div>
+  <div class="results-shell relative" aria-busy="false">
+    <div data-results-host><ResourceResults result={result} filters={filters} url={Astro.url} hasError={hasError} /></div>
+    <div data-catalog-loading hidden aria-hidden="true" class="absolute top-16 inset-x-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 pointer-events-none">
+      {[1, 2, 3].map(() => (
+        <div class="catalog-placeholder border border-line bg-white p-5 md:p-6 h-56">
+          <div class="h-3 w-20 bg-paper mb-4"></div>
+          <div class="h-5 w-3/4 bg-paper mb-3"></div>
+          <div class="h-3 w-full bg-paper mb-2"></div>
+          <div class="h-3 w-2/3 bg-paper mb-8"></div>
+          <div class="h-3 w-24 bg-paper"></div>
+        </div>
+      ))}
+    </div>
+  </div>
+</resource-filter>
+
+<style>
+  [hidden] {
+    display: none;
+  }
+
+  .category-navigation {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 4px;
+    margin: -4px;
+  }
+
+  .category-selector > li {
+    flex-shrink: 0;
+  }
+
+  .category-selector a,
+  .catalog-control,
+  :global(.catalog-button) {
+    border-radius: 0;
+  }
+
+  .catalog-clear:not([hidden]) {
+    display: inline-flex;
+  }
+
+  .category-selector a:focus-visible,
+  .catalog-control:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--color-red);
+    outline-offset: 3px;
+  }
+
+  .category-selector a:active {
+    background: var(--color-itf-red-light);
+  }
+
+  .category-selector a[aria-current="true"] {
+    background: var(--color-red);
+    border-color: var(--color-red);
+    color: var(--color-white);
+  }
+
+  .catalog-control:hover {
+    border-color: var(--color-red);
+  }
+
+  .topic-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 20;
+    width: 18rem;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .results-shell[aria-busy="true"] {
+    min-height: 20rem;
+  }
+
+  .results-shell[aria-busy="true"] :global([data-catalog-results]) {
+    opacity: 0.4;
+  }
+
+  .catalog-placeholder:nth-child(n + 2) {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .category-navigation {
+      overflow: visible;
+    }
+
+    .catalog-placeholder:nth-child(2) {
+      display: block;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .catalog-placeholder:nth-child(3) {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  import { getCatalogUrl, readCatalogFilters, type CatalogFilters } from './catalogo';
+
+  class ResourceFilter extends HTMLElement {
+    private cleanup?: () => void;
+
+    connectedCallback(): void {
+      this.cleanup?.();
+      const lifecycle = new AbortController();
+      const options = { signal: lifecycle.signal };
+      let request: AbortController | undefined;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      this.cleanup = () => {
+        lifecycle.abort();
+        request?.abort();
+        clearTimeout(timer);
+      };
+      const form = this.querySelector<HTMLFormElement>('form');
+      const search = this.querySelector<HTMLInputElement>('[name="q"]');
+      const category = this.querySelector<HTMLInputElement>('[name="categoria"]');
+      const host = this.querySelector<HTMLElement>('[data-results-host]');
+      const shell = this.querySelector<HTMLElement>('.results-shell');
+      const loading = this.querySelector<HTMLElement>('[data-catalog-loading]');
+      const error = this.querySelector<HTMLElement>('[data-request-error]');
+      const announcement = this.querySelector<HTMLElement>('[data-announcement]');
+      if (!form || !search || !category || !host || !shell || !loading || !error || !announcement) return;
+
+      const currentFilters = (): CatalogFilters => {
+        const params = new URLSearchParams();
+        for (const [key, value] of new FormData(form)) if (typeof value === 'string') params.append(key, value);
+        return readCatalogFilters(params);
+      };
+      const syncControls = (filters: CatalogFilters, shouldSyncSearch: boolean): void => {
+        if (shouldSyncSearch) search.value = filters.query;
+        category.value = filters.category;
+        const sort = this.querySelector<HTMLSelectElement>('[name="orden"]');
+        if (sort) sort.value = filters.sort ?? 'recomendados';
+        this.querySelectorAll<HTMLInputElement>('[name="tema"]').forEach((input) => { input.checked = filters.topics?.includes(input.value) ?? false; });
+        const topicCount = this.querySelector<HTMLElement>('[data-topic-count]');
+        if (topicCount) topicCount.textContent = filters.topics?.length ? `(${filters.topics.length})` : '';
+        this.querySelectorAll<HTMLAnchorElement>('[data-category-filter]').forEach((link) => {
+          const id = link.dataset.categoryFilter ?? '';
+          const url = getCatalogUrl(new URL(window.location.href), { ...filters, category: id, page: undefined });
+          link.href = `${url.pathname}${url.search}`;
+          if (id === filters.category) link.setAttribute('aria-current', 'true');
+          else link.removeAttribute('aria-current');
+        });
+        const clear = form.querySelector<HTMLElement>('[data-clear-filters]');
+        if (clear) clear.hidden = !filters.query && !filters.category && !filters.topics?.length && !filters.sort && !filters.page;
+      };
+      const setLoading = (isLoading: boolean): void => {
+        shell.setAttribute('aria-busy', String(isLoading));
+        loading.hidden = !isLoading;
+      };
+      const navigate = async (filters: CatalogFilters, historyMode: 'push' | 'replace' | false, shouldFocusResults = false, shouldSyncSearch = true): Promise<void> => {
+        clearTimeout(timer);
+        request?.abort();
+        const activeRequest = new AbortController();
+        request = activeRequest;
+        const url = getCatalogUrl(new URL(window.location.href), filters);
+        if (historyMode && url.href !== window.location.href) {
+          if (historyMode === 'push') window.history.pushState(window.history.state, '', url);
+          else window.history.replaceState(window.history.state, '', url);
+        }
+        syncControls(filters, shouldSyncSearch);
+        setLoading(true);
+        error.hidden = true;
+        announcement.textContent = 'Cargando recursos…';
+        try {
+          const response = await fetch(url, {
+            headers: { 'X-Resource-Catalog': 'partial' }, cache: 'no-store',
+            signal: AbortSignal.any([activeRequest.signal, AbortSignal.timeout(15000)]),
+          });
+          if (!response.ok) throw new Error(`No se pudo consultar el catálogo (HTTP ${response.status}).`);
+          const documentResult = new DOMParser().parseFromString(await response.text(), 'text/html');
+          const results = documentResult.querySelector<HTMLElement>('[data-catalog-results]');
+          if (!results) throw new Error('La respuesta del catálogo no contiene resultados válidos.');
+          if (activeRequest.signal.aborted) return;
+          const focusedId = host.contains(document.activeElement) ? document.activeElement?.id : undefined;
+          host.replaceChildren(document.importNode(results, true));
+          const actualPage = Number(results.dataset.page ?? '1');
+          const actualUrl = getCatalogUrl(url, { ...filters, page: actualPage });
+          if (actualUrl.href !== window.location.href) window.history.replaceState(window.history.state, '', actualUrl);
+          const status = host.querySelector<HTMLElement>('[data-filter-status]');
+          announcement.textContent = status?.textContent ?? 'Recursos actualizados.';
+          if (shouldFocusResults && status) {
+            status.tabIndex = -1;
+            status.focus({ preventScroll: true });
+            status.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+          } else if (focusedId) {
+            host.querySelector<HTMLElement>(`#${CSS.escape(focusedId)}`)?.focus({ preventScroll: true });
+          }
+        } catch (cause) {
+          if (activeRequest.signal.aborted) return;
+          error.hidden = false;
+          announcement.textContent = cause instanceof Error ? cause.message : 'No se pudo actualizar el catálogo.';
+        } finally {
+          if (request === activeRequest) setLoading(false);
+        }
+      };
+
+      search.addEventListener('input', () => {
+        clearTimeout(timer);
+        request?.abort();
+        timer = setTimeout(() => { void navigate({ ...currentFilters(), page: undefined }, 'replace', false, false); }, 200);
+      }, options);
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        void navigate({ ...currentFilters(), page: undefined }, 'push');
+      }, options);
+      this.addEventListener('change', (event) => {
+        if (event.target instanceof HTMLInputElement && event.target.name === 'tema'
+          || event.target instanceof HTMLSelectElement && event.target.name === 'orden') {
+          void navigate({ ...currentFilters(), page: undefined }, 'push');
+        }
+      }, options);
+      this.addEventListener('click', (event) => {
+        if (!(event instanceof MouseEvent) || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+        const target = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-category-filter], [data-clear-filters], [data-page-link], [data-retry]') : null;
+        if (!target) return;
+        // Un fallo de la carga inicial necesita recuperar también los controles del catálogo.
+        if (target instanceof HTMLAnchorElement && target.hasAttribute('data-retry') && host.querySelector('[data-load-error]')) return;
+        event.preventDefault();
+        if (target.hasAttribute('data-clear-filters')) void navigate({ query: '', category: '' }, 'push');
+        else if (target.hasAttribute('data-category-filter')) void navigate({ ...currentFilters(), category: target.dataset.categoryFilter ?? '', page: undefined }, 'push');
+        else if (target instanceof HTMLAnchorElement && target.hasAttribute('data-page-link')) void navigate(readCatalogFilters(new URL(target.href).searchParams), 'push', true);
+        else void navigate(readCatalogFilters(new URL(window.location.href).searchParams), false);
+      }, options);
+      const navigation = this.querySelector<HTMLElement>('.category-navigation');
+      const hint = this.querySelector<HTMLElement>('[data-filter-hint]');
+      const updateHint = (): void => {
+        if (navigation && hint) hint.hidden = navigation.scrollWidth - navigation.scrollLeft <= navigation.clientWidth + 2;
+      };
+      const resize = new ResizeObserver(updateHint);
+      if (navigation) {
+        resize.observe(navigation);
+        navigation.addEventListener('scroll', updateHint, options);
+      }
+      lifecycle.signal.addEventListener('abort', () => resize.disconnect(), { once: true });
+      updateHint();
+      const menu = this.querySelector<HTMLDetailsElement>('details');
+      document.addEventListener('click', (event) => {
+        if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
+      }, options);
+      this.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && menu?.open) {
+          menu.open = false;
+          menu.querySelector('summary')?.focus();
+        }
+      }, options);
+      window.addEventListener('popstate', () => { void navigate(readCatalogFilters(new URL(window.location.href).searchParams), false); }, options);
+    }
+
+    disconnectedCallback(): void {
+      this.cleanup?.();
+    }
+  }
+
+  if (!customElements.get('resource-filter')) customElements.define('resource-filter', ResourceFilter);
+</script>

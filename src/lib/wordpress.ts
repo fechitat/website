@@ -3,11 +3,19 @@ export interface BlogPost {
   titulo: string;
   slug: { current: string };
   fecha?: string;
+  fechaActualizacion?: string;
+  tematicas?: string[];
+  prioridad?: number;
+  fundamental?: boolean;
+  destacadoCatalogo?: boolean;
   autor?: string;
   extracto?: string;
   categorias: string[];
   imagenUrl?: string;
   imagenAlt?: string;
+  imagenFoco?: { x: number; y: number };
+  imagenSrcSet?: string;
+  palabrasClave?: string[];
   contenidoHtml?: string;
   destacado: boolean;
 }
@@ -17,14 +25,15 @@ interface WordPressPost {
   slug: string;
   date: string;
   date_gmt: string | null;
+  modified_gmt?: string;
   title: { rendered: string };
   excerpt: { rendered: string };
   content: { rendered: string };
   meta?: { fechitat_author_credit?: string };
   sticky: boolean;
   _embedded?: {
-    'wp:featuredmedia'?: Array<{ source_url?: string; alt_text?: string }>;
-    'wp:term'?: Array<Array<{ taxonomy: string; slug: string }>>;
+    'wp:featuredmedia'?: Array<{ source_url?: string; alt_text?: string; media_details?: { sizes?: Record<string, { source_url?: string; width?: number }> } }>;
+    'wp:term'?: Array<Array<{ taxonomy: string; slug: string; name?: string }>>;
   };
 }
 
@@ -90,18 +99,25 @@ async function fetchPosts(params: URLSearchParams): Promise<Response> {
  */
 export function mapWordPressPost(post: WordPressPost): BlogPost {
   const image = post._embedded?.['wp:featuredmedia']?.[0];
+  const imageSizes = Object.values(image?.media_details?.sizes ?? {})
+    .filter((size): size is { source_url: string; width: number } => Boolean(size.source_url) && typeof size.width === 'number' && size.width > 0)
+    .map((size) => `${size.source_url} ${size.width}w`);
+  const keywords = post._embedded?.['wp:term']?.flat()
+    .filter((term) => term.taxonomy === 'post_tag').map((term) => term.name || term.slug) ?? [];
   return {
     _id: `wp-${post.id}`,
     titulo: toPlainText(post.title.rendered),
     slug: { current: post.slug },
     fecha: post.date_gmt ? `${post.date_gmt}Z` : post.date,
+    ...(post.modified_gmt ? { fechaActualizacion: `${post.modified_gmt}Z` } : {}),
     autor: post.meta?.fechitat_author_credit || undefined,
     extracto: toPlainText(post.excerpt.rendered),
     categorias: post._embedded?.['wp:term']?.flat()
       .filter((term) => term.taxonomy === 'category').map((term) => term.slug) ?? [],
     imagenUrl: image?.source_url,
     imagenAlt: image?.alt_text,
-    contenidoHtml: post.content.rendered,
+    ...(imageSizes.length ? { imagenSrcSet: imageSizes.join(', ') } : {}),
+    ...(keywords.length > 0 ? { palabrasClave: keywords } : {}),    contenidoHtml: post.content.rendered,
     destacado: post.sticky,
   };
 }

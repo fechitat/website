@@ -1,5 +1,6 @@
 import {DocumentPdfIcon} from '@sanity/icons/DocumentPdf'
 import {defineField, defineType} from 'sanity'
+import {catalogoFields} from './catalogoFields'
 
 export default defineType({
   name: 'documentoOficial',
@@ -74,12 +75,16 @@ export default defineType({
       type: 'string',
       options: {
         list: [
+          {title: 'Sin verificar', value: 'sin-verificar'},
           {title: 'Vigente', value: 'vigente'},
           {title: 'Archivado', value: 'archivado'},
+          {title: 'Reemplazado', value: 'reemplazado'},
+          {title: 'Obsoleto', value: 'obsoleto'},
         ],
         layout: 'radio',
       },
-      initialValue: 'vigente',
+      description: 'Selecciona Vigente solo después de verificar el documento.',
+      initialValue: 'sin-verificar',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -100,6 +105,7 @@ export default defineType({
       type: 'boolean',
       initialValue: true,
     }),
+    ...catalogoFields,
   ],
   orderings: [
     {
@@ -130,9 +136,10 @@ export default defineType({
         otro: 'Otro',
       }
 
+      const estados: Record<string, string> = {vigente: 'Vigente', archivado: 'Archivado', reemplazado: 'Reemplazado', obsoleto: 'Obsoleto'}
       return {
         title,
-        subtitle: `${etiquetas[tipo] ?? tipo ?? 'Documento'} · ${estado === 'archivado' ? 'Archivado' : 'Vigente'}`,
+        subtitle: `${etiquetas[tipo] ?? tipo ?? 'Documento'} · ${typeof estado === 'string' ? estados[estado] ?? 'Sin verificar' : 'Sin verificar'}`,
       }
     },
   },

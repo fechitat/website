@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getBlogPosts, getTotalBlogPosts } from '../lib/blog';
+import { getAllBlogPosts } from '../lib/blog';
 
 export const prerender = false;
 
@@ -10,18 +10,14 @@ export const prerender = false;
  * @throws Error si el proveedor editorial no puede devolver el inventario completo.
  */
 export const GET: APIRoute = async ({ site }) => {
-  const total = await getTotalBlogPosts();
-  const pages = Math.ceil(total / 100);
-  const base = site ?? new URL('https://fechitat.vercel.app');
+  const posts = await getAllBlogPosts();
+  const base = site ?? new URL('https://fechitat-website.vercel.app');
   const paths: string[] = [];
 
-  for (let page = 1; page <= pages; page++) {
-    const posts = await getBlogPosts(page, 100);
-    for (const post of posts) {
-      if (post.slug?.current) {
-        const url = new URL(`/blog/${encodeURIComponent(post.slug.current)}/`, base);
-        paths.push(`<url><loc>${url.href.replaceAll('&', '&amp;')}</loc></url>`);
-      }
+  for (const post of posts) {
+    if (post.slug?.current) {
+      const url = new URL(`/blog/${encodeURIComponent(post.slug.current)}`, base);
+      paths.push(`<url><loc>${url.href.replaceAll('&', '&amp;')}</loc></url>`);
     }
   }
 

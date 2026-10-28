@@ -3,14 +3,14 @@ import {
   getBlogPosts as getSanityPosts,
   getBlogPostsDestacados as getSanityFeatured,
   getTotalBlogPosts as getSanityCount,
-} from './sanityQueries';
+} from './sanityQueries.ts';
 import {
   getWordPressBlogPostBySlug,
   getWordPressBlogPosts,
   getWordPressBlogCount,
   getWordPressFeaturedPosts,
   type BlogPost,
-} from './wordpress';
+} from './wordpress.ts';
 
 export interface PublicBlogPost extends BlogPost {
   imagen?: unknown;
@@ -36,6 +36,20 @@ export async function getBlogPosts(page = 1, perPage = 12): Promise<PublicBlogPo
   return isWordPressBlogEnabled()
     ? getWordPressBlogPosts(page, perPage)
     : getSanityPosts(page, perPage);
+}
+
+/**
+ * Recupera el inventario editorial completo, sin limitarlo a la primera página.
+ * @returns Todos los artículos publicados del proveedor configurado.
+ * @throws Error si falla el recuento o alguna página del proveedor.
+ */
+export async function getAllBlogPosts(): Promise<PublicBlogPost[]> {
+  const total = await getTotalBlogPosts();
+  const posts: PublicBlogPost[] = [];
+  for (let page = 1; page <= Math.ceil(total / 100); page++) {
+    posts.push(...await getBlogPosts(page, 100));
+  }
+  return posts;
 }
 
 /**

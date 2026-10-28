@@ -1,76 +1,66 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ResourceCatalog from '../../features/recursos/ResourceCatalog.astro';
+import ResourceResults from '../../features/recursos/ResourceResults.astro';
+import { CATALOG_PAGE_SIZE, getCatalogPage, getCatalogUrl, readCatalogFilters, type CatalogResource } from '../../features/recursos/catalogo';
+import { loadCatalogResources } from '../../features/recursos/service';
 
-const secciones = [
-  {
-    id: 'formacion',
-    numero: '01',
-    titulo: 'Formación',
-    descripcion: 'Profundiza en la técnica, los patrones y el lenguaje del Taekwon-Do ITF. Material para acompañarte dentro y fuera del dojang.',
-    imagen: '/images/hero/hero.webp',
-    imagenAlt: 'Practicantes de Taekwon-Do reunidos en un dojang',
-    ancho: 1600,
-    alto: 1200,
-    enlaces: [
-      { nombre: 'Programa de examen', href: '/recursos/formacion/programa-examen' },
-      { nombre: 'Terminología', href: '/recursos/formacion/terminologia' },
-    ],
+export const prerender = false;
+
+const filters = readCatalogFilters(Astro.url.searchParams);
+if (Astro.url.searchParams.has('formato') || (Astro.url.searchParams.has('categoria') && filters.category !== Astro.url.searchParams.get('categoria'))) {
+  const url = getCatalogUrl(Astro.url, filters);
+  return Astro.redirect(`${url.pathname}${url.search}`, 301);
+}
+
+const isPartial = Astro.request.headers.get('X-Resource-Catalog') === 'partial';
+Astro.response.headers.set('Vary', 'X-Resource-Catalog');
+Astro.response.headers.set('Cache-Control', 'no-store');
+const description = 'Guías, herramientas, documentos y artículos para estudiar y practicar Taekwon-Do ITF.';
+let resources: CatalogResource[] = [];
+let hasError = false;
+try {
+  resources = await loadCatalogResources();
+} catch (error) {
+  hasError = true;
+  Astro.response.status = 503;
+  Astro.logger.error(`No se pudo cargar el catálogo de Recursos: ${error instanceof Error ? error.message : 'Error desconocido del proveedor'}`);
+}
+const result = getCatalogPage(resources, filters);
+const canonicalUrl = new URL('/recursos', Astro.site);
+const structuredData = hasError ? undefined : {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Recursos — FECHITAT',
+  description,
+  url: canonicalUrl.href,
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: result.total,
+    itemListElement: result.resources.map((resource, index) => ({
+      '@type': 'ListItem',
+      position: (result.page - 1) * CATALOG_PAGE_SIZE + index + 1,
+      name: resource.title,
+      url: new URL(resource.href, Astro.site).href,
+    })),
   },
-  {
-    id: 'herramientas',
-    numero: '02',
-    titulo: 'Herramientas',
-    descripcion: 'Lleva tu práctica más lejos con recursos digitales para explorar formas, entrenar a tu ritmo y descubrir nuevas posibilidades.',
-    imagen: '/images/hero/OIP.webp',
-    imagenAlt: 'Grupo de practicantes de Taekwon-Do en el tatami',
-    ancho: 474,
-    alto: 474,
-    enlaces: [
-      { nombre: 'TUL · Sonkal ITF', href: 'https://play.google.com/store/apps/details?id=cz.principal.tul.tkd.itf&hl=en-US' },
-      { nombre: 'Temporizador de formas', href: 'https://tools-sigma-olive.vercel.app/temporizador' },
-    ],
-  },
-];
+};
 ---
 
-<BaseLayout title="Recursos — FECHITAT" description="Material de formación y herramientas para practicar Taekwon-Do ITF.">
-  <section class="bg-ink text-white">
-    <div class="max-w-6xl mx-auto px-5 md:px-7 py-16 md:py-24">
-      <p class="text-light-soft font-mono text-sm uppercase tracking-widest mb-4">Aprende · Practica · Crece</p>
-      <h1 class="text-white text-4xl md:text-6xl max-w-3xl">Recursos para tu camino</h1>
-      <p class="text-light-soft mt-5 max-w-2xl text-lg">Encuentra material de formación y herramientas para seguir entrenando, dondequiera que estés.</p>
-    </div>
-  </section>
-
-  {secciones.map((seccion, indice) => (
-    <section id={seccion.id} class:list={['py-16 md:py-24', indice % 2 === 0 ? 'bg-white' : 'bg-paper']} aria-labelledby={`titulo-${seccion.id}`}>
-      <div class="max-w-6xl mx-auto px-5 md:px-7 grid gap-10 lg:gap-16 lg:grid-cols-2 items-center">
-        <div class:list={['overflow-hidden rounded-sm', indice % 2 !== 0 && 'lg:order-2']}>
-          <img
-            src={seccion.imagen}
-            alt={seccion.imagenAlt}
-            width={seccion.ancho}
-            height={seccion.alto}
-            loading="lazy"
-            class="w-full aspect-video lg:aspect-square object-cover"
-          />
-        </div>
-        <div>
-          <p class="text-red font-mono text-sm uppercase tracking-widest mb-4">{seccion.numero} / Recursos</p>
-          <h2 id={`titulo-${seccion.id}`} class="text-3xl md:text-5xl">{seccion.titulo}</h2>
-          <p class="text-text-soft text-lg mt-4 mb-8 max-w-xl">{seccion.descripcion}</p>
-          <ul class="border-t border-line">
-            {seccion.enlaces.map((enlace) => (
-              <li class="border-b border-line">
-                <a href={enlace.href} class="group flex items-center justify-between gap-4 py-5 text-ink hover:text-red focus-visible:text-red transition-colors">
-                  <span class="font-heading font-bold text-lg md:text-xl">{enlace.nombre}</span>
-                  <span aria-hidden="true" class="text-red text-2xl transition-transform group-hover:translate-x-1">↗</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+{isPartial ? (
+  <ResourceResults result={result} filters={filters} url={Astro.url} hasError={hasError} />
+) : (
+  <BaseLayout title="Recursos — FECHITAT" description={description} structuredData={structuredData} noindex={['q', 'categoria', 'tema', 'orden', 'pagina'].some((key) => Astro.url.searchParams.has(key))}>
+    <section class="bg-ink text-white border-b-4 border-red">
+      <div class="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-10">
+        <h1 class="text-white text-4xl md:text-5xl">Recursos</h1>
+        <p class="text-light-soft mt-3 max-w-3xl text-lg">{description}</p>
       </div>
     </section>
-  ))}
-</BaseLayout>
+    <section class="py-6 md:py-10" aria-label="Catálogo de recursos">
+      <div class="max-w-7xl mx-auto px-4 md:px-8">
+        <ResourceCatalog resources={resources} hasError={hasError} />
+      </div>
+    </section>
+  </BaseLayout>
+)}

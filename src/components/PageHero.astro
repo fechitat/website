@@ -3,12 +3,13 @@ interface Props {
   title: string;
   description?: string;
   crumb?: string;
+  crumbHref?: string;
   image?: string;
   imageAlt?: string;
   imageStyle?: string;
 }
 
-const { title, description, crumb, image, imageAlt, imageStyle } = Astro.props;
+const { title, description, crumb, crumbHref, image, imageAlt, imageStyle } = Astro.props;
 ---
 
 <section class="bg-ink text-white py-10 md:py-14 pb-8 md:pb-10">
@@ -20,14 +21,21 @@ const { title, description, crumb, image, imageAlt, imageStyle } = Astro.props;
   >
     <div>
       {crumb && (
-        <div class="font-mono text-xs tracking-[0.1em] uppercase text-light-muted mb-4">
-          <a href="/" class="hover:text-white transition-colors duration-150">Inicio</a> / {crumb}
-        </div>
+        <nav aria-label="Ruta de navegación" class="font-mono text-xs tracking-wider uppercase text-light-muted mb-4">
+          <a href="/" class="hover:text-white transition-colors duration-150">Inicio</a> /
+          {crumbHref ? <a href={crumbHref} class="hover:text-white transition-colors duration-150">{crumb}</a> : <span>{crumb}</span>}
+        </nav>
       )}
-      <h1 class="text-white uppercase text-[clamp(1.8rem,5vw,3.2rem)]" set:html={title} />
-      {description && <p class="text-light-soft max-w-[60ch] mt-2">{description}</p>}
+      <h1 class="page-hero-title text-white uppercase">{title.split(/<br\s*\/?>/i).map((line, index) => <>{index > 0 && <br />}{line}</>)}</h1>
+      {description && <p class="text-light-soft max-w-3xl mt-2">{description}</p>}
       <slot />
     </div>
     {image && <img src={image} alt={imageAlt ?? ''} style={imageStyle} class="rounded-sm w-full" />}
   </div>
 </section>
+
+<style>
+  .page-hero-title {
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+  }
+</style>

@@ -1,0 +1,62 @@
+---
+import Card from '../../components/ui/Card.astro';
+import UIcon from '../../components/icons/UIcon.astro';
+import { RESOURCE_FORMATS, type CatalogResource } from './catalogo';
+
+interface Props {
+  resource: CatalogResource;
+  headingLevel?: 'h2' | 'h3';
+  variant?: 'standard' | 'featured';
+}
+
+const { resource, headingLevel: Heading = 'h2', variant = 'standard' } = Astro.props;
+const actions = { articulo: 'Leer artículo', guia: 'Ver guía', herramienta: 'Abrir herramienta', documento: 'Ver documento' };
+const format = RESOURCE_FORMATS.find((option) => option.id === resource.format);
+---
+
+<Card href={resource.href} class={`resource-card group h-full${variant === 'featured' ? ' resource-card--featured' : ''}`}>
+  <div class="p-5 h-full flex flex-col">
+    <p class="text-xs font-bold text-red mb-2">
+      {resource.category.label}
+      <span class="sr-only"> · {format?.singularLabel}</span>
+    </p>
+    <Heading class="text-xl leading-snug tracking-normal mb-0 group-hover:text-red group-focus-visible:text-red transition-colors">{resource.title}</Heading>
+    {resource.description && <p class="resource-description text-sm text-text-soft mt-2 mb-0 leading-relaxed line-clamp-2">{resource.description}</p>}
+    {resource.details && resource.details.length > 0 && <p class="text-xs text-text-soft mt-2 mb-0 leading-relaxed">{resource.details.join(' · ')}</p>}
+    <span class="mt-auto pt-4 inline-flex items-center gap-2 text-sm font-bold text-red underline-offset-4 group-hover:underline group-focus-visible:underline">
+      {resource.actionLabel ?? actions[resource.format]}
+      <UIcon name="arrow-up-right" size={16} class="shrink-0" />
+    </span>
+  </div>
+</Card>
+
+<style>
+  :global(.resource-card) {
+    border-color: var(--color-line);
+    border-radius: 0;
+    box-shadow: none;
+    transition: border-color 150ms, background-color 150ms;
+    overflow-wrap: anywhere;
+  }
+
+  :global(.resource-card--featured),
+  :global(.resource-card:hover),
+  :global(.resource-card:focus-visible) {
+    border-color: var(--color-red);
+  }
+
+  :global(.resource-card:focus-visible) {
+    outline: 2px solid var(--color-red);
+    outline-offset: 3px;
+  }
+
+  :global(.resource-card:active) {
+    background: var(--color-paper);
+  }
+
+  /* El teclado permite leer el extracto completo sin depender del hover. */
+  :global(.resource-card:focus-visible) .resource-description {
+    display: block;
+    -webkit-line-clamp: unset;
+  }
+</style>

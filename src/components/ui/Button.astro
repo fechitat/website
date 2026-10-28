@@ -1,7 +1,7 @@
 ---
 // Botón reutilizable para mantener una jerarquía visual consistente.
 interface Props {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'dark' | 'dark-ghost' | 'blue';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'dark' | 'dark-ghost' | 'blue' | 'brand';
   size?: 'sm' | 'md' | 'lg' | 'icon';
   href?: string;
   /** Renderiza una etiqueta visual dentro de un enlace contenedor sin anidar enlaces. */
@@ -9,9 +9,13 @@ interface Props {
   class?: string;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
+  isRounded?: boolean;
   target?: string;
   rel?: string;
   ariaLabel?: string;
+  ariaPressed?: boolean;
+  ariaControls?: string;
+  value?: string;
 }
 
 const {
@@ -22,12 +26,16 @@ const {
   class: clase = '',
   type = 'button',
   disabled = false,
+  isRounded = false,
   target,
   rel,
   ariaLabel,
+  ariaPressed,
+  ariaControls,
+  value,
 } = Astro.props;
 
-const baseClasses = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-sm px-5 py-3 font-heading text-xs font-bold uppercase tracking-[0.06em] cursor-pointer transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-itf-red disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50';
+const baseClasses = 'ui-button inline-flex min-h-11 items-center justify-center gap-2 px-5 py-3 font-heading text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-itf-red disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50';
 
 const sizeClasses = {
   sm: 'min-h-11 px-4',
@@ -38,6 +46,7 @@ const sizeClasses = {
 
 const variantClasses = {
   primary: 'bg-itf-red text-white hover:bg-itf-red-dark',
+  brand: 'bg-red text-white hover:bg-red-dark',
   secondary: 'bg-slate-900 text-white hover:bg-slate-800',
   ghost: 'border border-white/70 bg-transparent text-white hover:bg-white/10',
   dark: 'bg-slate-900 text-white hover:bg-slate-800',
@@ -45,7 +54,7 @@ const variantClasses = {
   blue: 'bg-itf-blue text-white hover:bg-itf-blue-dark',
 };
 
-const allClasses = `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${clase}`;
+const allClasses = `${baseClasses} ${isRounded ? 'rounded-lg' : 'rounded-md'} ${sizeClasses[size]} ${variantClasses[variant]} ${clase}`;
 ---
 
 {href ? (
@@ -57,7 +66,7 @@ const allClasses = `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant
     <slot />
   </span>
 ) : (
-  <button type={type} class={allClasses} disabled={disabled}>
+  <button type={type} class={allClasses} disabled={disabled} aria-label={ariaLabel} aria-pressed={ariaPressed} aria-controls={ariaControls} value={value}>
     <slot />
   </button>
 )}

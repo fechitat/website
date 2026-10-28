@@ -1,4 +1,5 @@
-import {sanity} from './sanity'
+import {sanity} from './sanity.ts'
+import type { CatalogEntry } from '../features/recursos/catalogo.ts'
 
 /** Obtener todos los eventos ordenados por fecha */
 export async function getEventos() {
@@ -110,7 +111,17 @@ export async function getBlogPosts(pagina = 1, porPagina = 12) {
       autor,
       extracto,
       imagen,
+      "imagenUrl": imagen.asset->url,
+      "imagenAlt": imagen.alt,
+      "imagenFoco": imagen.hotspot,
       categorias,
+      palabrasClave,
+      tematicas,
+      prioridad,
+      fundamental,
+      destacadoCatalogo,
+      icono,
+      "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),
       destacado
     }`
   )
@@ -217,11 +228,33 @@ export async function getDocumentosOficiales() {
       fechaPublicacion,
       fechaVigencia,
       estado,
+      tematicas,
+      palabrasClave,
+      prioridad,
+      fundamental,
+      destacadoCatalogo,
+      icono,
+      "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),
       "archivoUrl": archivo.asset->url,
       "archivoNombre": archivo.asset->originalFilename,
       "comisionNombre": comision->nombre
     }`
   )
+}
+
+/**
+ * Obtiene las fichas administrables, incluidas las despublicadas para retirar recursos iniciales.
+ * @returns Fichas públicas del catálogo sin borradores del CMS.
+ * @throws Error si Sanity no responde.
+ */
+export async function getCatalogEntries(): Promise<CatalogEntry[]> {
+  return sanity.fetch<CatalogEntry[]>(`*[_type == "recurso" && !(_id in path("drafts.**"))] {
+    _id, slug, titulo, descripcion, tipo, categoria, destino, accion, activo,
+    tematicas, palabrasClave, prioridad, fundamental, destacadoCatalogo, icono,
+    fechaPublicacion, autor, version, estado,
+    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),
+    "imagenUrl": imagen.asset->url, "imagenAlt": imagen.alt, "imagenFoco": imagen.hotspot
+  }`);
 }
 
 /** Obtener campeones del salón de campeones */
@@ -300,7 +333,7 @@ export async function getDirectorioEscuelas(filtros: FiltrosEscuelas, porPagina 
 
 /** Obtener las tres publicaciones destacadas para la portada. */
 export async function getBlogPostsDestacados() {
-  return sanity.fetch(`*[_type == "blogPost" && destacado == true] | order(fecha desc)[0...3]`)
+  return sanity.fetch(`*[_type == "blogPost" && destacado == true] | order(fecha desc)[0...3] { ..., "imagenUrl": imagen.asset->url, "imagenAlt": imagen.alt }`)
 }
 
 /** Obtener testimonios */

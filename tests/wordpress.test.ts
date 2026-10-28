@@ -53,6 +53,15 @@ test('mapea fecha UTC, firma, imagen y categorías de la noticia', () => {
   });
 });
 
+test('conserva las etiquetas editoriales como palabras clave de búsqueda, no como badges adicionales', () => {
+  const post = mapWordPressPost({ ...entry, _embedded: {
+    ...entry._embedded,
+    'wp:term': [[{ taxonomy: 'category', slug: 'tecnica' }, { taxonomy: 'post_tag', slug: 'autoproteccion', name: 'Autoprotección' }]],
+  } });
+  assert.deepEqual(post.categorias, ['tecnica']);
+  assert.deepEqual(post.palabrasClave, ['Autoprotección']);
+});
+
 test('consulta la paginación, el artículo y las noticias fijadas sin credenciales', async () => {
   process.env.WORDPRESS_URL = 'https://cms.example.test';
   const urls: string[] = [];

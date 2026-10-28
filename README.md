@@ -17,7 +17,6 @@ src/
     HangulRail.astro      # riel vertical con scroll-spy (recibe anclas por prop)
     Eyebrow.astro         # mini-etiqueta mono
     Tag.astro             # etiqueta de color (default/red/blue/gold)
-    Pill.astro            # botón redondeado del filtro de blog
     Stat.astro            # contador animado (data-count)
     PageHero.astro        # hero de páginas interiores
     EventBadge.astro      # badge circular de fecha de evento
@@ -26,7 +25,8 @@ src/
     federacion.astro      # /federacion
     padres.astro          # /padres
     jovenes.astro         # /jovenes
-    blog.astro            # /blog
+    blog.astro            # redirección 301 a /recursos
+    recursos/index.astro  # catálogo unificado; ver docs/architecture/catalogo-recursos.md en la raíz
     eventos.astro         # /eventos
   scripts/
     main.js               # interacciones globales (burger, scroll-spy, contadores)

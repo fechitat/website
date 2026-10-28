@@ -35,8 +35,8 @@
   --color-ink-soft: #101a2c;
   --color-paper: #f1f4f6;
   --color-white: #ffffff;
-  --color-red: #D21034;
-  --color-red-dark: #A60C28;
+  --color-red: #D21111;
+  --color-red-dark: #B50E0E;
   --color-blue: #0033A0;
   --color-blue-soft: #16325C;
   --color-gold: #b08d57;
@@ -131,6 +131,11 @@
       transition: none !important;
     }
   }
+}
+
+/* Los controles circulares conservan su forma; Button gestiona su propio radio. */
+:where(button:not(.ui-button):not(.rounded-full), input[type="button"], input[type="submit"], a.inline-flex:not(.ui-button):not(.rounded-full)) {
+  border-radius: var(--radius-md);
 }
 
 /* ---------- Utilidades personalizadas ---------- */

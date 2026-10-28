@@ -1,14 +1,4 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-
-const paginas = [
-  { href: '/recursos/formacion/programa-examen', nombre: 'Programa de examen' },
-  { href: '/recursos/formacion/terminologia', nombre: 'Terminología' },
-];
+export const prerender = false;
+return Astro.redirect('/recursos?categoria=teoria', 301);
 ---
-<BaseLayout title="Formación — FECHITAT" description="Recursos de formación de Taekwon-Do ITF.">
-  <section class="bg-ink text-white"><div class="max-w-6xl mx-auto px-5 md:px-7 py-16"><h1 class="text-white text-4xl md:text-6xl">Formación</h1></div></section>
-  <section class="max-w-6xl mx-auto px-5 md:px-7 py-12 grid gap-5 md:grid-cols-2">
-    {paginas.map((pagina) => <a href={pagina.href} class="bg-white border border-line rounded-sm p-6 hover:shadow-lg"><h2 class="text-2xl">{pagina.nombre} →</h2></a>)}
-  </section>
-</BaseLayout>

@@ -1,17 +1,10 @@
 ---
 const { pathname } = Astro.url;
 
-const links = [
-  { href: "/", label: "Inicio" },
-  { href: "/federacion", label: "Federación" },
-  { href: "/eventos", label: "Eventos" },
-  { href: "/blog", label: "Blog" },
-];
-
 const esActivo = (href) =>
   href === "/" ? pathname === "/" : pathname.startsWith(href);
 const federacionActiva = esActivo("/federacion") || esActivo("/escuelas");
-const recursosActivos = esActivo("/recursos");
+const recursosActivos = esActivo("/recursos") || esActivo("/blog");
 ---
 
 <header class="sticky top-0 z-50 bg-ink border-b border-white/10">
@@ -45,7 +38,6 @@ const recursosActivos = esActivo("/recursos");
         <div class="absolute left-0 top-full mt-3 min-w-52 bg-ink border border-white/15 rounded-sm p-2 shadow-xl">
           <a href="/federacion" class="block px-3 py-2 text-light-soft hover:text-white hover:bg-white/10 font-mono text-xs uppercase tracking-wider">Quiénes somos</a>
           <a href="/escuelas" class="block px-3 py-2 text-light-soft hover:text-white hover:bg-white/10 font-mono text-xs uppercase tracking-wider">Escuelas afiliadas</a>
-          <a href="/federacion/documentos" class="block px-3 py-2 text-light-soft hover:text-white hover:bg-white/10 font-mono text-xs uppercase tracking-wider">Documentos oficiales</a>
         </div>
       </details>
 
@@ -56,14 +48,6 @@ const recursosActivos = esActivo("/recursos");
         class:list={esActivo("/eventos") ? "text-white border-red" : "text-light-soft hover:text-white hover:border-red"}
       >
         Eventos
-      </a>
-      <a
-        href="/blog"
-        data-astro-prefetch="hover"
-        class="font-mono text-xs tracking-widest uppercase py-1 border-b-2 border-transparent transition-colors duration-150"
-        class:list={esActivo("/blog") ? "text-white border-red" : "text-light-soft hover:text-white hover:border-red"}
-      >
-        Blog
       </a>
       <a
         href="/recursos"
@@ -112,7 +96,6 @@ const recursosActivos = esActivo("/recursos");
       <div class="flex flex-col gap-3 pl-4 pb-2">
         <a href="/federacion" class="text-light-soft hover:text-white font-mono text-sm tracking-wider">Quiénes somos</a>
         <a href="/escuelas" class="text-light-soft hover:text-white font-mono text-sm tracking-wider">Escuelas afiliadas</a>
-        <a href="/federacion/documentos" class="text-light-soft hover:text-white font-mono text-sm tracking-wider">Documentos oficiales</a>
       </div>
     </details>
     <a
@@ -124,16 +107,6 @@ const recursosActivos = esActivo("/recursos");
       ]}
     >
       Eventos
-    </a>
-    <a
-      href="/blog"
-      data-astro-prefetch="hover"
-      class:list={[
-        "font-mono text-sm tracking-widest uppercase py-2 border-l-2 transition-colors duration-150 pl-4",
-        esActivo("/blog") ? "text-white border-red" : "text-light-soft hover:text-white border-transparent",
-      ]}
-    >
-      Blog
     </a>
     <a
       href="/recursos"

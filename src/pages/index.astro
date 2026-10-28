@@ -1,7 +1,6 @@
 ---
 import EventBadge from "../components/EventBadge.astro";
 import Stat from "../components/Stat.astro";
-import Tag from "../components/Tag.astro";
 import UIcon from "../components/icons/UIcon.astro";
 import Button from "../components/ui/Button.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
@@ -10,7 +9,8 @@ import heroImg from "../assets/hero/hero.webp";
 import { img } from "../lib/imagenes";
 import { getMetricas, getProximoEventoDestacado, getEscuelasPorRegion } from "../lib/sanityQueries";
 import { getBlogPostsDestacados } from "../lib/blog";
-import { urlFor } from "../lib/sanity";
+import ResourceCard from "../features/recursos/ResourceCard.astro";
+import { articleToResource } from "../features/recursos/catalogo";
 import "leaflet/dist/leaflet.css";
 
 // La portada se sirve dinámicamente sólo cuando sus noticias provienen de WordPress.
@@ -226,96 +226,21 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
           <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Últimas noticias</h2>
         </div>
         <a
-          href="/blog"
+          href="/recursos"
           class="inline-flex items-center gap-2 font-mono text-xs tracking-widest uppercase text-red font-bold hover:underline"
         >
-          Ver todo el blog
+          Ver todos los recursos
           <span>→</span>
         </a>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
         {noticias.length > 0 ? (
-          noticias.slice(0, 3).map((post) => (
-            <a
-              class="group flex flex-col bg-white border border-line rounded-lg overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-slate-300"
-              href={`/blog/${post.slug?.current || '#'}`}
-            >
-              <div class="aspect-[16/10] overflow-hidden bg-slate-100">
-                {post.imagenUrl || post.imagen ? (
-                  <img
-                    src={post.imagenUrl ?? urlFor(post.imagen).width(600).auto('format').url()}
-                    alt={post.imagenAlt ?? `Imagen de ${post.titulo}`}
-                    loading="lazy"
-                    decoding="async"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                ) : (
-                  <div class="w-full h-full bg-slate-200"></div>
-                )}
-              </div>
-              <div class="p-5 sm:p-6 flex flex-col flex-1 justify-between">
-                <div>
-                  <div class="flex items-center gap-2 mb-3">
-                    {post.categorias?.[0] && <Tag>{post.categorias[0]}</Tag>}
-                    {post.fecha && (
-                      <time class="font-mono text-xs text-text-soft" datetime={post.fecha}>
-                        {new Date(post.fecha).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </time>
-                    )}
-                  </div>
-                  <h3 class="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-red transition-colors leading-snug line-clamp-2">
-                    {post.titulo}
-                  </h3>
-                  {post.extracto && (
-                    <p class="text-text-soft text-sm mt-2 line-clamp-2 leading-relaxed">
-                      {post.extracto}
-                    </p>
-                  )}
-                </div>
-                <div class="mt-4 pt-3 border-t border-slate-100">
-                  <span class="font-mono text-xs uppercase tracking-wider text-red font-semibold group-hover:underline">
-                    Leer artículo →
-                  </span>
-                </div>
-              </div>
-            </a>
+          noticias.filter((post) => post.slug?.current).slice(0, 3).map((post) => (
+            <ResourceCard resource={articleToResource(post)} headingLevel="h3" />
           ))
         ) : (
-          <>
-            <a class="group flex flex-col bg-white border border-line rounded-lg overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl" href="/blog">
-              <div class="aspect-[16/10] bg-cover bg-center overflow-hidden" style={`background-image:url('${img.postDefensa}');`} />
-              <div class="p-5 sm:p-6 flex flex-col flex-1 justify-between">
-                <div>
-                  <div class="flex items-center gap-2 mb-3">
-                    <Tag variant="red">Ensayos</Tag>
-                  </div>
-                  <h3 class="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-red transition-colors leading-snug">
-                    Principios de la defensa personal
-                  </h3>
-                </div>
-                <div class="mt-4 pt-3 border-t border-slate-100">
-                  <span class="font-mono text-xs uppercase tracking-wider text-red font-semibold">Leer artículo →</span>
-                </div>
-              </div>
-            </a>
-            <a class="group flex flex-col bg-white border border-line rounded-lg overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl" href="/blog">
-              <div class="aspect-[16/10] bg-cover bg-center overflow-hidden" style={`background-image:url('${img.postNacional}');`} />
-              <div class="p-5 sm:p-6 flex flex-col flex-1 justify-between">
-                <div>
-                  <div class="flex items-center gap-2 mb-3">
-                    <Tag>Noticias</Tag>
-                  </div>
-                  <h3 class="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-red transition-colors leading-snug">
-                    Resultados del campeonato nacional
-                  </h3>
-                </div>
-                <div class="mt-4 pt-3 border-t border-slate-100">
-                  <span class="font-mono text-xs uppercase tracking-wider text-red font-semibold">Leer artículo →</span>
-                </div>
-              </div>
-            </a>
-          </>
+          <p class="text-text-soft">Las publicaciones estarán disponibles próximamente en <a href="/recursos" class="font-bold text-red hover:underline">Recursos</a>.</p>
         )}
       </div>
     </div>
