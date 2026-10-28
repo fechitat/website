@@ -3,8 +3,8 @@ import ResourceResults from './ResourceResults.astro';
 import UIcon from '../../components/icons/UIcon.astro';
 import Button from '../../components/ui/Button.astro';
 import {
-  RESOURCE_FORMATS, RESOURCE_TOPICS, getCatalogPage, getCatalogUrl,
-  getResourceCategory, getResourceTopics, readCatalogFilters, type CatalogResource,
+  RESOURCE_FORMATS, getCatalogPage, getCatalogUrl,
+  readCatalogFilters, type CatalogResource,
 } from './catalogo';
 
 interface Props {
@@ -17,57 +17,55 @@ const filters = readCatalogFilters(Astro.url.searchParams);
 const published = resources.filter((resource) => resource.isPublished !== false);
 const formats = RESOURCE_FORMATS.filter((format) => published.some((resource) => resource.format === format.id));
 const categories = [{ id: '', label: 'Todos' }, ...formats];
-const availableTopics = new Set(published.flatMap((resource) => getResourceTopics(resource).map((topic) => topic.id)));
-const selectedTopics = filters.topics ?? [];
-const topics = [...new Map([...RESOURCE_TOPICS.filter((topic) => availableTopics.has(topic.id)), ...selectedTopics.map(getResourceCategory)].map((topic) => [topic.id, topic])).values()];
 const result = getCatalogPage(resources, filters);
-const hasFilters = Boolean(filters.query || filters.category || selectedTopics.length || filters.sort || filters.page);
+const hasFilters = Boolean(filters.query || filters.category || filters.sort || filters.page);
 ---
 
 <resource-filter class="block min-w-0">
-  <form id="catalog-filters" action="/recursos" method="get" aria-label="Buscar recursos">
-    <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-6">
-      <div class="min-w-0 lg:flex-1">
-        <label for="buscar-recurso" class="block text-sm font-bold text-ink mb-2">Buscar recursos</label>
-        <div class="relative">
-          <span class="absolute inset-y-0 left-4 flex items-center text-text-soft pointer-events-none"><UIcon name="search" size={20} /></span>
-          <input id="buscar-recurso" name="q" value={filters.query} type="search" maxlength="200" placeholder="Título, tema o palabra clave" class="catalog-control w-full min-h-12 border border-line bg-white pl-12 pr-4 py-3 text-base text-ink" aria-controls="catalogo-recursos" />
-        </div>
+  <form id="catalog-filters" action="/recursos" method="get" aria-label="Buscar recursos" class="mb-6">
+    <div class="min-w-0">
+      <label for="buscar-recurso" class="block text-sm font-bold text-ink mb-2">Buscar recursos</label>
+      <div class="relative">
+        <span class="absolute inset-y-0 left-4 flex items-center text-text-soft pointer-events-none"><UIcon name="search" size={20} /></span>
+        <input id="buscar-recurso" name="q" value={filters.query} type="search" maxlength="200" placeholder="Título o palabra clave" class="catalog-control w-full min-h-12 border border-line bg-white pl-12 pr-4 py-3 text-base text-ink" aria-controls="catalogo-recursos" />
       </div>
-      <input name="categoria" type="hidden" value={filters.category} />
-      <nav aria-label="Tipos de recursos" class="category-navigation min-w-0 lg:shrink-0">
-        <ul class="category-selector flex flex-nowrap md:flex-wrap gap-2">
-          {categories.map((category) => {
-            const url = getCatalogUrl(Astro.url, { ...filters, category: category.id, page: undefined });
-            return (
-              <li>
-                <a href={`${url.pathname}${url.search}`} data-category-filter={category.id} aria-controls="catalogo-recursos" aria-current={filters.category === category.id ? 'true' : undefined} class="inline-flex min-h-11 lg:min-h-12 items-center px-3 lg:px-4 py-2 border border-line bg-white text-sm font-bold whitespace-nowrap transition-colors hover:border-red hover:text-red">{category.label}</a>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
     </div>
-    <p data-filter-hint class="md:hidden text-xs text-text-soft mt-2">Desliza para ver más tipos →</p>
-    <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
-      {topics.length > 0 && (
-        <details class="topic-menu relative">
-          <summary class="min-h-11 px-3 py-2 border border-line bg-white text-sm font-bold text-ink cursor-pointer">Temas <span data-topic-count>{selectedTopics.length ? `(${selectedTopics.length})` : ''}</span></summary>
-          <fieldset class="topic-panel border border-line bg-white p-3">
-            <legend class="sr-only">Combinar temáticas</legend>
-            <p class="text-xs text-text-soft mb-2">Se aplican todos los temas seleccionados.</p>
-            {topics.map((topic) => (
-              <label class="flex min-h-11 items-center gap-3 text-sm cursor-pointer">
-                <input type="checkbox" name="tema" value={topic.id} checked={selectedTopics.includes(topic.id)} class="w-4 h-4 accent-red" />
-                {topic.label}
-              </label>
-            ))}
-          </fieldset>
-        </details>
-      )}
-      <a href="/recursos" data-clear-filters hidden={!hasFilters} class="catalog-clear min-h-11 items-center text-sm font-bold text-red underline underline-offset-4">Limpiar filtros</a>
-      <noscript><Button type="submit" variant="secondary" size="sm" class="catalog-button">Aplicar filtros</Button></noscript>
-    </div>
+    <input name="categoria" type="hidden" value={filters.category} />
+    <nav aria-label="Tipos de recursos" class="category-navigation mt-3">
+      <ul class="category-selector flex flex-wrap items-center gap-2">
+        {categories.map((category) => {
+          const url = getCatalogUrl(Astro.url, { ...filters, category: category.id, page: undefined });
+          return (
+            <li>
+              <a
+                href={`${url.pathname}${url.search}`}
+                data-category-filter={category.id}
+                aria-controls="catalogo-recursos"
+                aria-current={filters.category === category.id ? 'true' : undefined}
+                class="inline-flex min-h-10 items-center px-4 py-1.5 rounded-full border border-line bg-transparent text-sm font-medium whitespace-nowrap transition-colors hover:border-red hover:text-red"
+              >
+                {category.label}
+              </a>
+            </li>
+          );
+        })}
+        <li>
+          <a
+            href="/recursos"
+            data-clear-filters
+            hidden={!hasFilters}
+            class="catalog-clear inline-flex min-h-10 items-center px-2 text-sm font-bold text-red underline underline-offset-4"
+          >
+            Limpiar filtros
+          </a>
+        </li>
+      </ul>
+      <noscript>
+        <div class="mt-3">
+          <Button type="submit" variant="secondary" size="sm" class="catalog-button">Aplicar filtros</Button>
+        </div>
+      </noscript>
+    </nav>
   </form>
 
   <p data-announcement role="status" aria-atomic="true" class="sr-only"></p>
@@ -97,17 +95,13 @@ const hasFilters = Boolean(filters.query || filters.category || selectedTopics.l
   }
 
   .category-navigation {
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    padding: 4px;
-    margin: -4px;
+    padding: 2px 0;
   }
 
-  .category-selector > li {
-    flex-shrink: 0;
+  .category-selector a {
+    border-radius: 9999px;
   }
 
-  .category-selector a,
   .catalog-control,
   :global(.catalog-button) {
     border-radius: 0;
@@ -118,8 +112,7 @@ const hasFilters = Boolean(filters.query || filters.category || selectedTopics.l
   }
 
   .category-selector a:focus-visible,
-  .catalog-control:focus-visible,
-  summary:focus-visible {
+  .catalog-control:focus-visible {
     outline: 2px solid var(--color-red);
     outline-offset: 3px;
   }
@@ -138,15 +131,6 @@ const hasFilters = Boolean(filters.query || filters.category || selectedTopics.l
     border-color: var(--color-red);
   }
 
-  .topic-panel {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 20;
-    width: 18rem;
-    max-width: calc(100vw - 2rem);
-  }
-
   .results-shell[aria-busy="true"] {
     min-height: 20rem;
   }
@@ -160,10 +144,6 @@ const hasFilters = Boolean(filters.query || filters.category || selectedTopics.l
   }
 
   @media (min-width: 768px) {
-    .category-navigation {
-      overflow: visible;
-    }
-
     .catalog-placeholder:nth-child(2) {
       display: block;
     }
@@ -213,9 +193,6 @@ const hasFilters = Boolean(filters.query || filters.category || selectedTopics.l
         category.value = filters.category;
         const sort = this.querySelector<HTMLSelectElement>('[name="orden"]');
         if (sort) sort.value = filters.sort ?? 'recomendados';
-        this.querySelectorAll<HTMLInputElement>('[name="tema"]').forEach((input) => { input.checked = filters.topics?.includes(input.value) ?? false; });
-        const topicCount = this.querySelector<HTMLElement>('[data-topic-count]');
-        if (topicCount) topicCount.textContent = filters.topics?.length ? `(${filters.topics.length})` : '';
         this.querySelectorAll<HTMLAnchorElement>('[data-category-filter]').forEach((link) => {
           const id = link.dataset.categoryFilter ?? '';
           const url = getCatalogUrl(new URL(window.location.href), { ...filters, category: id, page: undefined });
@@ -287,8 +264,7 @@ const hasFilters = Boolean(filters.query || filters.category || selectedTopics.l
         void navigate({ ...currentFilters(), page: undefined }, 'push');
       }, options);
       this.addEventListener('change', (event) => {
-        if (event.target instanceof HTMLInputElement && event.target.name === 'tema'
-          || event.target instanceof HTMLSelectElement && event.target.name === 'orden') {
+        if (event.target instanceof HTMLSelectElement && event.target.name === 'orden') {
           void navigate({ ...currentFilters(), page: undefined }, 'push');
         }
       }, options);
@@ -303,28 +279,6 @@ const hasFilters = Boolean(filters.query || filters.category || selectedTopics.l
         else if (target.hasAttribute('data-category-filter')) void navigate({ ...currentFilters(), category: target.dataset.categoryFilter ?? '', page: undefined }, 'push');
         else if (target instanceof HTMLAnchorElement && target.hasAttribute('data-page-link')) void navigate(readCatalogFilters(new URL(target.href).searchParams), 'push', true);
         else void navigate(readCatalogFilters(new URL(window.location.href).searchParams), false);
-      }, options);
-      const navigation = this.querySelector<HTMLElement>('.category-navigation');
-      const hint = this.querySelector<HTMLElement>('[data-filter-hint]');
-      const updateHint = (): void => {
-        if (navigation && hint) hint.hidden = navigation.scrollWidth - navigation.scrollLeft <= navigation.clientWidth + 2;
-      };
-      const resize = new ResizeObserver(updateHint);
-      if (navigation) {
-        resize.observe(navigation);
-        navigation.addEventListener('scroll', updateHint, options);
-      }
-      lifecycle.signal.addEventListener('abort', () => resize.disconnect(), { once: true });
-      updateHint();
-      const menu = this.querySelector<HTMLDetailsElement>('details');
-      document.addEventListener('click', (event) => {
-        if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
-      }, options);
-      this.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && menu?.open) {
-          menu.open = false;
-          menu.querySelector('summary')?.focus();
-        }
       }, options);
       window.addEventListener('popstate', () => { void navigate(readCatalogFilters(new URL(window.location.href).searchParams), false); }, options);
     }
