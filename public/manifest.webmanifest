@@ -1,0 +1,79 @@
+{
+  "id": "/recursos",
+  "name": "Recursos FECHITAT — Taekwon-Do ITF",
+  "short_name": "Recursos ITF",
+  "description": "Herramientas de consulta rápida para dojang, exámenes y clases de Taekwon-Do ITF: Programa de examen, Teoría, Terminología y Temporizador de formas.",
+  "start_url": "/recursos",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0B1220",
+  "theme_color": "#D32F2F",
+  "categories": ["education", "sports", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/recursos-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Recursos ITF en el Dojang"
+    },
+    {
+      "src": "/screenshots/recursos-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Programa de Examen y Cronómetro"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Programa de examen",
+      "short_name": "Programa",
+      "description": "Requisitos por grado para examen de cinturón",
+      "url": "/recursos/formacion/programa-examen",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Teoría de examen",
+      "short_name": "Teoría",
+      "description": "Manual oficial de teoría de Taekwon-Do ITF",
+      "url": "/recursos/formacion/teoria",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Terminología",
+      "short_name": "Glosario",
+      "description": "Diccionario coreano, español e inglés",
+      "url": "/recursos/formacion/terminologia",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Temporizador de formas",
+      "short_name": "Temporizador",
+      "description": "Cronómetro de Tuls con límites reglamentarios y metrónomo",
+      "url": "/recursos/formacion/temporizador",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

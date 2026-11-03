@@ -1,7 +1,7 @@
 ---
 import ResourceCard from './ResourceCard.astro';
 import UIcon from '../../components/icons/UIcon.astro';
-import { CATALOG_SORTS, getCatalogUrl, type CatalogFilters, type CatalogPage } from './catalogo';
+import { getCatalogUrl, type CatalogFilters, type CatalogPage } from './catalogo';
 
 interface Props {
   result: CatalogPage;
@@ -18,18 +18,10 @@ const pageUrl = (page: number): string => {
 ---
 
 <div data-catalog-results data-page={result.page} data-total={result.total}>
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-4 md:mb-5 lg:mb-6">
-    <h2 class="sr-only">Biblioteca de recursos</h2>
-    <p data-filter-status class="min-w-0 flex-1 text-sm text-text-soft">
-      {hasError ? 'Catálogo no disponible' : result.total === 1 ? '1 recurso encontrado' : `${result.total} recursos encontrados`}
-    </p>
-    <div class="flex items-center gap-2">
-      <label for="orden-recursos" class="sr-only md:not-sr-only text-sm text-text-soft">Ordenar</label>
-      <select id="orden-recursos" name="orden" form="catalog-filters" class="catalog-sort min-h-11 border border-line bg-white px-2 text-sm text-ink">
-        {CATALOG_SORTS.map((sort) => <option value={sort.id} selected={sort.id === (filters.sort ?? 'recomendados')}>{sort.label}</option>)}
-      </select>
-    </div>
-  </div>
+  <h2 class="sr-only">Biblioteca de recursos</h2>
+  <span data-filter-status class="sr-only" aria-live="polite">
+    {hasError ? 'Catálogo no disponible' : 'Recursos disponibles'}
+  </span>
 
   {hasError ? (
     <div class="border border-line bg-white p-6 text-center" data-load-error>

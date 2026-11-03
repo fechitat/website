@@ -15,18 +15,35 @@ const format = RESOURCE_FORMATS.find((option) => option.id === resource.format);
 const esNoticia = resource.format === 'articulo' || resource.category.id === 'noticias';
 ---
 
-<Card href={resource.href} class={`resource-card group h-full${variant === 'featured' ? ' resource-card--featured' : ''}${esNoticia ? ' resource-card--noticia' : ''}`}>
-  <div class="p-5 h-full flex flex-col">
-    <p class:list={['text-xs font-bold mb-2', esNoticia ? 'text-blue' : 'text-ink']}>
-      {resource.category.label}
-      <span class="sr-only"> · {format?.singularLabel}</span>
-    </p>
-    <Heading class:list={['text-xl leading-snug tracking-normal mb-0 transition-colors', esNoticia ? 'group-hover:text-blue group-focus-visible:text-blue' : 'group-hover:text-red group-focus-visible:text-red']}>{resource.title}</Heading>
-    {resource.description && <p class="resource-description text-sm text-text-soft mt-2 mb-0 leading-relaxed line-clamp-2">{resource.description}</p>}
-    {resource.details && resource.details.length > 0 && <p class="text-xs text-text-soft mt-2 mb-0 leading-relaxed">{resource.details.join(' · ')}</p>}
+<Card href={resource.href} class={`resource-card group h-full block rounded-xl border border-line bg-white shadow-xs hover:border-red hover:shadow-md transition-all${variant === 'featured' ? ' resource-card--featured' : ''}`}>
+  <div class="p-5 sm:p-6 h-full flex flex-col">
+    <div class="flex items-center justify-between gap-2 mb-3">
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-paper text-ink border border-line">
+        {format?.icon && <UIcon name={format.icon} size={14} class="text-red shrink-0" />}
+        {resource.category.label}
+      </span>
+      {resource.isFundamental && (
+        <span class="text-[11px] font-mono font-bold text-red uppercase tracking-wider">
+          Examen
+        </span>
+      )}
+    </div>
+    <Heading class="text-lg sm:text-xl font-bold font-heading leading-snug tracking-normal mb-0 text-ink group-hover:text-red transition-colors">
+      {resource.title}
+    </Heading>
+    {resource.description && (
+      <p class="resource-description text-sm text-text-soft mt-2 mb-0 leading-relaxed line-clamp-3">
+        {resource.description}
+      </p>
+    )}
+    {resource.details && resource.details.length > 0 && (
+      <p class="text-xs text-text-soft/80 mt-2 mb-0 leading-relaxed">
+        {resource.details.join(' · ')}
+      </p>
+    )}
     <div class="mt-auto pt-5">
-      <Button as="span" variant={esNoticia ? 'blue' : 'brand'} class={esNoticia ? 'w-full group-hover:bg-itf-blue-dark' : 'w-full group-hover:bg-red-dark'}>
-        {resource.actionLabel ?? 'Ir a ver'}
+      <Button as="span" variant="brand" class="w-full justify-center group-hover:bg-red-dark text-sm font-bold min-h-11">
+        {resource.actionLabel ?? 'Abrir recurso'}
         <UIcon name="arrow-up-right" size={16} class="shrink-0" />
       </Button>
     </div>

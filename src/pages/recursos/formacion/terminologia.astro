@@ -1,71 +1,259 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import UIcon from '../../../components/icons/UIcon.astro';
 
 const terminos = [
-  { coreano: '태권도', romanizacion: 'Taekwon-Do', espanol: 'Arte marcial de golpes de pie y puño', ingles: 'The way of foot and fist', categoria: 'General' },
+  // General
+  { coreano: '태권도', romanizacion: 'Taekwon-Do', espanol: 'Arte marcial de pies y puños', ingles: 'The way of foot and fist', categoria: 'General' },
   { coreano: '틀', romanizacion: 'Tul', espanol: 'Forma o patrón', ingles: 'Pattern', categoria: 'General' },
-  { coreano: '도장', romanizacion: 'Dojang', espanol: 'Sala de entrenamiento', ingles: 'Training hall', categoria: 'General' },
-  { coreano: '도복', romanizacion: 'Dobok', espanol: 'Uniforme de entrenamiento', ingles: 'Training uniform', categoria: 'General' },
-  { coreano: '사범', romanizacion: 'Sabum', espanol: 'Instructor', ingles: 'Instructor', categoria: 'General' },
+  { coreano: '도장', romanizacion: 'Dojang', espanol: 'Lugar de entrenamiento', ingles: 'Training hall', categoria: 'General' },
+  { coreano: '도복', romanizacion: 'Dobok', espanol: 'Traje de entrenamiento', ingles: 'Training suit', categoria: 'General' },
+  { coreano: '띠', romanizacion: 'Ti', espanol: 'Cinturón', ingles: 'Belt', categoria: 'General' },
+  { coreano: '사범', romanizacion: 'Sabum', espanol: 'Instructor (IV a VI Dan)', ingles: 'Instructor', categoria: 'General' },
+  { coreano: '사현', romanizacion: 'Sahyun', espanol: 'Maestro (VII y VIII Dan)', ingles: 'Master', categoria: 'General' },
+  { coreano: '사성', romanizacion: 'Sasung', espanol: 'Gran Maestro (IX Dan)', ingles: 'Grand Master', categoria: 'General' },
   { coreano: '급', romanizacion: 'Gup', espanol: 'Grado de cinturón de color', ingles: 'Colour-belt rank', categoria: 'Grados' },
   { coreano: '단', romanizacion: 'Dan', espanol: 'Grado de cinturón negro', ingles: 'Black-belt degree', categoria: 'Grados' },
-  { coreano: '서기', romanizacion: 'Sogi', espanol: 'Posición', ingles: 'Stance', categoria: 'Técnica' },
-  { coreano: '막기', romanizacion: 'Makgi', espanol: 'Bloqueo o defensa', ingles: 'Blocking technique', categoria: 'Técnica' },
+
+  // Comandos
+  { coreano: '차렷', romanizacion: 'Charyot', espanol: 'Atención / Firmes', ingles: 'Attention', categoria: 'Comandos' },
+  { coreano: '경례', romanizacion: 'Kyong Ye', espanol: 'Saludo de cortesía', ingles: 'Bow', categoria: 'Comandos' },
+  { coreano: '준비', romanizacion: 'Junbi', espanol: 'Listo / En guardia', ingles: 'Ready', categoria: 'Comandos' },
+  { coreano: '시작', romanizacion: 'Sijak', espanol: 'Comenzar', ingles: 'Begin / Start', categoria: 'Comandos' },
+  { coreano: '그만', romanizacion: 'Goman', espanol: 'Detenerse / Alto', ingles: 'Stop', categoria: 'Comandos' },
+  { coreano: '쉬어', romanizacion: 'Swiyo', espanol: 'Descanso', ingles: 'Relax / At ease', categoria: 'Comandos' },
+  { coreano: '해산', romanizacion: 'Haesan', espanol: 'Rompan filas / Salir', ingles: 'Dismiss', categoria: 'Comandos' },
+
+  // Posiciones (Sogi)
+  { coreano: '서기', romanizacion: 'Sogi', espanol: 'Posición', ingles: 'Stance', categoria: 'Posiciones' },
+  { coreano: '차렷서기', romanizacion: 'Charyot Sogi', espanol: 'Posición de atención', ingles: 'Attention stance', categoria: 'Posiciones' },
+  { coreano: '나란히서기', romanizacion: 'Narani Sogi', espanol: 'Posición de pies paralelos', ingles: 'Parallel stance', categoria: 'Posiciones' },
+  { coreano: '건눈서기', romanizacion: 'Gunnun Sogi', espanol: 'Posición de caminar', ingles: 'Walking stance', categoria: 'Posiciones' },
+  { coreano: '니은자서기', romanizacion: 'Niunja Sogi', espanol: 'Posición en L', ingles: 'L-stance', categoria: 'Posiciones' },
+  { coreano: '앉은서기', romanizacion: 'Annun Sogi', espanol: 'Posición de jinete', ingles: 'Sitting stance', categoria: 'Posiciones' },
+  { coreano: '고정서기', romanizacion: 'Gojung Sogi', espanol: 'Posición en L larga / fija', ingles: 'Fixed stance', categoria: 'Posiciones' },
+  { coreano: '교차서기', romanizacion: 'Kyocha Sogi', espanol: 'Posición de pies cruzados', ingles: 'X-stance', categoria: 'Posiciones' },
+
+  // Técnicas (Ataques y Defensas)
   { coreano: '지르기', romanizacion: 'Jirugi', espanol: 'Golpe de puño', ingles: 'Punch', categoria: 'Técnica' },
+  { coreano: '막기', romanizacion: 'Makgi', espanol: 'Defensa o bloqueo', ingles: 'Block', categoria: 'Técnica' },
   { coreano: '차기', romanizacion: 'Chagi', espanol: 'Patada', ingles: 'Kick', categoria: 'Técnica' },
+  { coreano: '앞차기', romanizacion: 'Ap Chagi', espanol: 'Patada frontal', ingles: 'Front kick', categoria: 'Técnica' },
+  { coreano: '돌려차기', romanizacion: 'Dollyo Chagi', espanol: 'Patada circular', ingles: 'Turning kick', categoria: 'Técnica' },
+  { coreano: '옆차기', romanizacion: 'Yop Chagi', espanol: 'Patada lateral', ingles: 'Side kick', categoria: 'Técnica' },
+  { coreano: '반대돌려차기', romanizacion: 'Bandae Dollyo Chagi', espanol: 'Patada con giro talón', ingles: 'Reverse turning kick', categoria: 'Técnica' },
+  { coreano: '내려차기', romanizacion: 'Naeryo Chagi', espanol: 'Patada descendente', ingles: 'Downward kick', categoria: 'Técnica' },
   { coreano: '손칼', romanizacion: 'Sonkal', espanol: 'Canto de la mano', ingles: 'Knife-hand', categoria: 'Técnica' },
-  { coreano: '차렷', romanizacion: 'Charyot', espanol: 'Atención', ingles: 'Attention', categoria: 'Comandos' },
-  { coreano: '경례', romanizacion: 'Kyong Ye', espanol: 'Saludo', ingles: 'Bow', categoria: 'Comandos' },
+  { coreano: '팔목', romanizacion: 'Palmok', espanol: 'Antebrazo', ingles: 'Forearm', categoria: 'Técnica' },
+  { coreano: '맞서기', romanizacion: 'Matsokgi', espanol: 'Combate', ingles: 'Sparring', categoria: 'Técnica' },
+  { coreano: '위력', romanizacion: 'Wiryok', espanol: 'Rotura de poder', ingles: 'Power breaking', categoria: 'Técnica' },
+
+  // Números
+  { coreano: '하나', romanizacion: 'Hana', espanol: 'Uno (1)', ingles: 'One', categoria: 'Números' },
+  { coreano: '둘', romanizacion: 'Dul', espanol: 'Dos (2)', ingles: 'Two', categoria: 'Números' },
+  { coreano: '셋', romanizacion: 'Set', espanol: 'Tres (3)', ingles: 'Three', categoria: 'Números' },
+  { coreano: '넷', romanizacion: 'Net', espanol: 'Cuatro (4)', ingles: 'Four', categoria: 'Números' },
+  { coreano: '다섯', romanizacion: 'Dasot', espanol: 'Cinco (5)', ingles: 'Five', categoria: 'Números' },
+  { coreano: '여섯', romanizacion: 'Yosot', espanol: 'Seis (6)', ingles: 'Six', categoria: 'Números' },
+  { coreano: '일곱', romanizacion: 'Ilgop', espanol: 'Siete (7)', ingles: 'Seven', categoria: 'Números' },
+  { coreano: '여덟', romanizacion: 'Yodol', espanol: 'Ocho (8)', ingles: 'Eight', categoria: 'Números' },
+  { coreano: '아홉', romanizacion: 'Ahop', espanol: 'Nueve (9)', ingles: 'Nine', categoria: 'Números' },
+  { coreano: '열', romanizacion: 'Yol', espanol: 'Diez (10)', ingles: 'Ten', categoria: 'Números' },
+
+  // Zonas del cuerpo
+  { coreano: '높은데', romanizacion: 'Nopunde', espanol: 'Zona alta (cuello hacia arriba)', ingles: 'High section', categoria: 'Zonas' },
+  { coreano: '가운데', romanizacion: 'Kaunde', espanol: 'Zona media (hombros al ombligo)', ingles: 'Middle section', categoria: 'Zonas' },
+  { coreano: '낮은데', romanizacion: 'Najunde', espanol: 'Zona baja (ombligo hacia abajo)', ingles: 'Low section', categoria: 'Zonas' },
 ];
+
+const categorias = ['Todos', 'Comandos', 'Posiciones', 'Técnica', 'Grados', 'Números', 'Zonas', 'General'];
 ---
-<BaseLayout title="Terminología — FECHITAT" description="Diccionario de Taekwon-Do ITF en español, inglés y coreano.">
-  <section class="bg-ink text-white">
-    <div class="max-w-6xl mx-auto px-5 md:px-7 py-16">
-      <h1 class="text-white text-4xl md:text-6xl">Terminología</h1>
-      <p class="text-light-soft mt-4">Diccionario de Taekwon-Do ITF en español, inglés y coreano.</p>
+
+<BaseLayout title="Terminología con Audio — FECHITAT" description="Diccionario interactivo de Taekwon-Do ITF en español, inglés y coreano con pronunciación nativa en audio.">
+  <PageHero
+    title="Terminología"
+    crumb="Recursos"
+    crumbHref="/recursos"
+    description="Diccionario de Taekwon-Do ITF con pronunciación de voz en coreano nativo. Toca el icono de audio para escuchar cada término."
+  />
+
+  <section class="max-w-6xl mx-auto px-5 md:px-7 py-8 md:py-12">
+    <!-- Controles de búsqueda y filtros -->
+    <div class="mb-6 flex flex-col gap-4">
+      <div>
+        <label for="buscar-termino" class="block text-sm font-bold text-ink mb-2">Buscar término</label>
+        <div class="relative max-w-xl">
+          <span class="absolute inset-y-0 left-4 flex items-center text-text-soft pointer-events-none">
+            <UIcon name="search" size={18} />
+          </span>
+          <input
+            id="buscar-termino"
+            type="search"
+            placeholder="Escribe en español, inglés o coreano (ej. patada, sogi, chagi...)"
+            class="w-full border border-line bg-white pl-11 pr-4 py-3 text-ink text-sm sm:text-base rounded-lg focus-visible:outline-2 focus-visible:outline-red shadow-2xs"
+          />
+        </div>
+      </div>
+
+      <!-- Barra de categorías deslizables -->
+      <nav aria-label="Filtrar términos por categoría" class="overflow-x-auto pb-2 scrollbar-none flex gap-2">
+        {categorias.map((cat, i) => (
+          <button
+            type="button"
+            data-filtro-cat={cat === 'Todos' ? '' : cat}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            class:list={[
+              'filtro-cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer',
+              i === 0
+                ? 'bg-ink text-white border-ink'
+                : 'bg-white text-text-soft border-line hover:border-ink hover:text-ink',
+            ]}
+          >
+            {cat}
+          </button>
+        ))}
+      </nav>
     </div>
-  </section>
-  <section class="max-w-6xl mx-auto px-5 md:px-7 py-12">
-    <label for="buscar-termino" class="block text-sm font-mono uppercase tracking-wider text-text-soft mb-2">Buscar término</label>
-    <input id="buscar-termino" type="search" placeholder="Busca en español, inglés o coreano" class="w-full md:max-w-xl border border-line bg-white px-4 py-3 text-ink rounded-sm focus-visible:outline-2 focus-visible:outline-red" />
-    <div class="overflow-x-auto mt-6">
+
+    <!-- Lista de términos en tabla accesible con botón de audio -->
+    <div class="overflow-x-auto border border-line rounded-xl bg-white shadow-xs">
       <table class="w-full border-collapse text-left">
         <thead>
-          <tr class="border-b-2 border-ink">
-            <th scope="col" class="p-3 font-mono text-xs uppercase tracking-wider">Coreano</th>
-            <th scope="col" class="p-3 font-mono text-xs uppercase tracking-wider">Español</th>
-            <th scope="col" class="p-3 font-mono text-xs uppercase tracking-wider">English</th>
-            <th scope="col" class="p-3 font-mono text-xs uppercase tracking-wider">Categoría</th>
+          <tr class="border-b border-line bg-paper text-ink font-heading text-xs uppercase tracking-wider">
+            <th scope="col" class="py-3.5 px-4 w-12 text-center">Audio</th>
+            <th scope="col" class="py-3.5 px-4">Coreano / Romanización</th>
+            <th scope="col" class="py-3.5 px-4">Significado en Español</th>
+            <th scope="col" class="py-3.5 px-4 hidden md:table-cell">English</th>
+            <th scope="col" class="py-3.5 px-4">Categoría</th>
           </tr>
         </thead>
-        <tbody id="terminos-diccionario">
+        <tbody id="terminos-diccionario" class="divide-y divide-line">
           {terminos.map((termino) => (
-            <tr class="border-b border-line hover:bg-paper" data-termino={`${termino.coreano} ${termino.romanizacion} ${termino.espanol} ${termino.ingles} ${termino.categoria}`.toLocaleLowerCase()}>
-              <td class="p-3"><span lang="ko" class="text-lg">{termino.coreano}</span><span class="block text-xs text-text-soft">{termino.romanizacion}</span></td>
-              <td class="p-3">{termino.espanol}</td>
-              <td class="p-3" lang="en">{termino.ingles}</td>
-              <td class="p-3 text-sm text-text-soft">{termino.categoria}</td>
+            <tr
+              class="hover:bg-paper/70 transition-colors"
+              data-termino={`${termino.coreano} ${termino.romanizacion} ${termino.espanol} ${termino.ingles} ${termino.categoria}`.toLocaleLowerCase()}
+              data-cat={termino.categoria}
+            >
+              <td class="py-3 px-3 text-center">
+                <button
+                  type="button"
+                  data-pronunciar={termino.coreano}
+                  data-nombre={termino.romanizacion}
+                  aria-label={`Pronunciar ${termino.romanizacion} en coreano`}
+                  title={`Escuchar pronunciación de ${termino.romanizacion}`}
+                  class="audio-speak-btn inline-flex items-center justify-center w-9 h-9 rounded-full bg-paper hover:bg-red/10 text-text-soft hover:text-red transition-all active:scale-90 focus-visible:outline-2 focus-visible:outline-red cursor-pointer"
+                >
+                  <UIcon name="volume-2" size={18} />
+                </button>
+              </td>
+              <td class="py-3 px-4">
+                <span lang="ko" class="text-base sm:text-lg font-bold text-ink block leading-snug">{termino.coreano}</span>
+                <span class="block text-xs font-mono text-text-soft">{termino.romanizacion}</span>
+              </td>
+              <td class="py-3 px-4 text-sm font-medium text-ink">
+                {termino.espanol}
+              </td>
+              <td class="py-3 px-4 text-sm text-text-soft hidden md:table-cell" lang="en">
+                {termino.ingles}
+              </td>
+              <td class="py-3 px-4">
+                <span class="inline-flex px-2 py-0.5 rounded text-[11px] font-mono uppercase tracking-wider bg-paper border border-line text-text-soft">
+                  {termino.categoria}
+                </span>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-    <p id="sin-resultados" class="hidden text-text-soft mt-6">No se encontraron términos.</p>
-  </section>
-  <script>
-    const buscador = document.querySelector<HTMLInputElement>('#buscar-termino');
-    const filas = [...document.querySelectorAll<HTMLTableRowElement>('#terminos-diccionario tr')];
-    const sinResultados = document.querySelector<HTMLElement>('#sin-resultados');
 
-    buscador?.addEventListener('input', () => {
-      const consulta = buscador.value.trim().toLocaleLowerCase();
-      let visibles = 0;
-      filas.forEach((fila) => {
-        const coincide = fila.dataset.termino?.includes(consulta) ?? false;
-        fila.hidden = !coincide;
-        if (coincide) visibles += 1;
+    <p id="sin-resultados" hidden class="p-8 text-center border border-dashed border-line rounded-xl bg-white text-text-soft mt-4">
+      No se encontraron términos para esta búsqueda.
+    </p>
+  </section>
+
+  <script is:inline>
+    function setupTerminologiaAudio() {
+      const buscador = document.querySelector('#buscar-termino');
+      const filas = [...document.querySelectorAll('#terminos-diccionario tr')];
+      const sinResultados = document.querySelector('#sin-resultados');
+      const filtroBotones = [...document.querySelectorAll('[data-filtro-cat]')];
+      let categoriaActiva = '';
+
+      // Síntesis de voz nativa en Coreano (ko-KR)
+      const reproducirCoreano = (texto, boton) => {
+        if (!('speechSynthesis' in window)) {
+          alert('Tu navegador no soporta síntesis de voz.');
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'ko-KR';
+        utterance.rate = 0.82; // Velocidad ligeramente pausada para estudio marcial
+        utterance.pitch = 1.0;
+
+        if (boton) {
+          boton.classList.add('text-red', 'bg-red/20', 'scale-110');
+          utterance.onend = () => {
+            boton.classList.remove('text-red', 'bg-red/20', 'scale-110');
+          };
+          utterance.onerror = () => {
+            boton.classList.remove('text-red', 'bg-red/20', 'scale-110');
+          };
+        }
+
+        window.speechSynthesis.speak(utterance);
+      };
+
+      document.querySelectorAll('[data-pronunciar]').forEach((boton) => {
+        boton.addEventListener('click', () => {
+          const coreano = boton.dataset.pronunciar;
+          if (coreano) reproducirCoreano(coreano, boton);
+        });
       });
-      if (sinResultados) sinResultados.hidden = visibles > 0;
-    });
+
+      // Filtro por texto y categoría
+      const aplicarFiltros = () => {
+        const consulta = (buscador?.value || '').trim().toLocaleLowerCase();
+        let visibles = 0;
+
+        filas.forEach((fila) => {
+          const coincideTexto = !consulta || (fila.dataset.termino || '').includes(consulta);
+          const coincideCat = !categoriaActiva || fila.dataset.cat === categoriaActiva;
+          const visible = coincideTexto && coincideCat;
+
+          fila.hidden = !visible;
+          if (visible) visibles++;
+        });
+
+        if (sinResultados) {
+          sinResultados.hidden = visibles > 0;
+        }
+      };
+
+      buscador?.addEventListener('input', aplicarFiltros);
+
+      filtroBotones.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          categoriaActiva = btn.dataset.filtroCat || '';
+          filtroBotones.forEach((b) => {
+            const activo = b === btn;
+            b.setAttribute('aria-pressed', String(activo));
+            b.classList.toggle('bg-ink', activo);
+            b.classList.toggle('text-white', activo);
+            b.classList.toggle('border-ink', activo);
+            b.classList.toggle('bg-white', !activo);
+            b.classList.toggle('text-text-soft', !activo);
+            b.classList.toggle('border-line', !activo);
+          });
+          aplicarFiltros();
+        });
+      });
+    }
+
+    setupTerminologiaAudio();
+    document.addEventListener('astro:page-load', setupTerminologiaAudio);
   </script>
 </BaseLayout>

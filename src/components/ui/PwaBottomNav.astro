@@ -1,0 +1,72 @@
+---
+import UIcon from '../icons/UIcon.astro';
+
+const { pathname } = Astro.url;
+
+const esRutaRecursos = pathname.startsWith('/recursos');
+
+const items = [
+  {
+    href: '/recursos',
+    label: 'Recursos',
+    icon: 'grid' as const,
+    active: pathname === '/recursos' || pathname === '/recursos/',
+  },
+  {
+    href: '/recursos/formacion/programa-examen',
+    label: 'Programa',
+    icon: 'award' as const,
+    active: pathname.includes('/programa-examen'),
+  },
+  {
+    href: '/recursos/formacion/teoria',
+    label: 'Teoría',
+    icon: 'book-open' as const,
+    active: pathname.includes('/teoria'),
+  },
+  {
+    href: '/recursos/formacion/terminologia',
+    label: 'Glosario',
+    icon: 'languages' as const,
+    active: pathname.includes('/terminologia'),
+  },
+  {
+    href: '/recursos/formacion/temporizador',
+    label: 'Timer',
+    icon: 'timer' as const,
+    active: pathname.includes('/temporizador'),
+  },
+];
+---
+
+{esRutaRecursos && (
+  <nav
+    id="pwa-bottom-nav"
+    aria-label="Navegación rápida de Recursos"
+    class="fixed bottom-0 inset-x-0 z-40 bg-ink/95 backdrop-blur-md border-t border-white/10 md:hidden pb-[env(safe-area-inset-bottom,0px)]"
+  >
+    <div class="grid grid-cols-5 h-15 max-w-md mx-auto items-center px-1">
+      {items.map((item) => (
+        <a
+          href={item.href}
+          data-astro-prefetch="hover"
+          class:list={[
+            'flex flex-col items-center justify-center h-full py-1 text-center transition-colors relative',
+            item.active
+              ? 'text-red font-bold'
+              : 'text-light-soft hover:text-white',
+          ]}
+          aria-current={item.active ? 'page' : undefined}
+        >
+          {item.active && (
+            <span class="absolute top-0 w-8 h-0.5 bg-red rounded-full" />
+          )}
+          <UIcon name={item.icon} size={20} class={item.active ? 'text-red scale-110 transition-transform' : 'text-light-soft'} />
+          <span class="text-[10px] tracking-tight mt-1 truncate max-w-[62px]">
+            {item.label}
+          </span>
+        </a>
+      ))}
+    </div>
+  </nav>
+)}

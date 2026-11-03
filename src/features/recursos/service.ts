@@ -16,5 +16,10 @@ export async function loadCatalogResources(): Promise<CatalogResource[]> {
     ...documents.map(documentToResource),
   ].map((resource) => [resource.id, resource]));
   entries.map(entryToResource).forEach((resource) => resources.set(resource.id, resource));
-  return [...resources.values()];
+  return [...resources.values()].filter((resource) =>
+    resource.id !== 'sonkal-itf' &&
+    !resource.href.startsWith('/blog') &&
+    resource.format !== 'articulo' &&
+    resource.category.id !== 'noticias'
+  );
 }

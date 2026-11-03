@@ -12,9 +12,17 @@ const [posts, total] = await Promise.all([getBlogPosts(1, porPagina), getTotalBl
 const totalPaginas = Math.max(1, Math.ceil(total / porPagina));
 ---
 
-<BaseLayout title="Noticias — FECHITAT" description={descripcion}>
+<BaseLayout title="Noticias y Blog — FECHITAT" description={descripcion}>
+  <!-- Distinción explícita de la sección de Recursos -->
+  <div class="bg-paper border-b border-line py-2 px-4 text-xs font-mono text-center text-text-soft">
+    <span>¿Buscas el programa de examen, manual de teoría o cronómetro para clases?</span>
+    <a href="/recursos" class="font-bold text-red hover:underline ml-1 inline-flex items-center gap-1">
+      Ir a Recursos ITF (PWA) →
+    </a>
+  </div>
+
   <PageHero
-    title="Noticias"
+    title="Noticias y Blog"
     crumb="Inicio"
     crumbHref="/"
     accent="blue"

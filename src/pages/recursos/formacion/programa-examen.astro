@@ -186,8 +186,12 @@ const clasesPuntos = [
         <p id="grado-contador" class="font-mono text-sm text-text-soft" aria-live="polite"></p>
       </div>
 
-      <div class="mb-5 flex flex-wrap items-center justify-between gap-5">
-        <nav class="flex flex-wrap gap-3" aria-label="Seleccionar grado">
+      <!-- Barra deslizable táctil de cinturones (ideal para examen y dojang) -->
+      <nav
+        aria-label="Seleccionar grado por cinturón"
+        class="mb-6 -mx-5 px-5 md:mx-0 md:px-0 overflow-x-auto pb-3 pt-1 scrollbar-none flex gap-2.5 snap-x"
+        id="barra-cinturones"
+      >
         {programaVisible.grados.map((grado, indice) => (
           <button
             type="button"
@@ -195,13 +199,32 @@ const clasesPuntos = [
             aria-label={`Ver ${grado.rango}: ${grado.cinturon}`}
             aria-pressed={indice === 0 ? 'true' : 'false'}
             class:list={[
-              'h-3 w-3 rounded-full border-2 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red',
-              indice === 0 ? 'scale-125' : 'hover:scale-110',
-              ...(clasesPuntos[indice] ?? ['border-line', 'bg-white']),
+              'cinturon-tab shrink-0 snap-start flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg border text-left transition-all cursor-pointer select-none',
+              indice === 0
+                ? 'bg-ink text-white border-red shadow-md scale-[1.02]'
+                : 'bg-white text-ink border-line hover:border-ink/40 hover:bg-paper',
             ]}
-          />
+          >
+            <!-- Muestra visual del cinturón con su color característico -->
+            <span
+              class:list={[
+                'w-3.5 h-3.5 rounded-full border shrink-0',
+                clasesPuntos[indice] ? clasesPuntos[indice].join(' ') : 'bg-white border-line',
+              ]}
+            />
+            <div class="min-w-0">
+              <span class="block text-[11px] font-mono uppercase tracking-wider opacity-75">
+                {grado.rango}
+              </span>
+              <span class="block text-xs font-bold truncate max-w-[150px]">
+                {grado.cinturon}
+              </span>
+            </div>
+          </button>
         ))}
-        </nav>
+      </nav>
+
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-5">
         <div class="flex flex-wrap items-center gap-3 text-sm">
           <label for="tamano-lectura" class="text-text-soft">Tamaño</label>
           <select id="tamano-lectura" class="border border-line bg-white px-2 py-2 text-ink">
@@ -318,10 +341,17 @@ const clasesPuntos = [
       puntos.forEach((punto, posicion) => {
         const activo = posicion === gradoActivo;
         punto.setAttribute('aria-pressed', String(activo));
-        punto.classList.toggle('scale-125', activo);
-        punto.classList.toggle('ring-2', activo);
-        punto.classList.toggle('ring-ink', activo);
-        punto.classList.toggle('ring-offset-2', activo);
+        punto.classList.toggle('bg-ink', activo);
+        punto.classList.toggle('text-white', activo);
+        punto.classList.toggle('border-red', activo);
+        punto.classList.toggle('shadow-md', activo);
+        punto.classList.toggle('scale-[1.02]', activo);
+        punto.classList.toggle('bg-white', !activo);
+        punto.classList.toggle('text-ink', !activo);
+        punto.classList.toggle('border-line', !activo);
+        if (activo) {
+          punto.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
       });
       if (contador) contador.textContent = `Grado ${gradoActivo + 1} de ${paneles.length}`;
       if (anterior) anterior.disabled = gradoActivo === 0;

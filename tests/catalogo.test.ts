@@ -29,14 +29,13 @@ const post: BlogPost = {
 const emptyFilters: CatalogFilters = { query: '', category: '' };
 
 test('conserva los recursos locales, sus destinos y formatos sin fotos de relleno', () => {
-  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.id), ['programa-examen', 'terminologia', 'sonkal-itf', 'temporizador-formas', 'teoria-examen']);
+  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.id), ['programa-examen', 'terminologia', 'temporizador-formas', 'teoria-examen']);
   assert.equal(LOCAL_RESOURCES[0]?.href, '/recursos/formacion/programa-examen');
   assert.equal(LOCAL_RESOURCES[0]?.format, 'documento');
   assert.equal(LOCAL_RESOURCES[1]?.href, '/recursos/formacion/terminologia');
-  assert.ok(LOCAL_RESOURCES[2]?.href.startsWith('https://play.google.com/'));
-  assert.equal(LOCAL_RESOURCES[3]?.href, '/recursos/formacion/temporizador');
-  assert.equal(LOCAL_RESOURCES[4]?.href, '/recursos/formacion/teoria');
-  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.format), ['documento', 'guia', 'herramienta', 'herramienta', 'documento']);
+  assert.equal(LOCAL_RESOURCES[2]?.href, '/recursos/formacion/temporizador');
+  assert.equal(LOCAL_RESOURCES[3]?.href, '/recursos/formacion/teoria');
+  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.format), ['documento', 'guia', 'herramienta', 'documento']);
   assert.ok(LOCAL_RESOURCES.every((resource) => !resource.image && resource.category.id));
 });
 
@@ -104,17 +103,17 @@ test('combina búsqueda y tipo de contenido sin perder recursos ni categorías t
   const count = (filters: CatalogFilters): number => indexes.filter((index) => matchesResource(index, filters)).length;
 
   assert.equal(count(emptyFilters), resources.length);
-  for (const [category, expected] of [['guia', 1], ['herramienta', 2], ['articulo', 1], ['documento', 3]] as const) {
+  for (const [category, expected] of [['guia', 1], ['herramienta', 1], ['articulo', 1], ['documento', 3]] as const) {
     assert.equal(count({ query: '', category }), expected, category);
   }
   assert.equal(count({ query: 'terminologia', category: 'guia' }), 1);
-  assert.equal(count({ query: 'formas', category: 'herramienta' }), 2);
+  assert.equal(count({ query: 'formas', category: 'herramienta' }), 1);
   assert.equal(count({ query: 'PRINCIPIOS TECNICOS', category: 'articulo' }), 1);
   assert.equal(count({ query: 'competicion', category: 'documento' }), 1);
   assert.equal(count({ query: 'terminologia', category: 'herramienta' }), 0);
   assert.equal(count({ query: 'inexistente', category: '' }), 0);
   assert.equal(count({ query: '', category: 'desconocida' }), 0);
-  assert.equal(count({ query: '', category: 'formas' }), 2);
+  assert.equal(count({ query: '', category: 'formas' }), 1);
   assert.equal(count({ query: 'estudio', category: 'teoria' }), 2);
   assert.equal(matchesResource({ category: 'guia', format: 'articulo', searchText: 'técnica' }, { query: '', category: 'guia' }), false);
 });

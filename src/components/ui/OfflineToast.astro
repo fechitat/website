@@ -1,0 +1,61 @@
+---
+// Indicador minimalista de estado sin conexión (Offline Toast)
+---
+
+<aside
+  id="offline-toast"
+  role="status"
+  aria-live="polite"
+  hidden
+  class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-ink/90 text-white border border-emerald-500/40 shadow-xl text-xs font-mono backdrop-blur-md transition-all duration-300 pointer-events-none opacity-0 scale-95"
+>
+  <span class="relative flex h-2 w-2">
+    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+  </span>
+  <span id="offline-toast-text">Sin conexión · Recursos disponibles</span>
+</aside>
+
+<script is:inline>
+  function setupOfflineToast() {
+    const toast = document.getElementById('offline-toast');
+    const toastText = document.getElementById('offline-toast-text');
+    if (!toast || !toastText) return;
+
+    let timeout;
+
+    const showToast = (message, isOffline) => {
+      clearTimeout(timeout);
+      toastText.textContent = message;
+      toast.hidden = false;
+      requestAnimationFrame(() => {
+        toast.classList.remove('opacity-0', 'scale-95');
+        toast.classList.add('opacity-100', 'scale-100');
+      });
+
+      if (!isOffline) {
+        timeout = setTimeout(() => {
+          toast.classList.remove('opacity-100', 'scale-100');
+          toast.classList.add('opacity-0', 'scale-95');
+          setTimeout(() => { toast.hidden = true; }, 300);
+        }, 2500);
+      }
+    };
+
+    window.addEventListener('offline', () => {
+      showToast('Sin conexión · Recursos guardados disponibles', true);
+    });
+
+    window.addEventListener('online', () => {
+      showToast('Conexión restablecida', false);
+    });
+
+    // Comprobación inicial al cargar
+    if (!navigator.onLine) {
+      showToast('Sin conexión · Modo offline activo', true);
+    }
+  }
+
+  setupOfflineToast();
+  document.addEventListener('astro:page-load', setupOfflineToast);
+</script>

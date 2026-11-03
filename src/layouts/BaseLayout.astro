@@ -3,6 +3,8 @@
 // estilos globales) con SEO, accesibilidad y PWA.
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import PwaBottomNav from "../components/ui/PwaBottomNav.astro";
+import OfflineToast from "../components/ui/OfflineToast.astro";
 import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 
@@ -77,7 +79,11 @@ const imagenSocial = new URL(ogImage, Astro.site ?? "https://fechitat-website.ve
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Recursos ITF" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -111,10 +117,12 @@ const imagenSocial = new URL(ogImage, Astro.site ?? "https://fechitat-website.ve
       Saltar al contenido
     </a>
     <Header />
-    <main id="contenido" transition:animate="fade">
+    <main id="contenido" transition:animate="fade" class:list={[Astro.url.pathname.startsWith('/recursos') ? 'pb-16 md:pb-0' : '']}>
       <slot />
     </main>
     <Footer />
+    <PwaBottomNav />
+    <OfflineToast />
     <script>
       import "../scripts/main.js";
     </script>

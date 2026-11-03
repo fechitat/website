@@ -29,7 +29,7 @@ test('no mezcla las noticias del blog en el catálogo de recursos', async () => 
   assert.equal(resources.filter((resource) => resource.id === 'programa-examen').length, 1);
   assert.equal(resources.find((resource) => resource.id === 'programa-examen')?.title, 'Programa actualizado');
   assert.equal(resources.find((resource) => resource.id === 'document')?.validity, 'reemplazado');
-  assert.equal(getCatalogPage(resources, { query: '', category: '' }).resources.length, 6);
+  assert.equal(getCatalogPage(resources, { query: '', category: '' }).resources.length, 5);
 });
 
 test('permite despublicar recursos iniciales mediante una ficha editorial inactiva', async () => {
@@ -44,7 +44,7 @@ test('permite despublicar recursos iniciales mediante una ficha editorial inacti
   });
   const resources = await loadCatalogResources();
   const result = getCatalogPage(resources, { query: '', category: '' });
-  assert.equal(result.inventoryTotal, 4);
+  assert.equal(result.inventoryTotal, 3);
   assert.ok(!result.resources.some((resource) => resource.id === 'terminologia'));
 });
 

@@ -50,17 +50,132 @@ const structuredData = hasError ? undefined : {
 {isPartial ? (
   <ResourceResults result={result} filters={filters} url={Astro.url} hasError={hasError} />
 ) : (
-  <BaseLayout title="Recursos — FECHITAT" description={description} structuredData={structuredData} noindex={['q', 'categoria', 'tema', 'orden', 'pagina'].some((key) => Astro.url.searchParams.has(key))}>
-    <section class="bg-ink text-white border-b-4 border-red">
-      <div class="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-10">
-        <h1 class="text-white text-4xl md:text-5xl">Recursos</h1>
-        <p class="text-light-soft mt-3 max-w-3xl text-lg">{description}</p>
+  <BaseLayout title="Recursos ITF — FECHITAT" description={description} structuredData={structuredData} noindex={['q', 'categoria', 'tema', 'orden', 'pagina'].some((key) => Astro.url.searchParams.has(key))}>
+    <!-- Barra superior informativa que separa explícitamente Blog de Recursos -->
+    <div class="bg-ink/5 border-b border-line py-2 px-4 text-xs font-mono text-center text-text-soft">
+      <span>¿Buscas novedades, torneos o comunicados institucionales?</span>
+      <a href="/blog" class="font-bold text-blue hover:underline ml-1 inline-flex items-center gap-1">
+        Ir a Noticias y Blog →
+      </a>
+    </div>
+
+    <!-- Cabecera simple orientada a examen y clase con soporte PWA -->
+    <section class="bg-ink text-white border-b-4 border-red py-6 md:py-8">
+      <div class="max-w-7xl mx-auto px-4 md:px-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-3 mb-2 flex-wrap">
+              <span class="px-2.5 py-0.5 rounded text-[11px] font-mono uppercase tracking-widest font-bold bg-red text-white">PWA Móvil</span>
+              <span class="inline-flex items-center gap-1.5 text-xs font-mono text-emerald-400">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Uso sin conexión en el dojang
+              </span>
+            </div>
+            <h1 class="text-white text-3xl md:text-4xl font-extrabold tracking-tight">Recursos ITF</h1>
+            <p class="text-light-soft mt-1.5 max-w-2xl text-sm md:text-base leading-relaxed">
+              Herramientas de consulta rápida para exámenes y entrenamientos: programa por cinturón, teoría oficial, glosario y cronómetro.
+            </p>
+          </div>
+
+          <!-- Botón de instalación PWA (se muestra dinámicamente si el navegador lo permite) -->
+          <div class="flex items-center gap-2 self-start md:self-center shrink-0">
+            <button
+              id="pwa-install-btn"
+              type="button"
+              hidden
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold bg-red hover:bg-red-dark text-white transition-all shadow-md active:scale-95"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Instalar en el teléfono</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra deslizable de acceso rápido a los recursos esenciales (ideal en examen o clase) -->
+        <nav aria-label="Barra deslizable de recursos para examen" class="mt-6 pt-5 border-t border-white/10">
+          <div class="flex items-center justify-between mb-2.5">
+            <p class="text-xs font-mono uppercase tracking-wider text-light-muted">Herramientas de consulta rápida:</p>
+            <span class="text-[11px] font-mono text-light-muted/70 sm:hidden">Desliza ➔</span>
+          </div>
+          <div class="flex overflow-x-auto pb-2 scrollbar-none snap-x gap-2.5 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4">
+            <a
+              href="/recursos/formacion/programa-examen"
+              class="snap-start shrink-0 min-w-[210px] sm:min-w-0 flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+            >
+              <span class="text-2xl p-2 rounded-lg bg-red/20 text-red shrink-0">🥋</span>
+              <div class="min-w-0">
+                <span class="block text-xs font-mono uppercase text-red tracking-wider">Por cinturón</span>
+                <span class="block text-sm font-bold truncate">Programa de examen</span>
+              </div>
+            </a>
+            <a
+              href="/recursos/formacion/teoria"
+              class="snap-start shrink-0 min-w-[210px] sm:min-w-0 flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+            >
+              <span class="text-2xl p-2 rounded-lg bg-amber-500/20 text-amber-400 shrink-0">📖</span>
+              <div class="min-w-0">
+                <span class="block text-xs font-mono uppercase text-amber-400 tracking-wider">Manual oficial</span>
+                <span class="block text-sm font-bold truncate">Teoría de examen</span>
+              </div>
+            </a>
+            <a
+              href="/recursos/formacion/terminologia"
+              class="snap-start shrink-0 min-w-[210px] sm:min-w-0 flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+            >
+              <span class="text-2xl p-2 rounded-lg bg-blue/20 text-blue shrink-0">🗣️</span>
+              <div class="min-w-0">
+                <span class="block text-xs font-mono uppercase text-blue tracking-wider">Con audio</span>
+                <span class="block text-sm font-bold truncate">Terminología</span>
+              </div>
+            </a>
+            <a
+              href="/recursos/formacion/temporizador"
+              class="snap-start shrink-0 min-w-[210px] sm:min-w-0 flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+            >
+              <span class="text-2xl p-2 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0">⏱️</span>
+              <div class="min-w-0">
+                <span class="block text-xs font-mono uppercase text-emerald-400 tracking-wider">Cronómetro oficial</span>
+                <span class="block text-sm font-bold truncate">Temporizador de Tuls</span>
+              </div>
+            </a>
+          </div>
+        </nav>
       </div>
     </section>
-    <section class="py-6 md:py-10" aria-label="Catálogo de recursos">
+
+    <!-- Catálogo de recursos -->
+    <section class="py-6 md:py-8 bg-paper min-h-[50vh]" aria-label="Catálogo de recursos">
       <div class="max-w-7xl mx-auto px-4 md:px-8">
         <ResourceCatalog resources={resources} hasError={hasError} />
       </div>
     </section>
+
+    <script is:inline>
+      // Soporte de instalación para la PWA de Recursos
+      let deferredPrompt;
+      const installBtn = document.getElementById('pwa-install-btn');
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (installBtn) {
+          installBtn.hidden = false;
+        }
+      });
+
+      installBtn?.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installBtn.hidden = true;
+        }
+        deferredPrompt = null;
+      });
+
+      window.addEventListener('appinstalled', () => {
+        if (installBtn) installBtn.hidden = true;
+      });
+    </script>
   </BaseLayout>
 )}

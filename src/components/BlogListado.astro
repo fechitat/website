@@ -1,5 +1,6 @@
 ---
 import NoticiaCard from './NoticiaCard.astro';
+import UIcon from './icons/UIcon.astro';
 import type { PublicBlogPost } from '../lib/blog';
 
 interface Props {
@@ -10,28 +11,170 @@ interface Props {
 
 const { posts, actual, totalPaginas } = Astro.props;
 const hrefPagina = (pagina: number): string => pagina <= 1 ? '/blog' : `/blog/pagina/${pagina}`;
+
+// Extraer categorías únicas presentes en los posts
+const nombresCategorias: Record<string, string> = {
+  noticias: 'Noticias',
+  tecnica: 'Técnica',
+  entrevistas: 'Entrevistas',
+  historia: 'Historia',
+  arbitraje: 'Arbitraje',
+};
+
+const categoriasPresentes = [
+  ...new Set(
+    posts
+      .flatMap((p) => p.categorias ?? [])
+      .filter((c): c is string => Boolean(c) && c !== 'eventos')
+  ),
+];
 ---
 
-<section class="bg-white py-8 md:py-12">
+<section class="bg-white py-8 md:py-12" id="seccion-blog">
   <div class="mx-auto w-full max-w-7xl px-5 md:px-8">
-    {posts.length > 0 ? (
-      <ul class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
-        {posts.filter((post) => post.slug?.current).map((post) => (
-          <li class="min-w-0"><NoticiaCard post={post} /></li>
+    <!-- Barra de búsqueda y filtros temáticos para el Blog -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-line pb-6">
+      <div class="w-full md:max-w-md">
+        <label for="buscar-blog" class="sr-only">Buscar artículos y noticias</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-3.5 flex items-center text-text-soft pointer-events-none">
+            <UIcon name="search" size={18} />
+          </span>
+          <input
+            id="buscar-blog"
+            type="search"
+            placeholder="Buscar noticias por título o tema..."
+            class="w-full border border-line bg-paper/50 pl-10 pr-4 py-2.5 text-sm text-ink rounded-lg focus-visible:outline-2 focus-visible:outline-blue transition-colors"
+          />
+        </div>
+      </div>
+
+      <!-- Filtros de categoría -->
+      <nav aria-label="Categorías del blog" class="overflow-x-auto pb-1 scrollbar-none flex items-center gap-2">
+        <button
+          type="button"
+          data-blog-filtro=""
+          aria-pressed="true"
+          class="blog-cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors bg-ink text-white border-ink cursor-pointer"
+        >
+          Todas
+        </button>
+        {categoriasPresentes.map((cat) => (
+          <button
+            type="button"
+            data-blog-filtro={cat}
+            aria-pressed="false"
+            class="blog-cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-colors bg-white text-text-soft border-line hover:border-blue hover:text-blue cursor-pointer"
+          >
+            {nombresCategorias[cat] ?? cat}
+          </button>
         ))}
-      </ul>
+      </nav>
+    </div>
+
+    {posts.length > 0 ? (
+      <>
+        <ul id="lista-noticias" class="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+          {posts.filter((post) => post.slug?.current).map((post) => {
+            const textoBusqueda = [
+              post.titulo,
+              post.extracto ?? '',
+              post.autor ?? '',
+              ...(post.categorias ?? []),
+              ...(post.palabrasClave ?? []),
+            ].join(' ').toLocaleLowerCase();
+
+            const postCategorias = (post.categorias ?? []).filter(Boolean).join(',');
+
+            return (
+              <li
+                class="min-w-0 transition-opacity"
+                data-noticia-item
+                data-search={textoBusqueda}
+                data-categorias={postCategorias}
+              >
+                <NoticiaCard post={post} />
+              </li>
+            );
+          })}
+        </ul>
+
+        <div id="blog-sin-resultados" hidden class="border border-dashed border-itf-blue-border bg-itf-blue-light p-8 text-center rounded-xl">
+          <h3 class="text-xl font-bold text-ink">No encontramos noticias</h3>
+          <p class="mt-2 text-sm text-text-soft">Prueba con otras palabras o selecciona la categoría "Todas".</p>
+        </div>
+      </>
     ) : (
-      <div class="border border-dashed border-itf-blue-border bg-itf-blue-light p-8 text-center">
-        <h2 class="text-2xl">Todavía no hay noticias</h2>
+      <div class="border border-dashed border-itf-blue-border bg-itf-blue-light p-8 text-center rounded-xl">
+        <h2 class="text-2xl font-bold">Todavía no hay noticias</h2>
         <p class="mt-2 text-text-soft">Las publicaciones del blog aparecerán aquí.</p>
       </div>
     )}
+
     {totalPaginas > 1 && (
-      <nav aria-label="Páginas del blog" class="mt-8 flex flex-wrap items-center justify-center gap-3">
-        {actual > 1 && <a href={hrefPagina(actual - 1)} class="inline-flex min-h-11 items-center border border-blue bg-white px-3 text-sm font-bold text-blue">← Anterior</a>}
-        <span class="text-sm text-text-soft">Página {actual} de {totalPaginas}</span>
-        {actual < totalPaginas && <a href={hrefPagina(actual + 1)} class="inline-flex min-h-11 items-center border border-blue bg-white px-3 text-sm font-bold text-blue">Siguiente →</a>}
+      <nav id="blog-paginacion" aria-label="Páginas del blog" class="mt-10 flex flex-wrap items-center justify-center gap-3">
+        {actual > 1 && <a href={hrefPagina(actual - 1)} class="inline-flex min-h-11 items-center border border-blue bg-white px-4 text-sm font-bold text-blue hover:bg-blue hover:text-white transition-colors rounded-sm">← Anterior</a>}
+        <span class="text-sm font-mono text-text-soft">Página {actual} de {totalPaginas}</span>
+        {actual < totalPaginas && <a href={hrefPagina(actual + 1)} class="inline-flex min-h-11 items-center border border-blue bg-white px-4 text-sm font-bold text-blue hover:bg-blue hover:text-white transition-colors rounded-sm">Siguiente →</a>}
       </nav>
     )}
   </div>
 </section>
+
+<script is:inline>
+  function setupBlogFilters() {
+    const searchInput = document.getElementById('buscar-blog');
+    const items = [...document.querySelectorAll('[data-noticia-item]')];
+    const categoryBtns = [...document.querySelectorAll('[data-blog-filtro]')];
+    const noResults = document.getElementById('blog-sin-resultados');
+    const pagination = document.getElementById('blog-paginacion');
+    let activeCategory = '';
+
+    const applyFilter = () => {
+      const query = (searchInput?.value || '').trim().toLocaleLowerCase();
+      let visibleCount = 0;
+
+      items.forEach((item) => {
+        const itemSearch = item.dataset.search || '';
+        const itemCategories = item.dataset.categorias || '';
+
+        const matchesQuery = !query || itemSearch.includes(query);
+        const matchesCategory = !activeCategory || itemCategories.includes(activeCategory);
+        const visible = matchesQuery && matchesCategory;
+
+        item.hidden = !visible;
+        if (visible) visibleCount++;
+      });
+
+      if (noResults) noResults.hidden = visibleCount > 0;
+      // Ocultar paginación si se está filtrando activamente
+      if (pagination) {
+        pagination.hidden = Boolean(query || activeCategory);
+      }
+    };
+
+    searchInput?.addEventListener('input', applyFilter);
+
+    categoryBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeCategory = btn.dataset.blogFiltro || '';
+
+        categoryBtns.forEach((b) => {
+          const isActive = b === btn;
+          b.setAttribute('aria-pressed', String(isActive));
+          b.classList.toggle('bg-ink', isActive);
+          b.classList.toggle('text-white', isActive);
+          b.classList.toggle('border-ink', isActive);
+          b.classList.toggle('bg-white', !isActive);
+          b.classList.toggle('text-text-soft', !isActive);
+          b.classList.toggle('border-line', !isActive);
+        });
+
+        applyFilter();
+      });
+    });
+  }
+
+  setupBlogFilters();
+  document.addEventListener('astro:page-load', setupBlogFilters);
+</script>
