@@ -58,6 +58,23 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
   const pausar = requerido<HTMLButtonElement>(raiz, '[data-pausar]');
   const detener = requerido<HTMLButtonElement>(raiz, '[data-detener]');
   const anuncio = requerido<HTMLElement>(raiz, '[data-anuncio]');
+  const pantallaCompleta = raiz.querySelector<HTMLButtonElement>('[data-pantalla-completa]');
+
+  function vibrar(secuencia: number | number[]): void {
+    try {
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate(secuencia);
+      }
+    } catch { /* Ignorar si no está soportado */ }
+  }
+
+  pantallaCompleta?.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      overlay.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  });
 
   const ajustes = leerAjustes();
   let patron: Patron | undefined;
@@ -226,6 +243,7 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
       fase = 'exceeded';
       overlay.dataset.fase = 'exceeded';
       if (ajustes.sonido) play('warning');
+      vibrar([200, 100, 200, 100, 300]);
     }
     pintar(transcurrido);
     frame = window.requestAnimationFrame(cuadro);
@@ -240,6 +258,7 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     overlay.dataset.fase = 'running';
     pausar.textContent = 'Pausar';
     if (ajustes.sonido) play('ready');
+    vibrar([120, 60, 120]);
     frame = window.requestAnimationFrame(cuadro);
   }
 

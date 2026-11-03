@@ -83,12 +83,23 @@ const structuredData = hasError ? undefined : {
               id="pwa-install-btn"
               type="button"
               hidden
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold bg-red hover:bg-red-dark text-white transition-all shadow-md active:scale-95"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold bg-red hover:bg-red-dark text-white transition-all shadow-md active:scale-95 cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span>Instalar en el teléfono</span>
             </button>
           </div>
+        </div>
+
+        <!-- Banner de instalación para iOS (Safari) -->
+        <div id="ios-install-banner" hidden class="mt-4 p-3.5 rounded-xl bg-white/10 border border-white/20 text-xs text-light-soft flex items-center justify-between gap-3 animate-fade">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">📲</span>
+            <p class="m-0 leading-relaxed">
+              <strong>¿Usas iPhone o iPad?</strong> Toca el botón <strong>Compartir</strong> (<span class="font-bold text-white">⎋</span>) abajo en Safari y selecciona <strong class="text-white">"Agregar a pantalla de inicio" ➕</strong> para usar sin conexión.
+            </p>
+          </div>
+          <button type="button" id="ios-dismiss-btn" aria-label="Cerrar aviso" class="text-white/60 hover:text-white text-base px-2 py-1 cursor-pointer">✕</button>
         </div>
 
         <!-- Barra deslizable de acceso rápido a los recursos esenciales (ideal en examen o clase) -->
@@ -97,45 +108,65 @@ const structuredData = hasError ? undefined : {
             <p class="text-xs font-mono uppercase tracking-wider text-light-muted">Herramientas de consulta rápida:</p>
             <span class="text-[11px] font-mono text-light-muted/70 sm:hidden">Desliza ➔</span>
           </div>
-          <div class="flex overflow-x-auto pb-2 scrollbar-none snap-x gap-2.5 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4">
+          <div class="flex overflow-x-auto pb-2 scrollbar-none snap-x gap-2.5 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-6">
             <a
               href="/recursos/formacion/programa-examen"
-              class="snap-start shrink-0 min-w-[210px] sm:min-w-0 flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+              class="snap-start shrink-0 min-w-[190px] sm:min-w-0 flex items-center gap-2.5 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
             >
-              <span class="text-2xl p-2 rounded-lg bg-red/20 text-red shrink-0">🥋</span>
+              <span class="text-xl p-1.5 rounded-lg bg-red/20 text-red shrink-0">🥋</span>
               <div class="min-w-0">
-                <span class="block text-xs font-mono uppercase text-red tracking-wider">Por cinturón</span>
-                <span class="block text-sm font-bold truncate">Programa de examen</span>
+                <span class="block text-[11px] font-mono uppercase text-red tracking-wider">Cinturones</span>
+                <span class="block text-xs font-bold truncate">Programa de examen</span>
               </div>
             </a>
             <a
               href="/recursos/formacion/teoria"
-              class="snap-start shrink-0 min-w-[210px] sm:min-w-0 flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+              class="snap-start shrink-0 min-w-[190px] sm:min-w-0 flex items-center gap-2.5 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
             >
-              <span class="text-2xl p-2 rounded-lg bg-amber-500/20 text-amber-400 shrink-0">📖</span>
+              <span class="text-xl p-1.5 rounded-lg bg-amber-500/20 text-amber-400 shrink-0">📖</span>
               <div class="min-w-0">
-                <span class="block text-xs font-mono uppercase text-amber-400 tracking-wider">Manual oficial</span>
-                <span class="block text-sm font-bold truncate">Teoría de examen</span>
+                <span class="block text-[11px] font-mono uppercase text-amber-400 tracking-wider">Manual oficial</span>
+                <span class="block text-xs font-bold truncate">Teoría de examen</span>
               </div>
             </a>
             <a
               href="/recursos/formacion/terminologia"
-              class="snap-start shrink-0 min-w-[210px] sm:min-w-0 flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+              class="snap-start shrink-0 min-w-[190px] sm:min-w-0 flex items-center gap-2.5 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
             >
-              <span class="text-2xl p-2 rounded-lg bg-blue/20 text-blue shrink-0">🗣️</span>
+              <span class="text-xl p-1.5 rounded-lg bg-blue/20 text-blue shrink-0">🗣️</span>
               <div class="min-w-0">
-                <span class="block text-xs font-mono uppercase text-blue tracking-wider">Con audio</span>
-                <span class="block text-sm font-bold truncate">Terminología</span>
+                <span class="block text-[11px] font-mono uppercase text-blue tracking-wider">Con audio</span>
+                <span class="block text-xs font-bold truncate">Terminología</span>
               </div>
             </a>
             <a
               href="/recursos/formacion/temporizador"
-              class="snap-start shrink-0 min-w-[210px] sm:min-w-0 flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+              class="snap-start shrink-0 min-w-[190px] sm:min-w-0 flex items-center gap-2.5 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
             >
-              <span class="text-2xl p-2 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0">⏱️</span>
+              <span class="text-xl p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0">⏱️</span>
               <div class="min-w-0">
-                <span class="block text-xs font-mono uppercase text-emerald-400 tracking-wider">Cronómetro oficial</span>
-                <span class="block text-sm font-bold truncate">Temporizador de Tuls</span>
+                <span class="block text-[11px] font-mono uppercase text-emerald-400 tracking-wider">Reglamentario</span>
+                <span class="block text-xs font-bold truncate">Temporizador</span>
+              </div>
+            </a>
+            <a
+              href="/recursos/formacion/evaluacion-examen"
+              class="snap-start shrink-0 min-w-[190px] sm:min-w-0 flex items-center gap-2.5 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+            >
+              <span class="text-xl p-1.5 rounded-lg bg-purple-500/20 text-purple-400 shrink-0">📋</span>
+              <div class="min-w-0">
+                <span class="block text-[11px] font-mono uppercase text-purple-400 tracking-wider">Mesas</span>
+                <span class="block text-xs font-bold truncate">Ficha evaluación</span>
+              </div>
+            </a>
+            <a
+              href="/recursos/formacion/diagramas-tuls"
+              class="snap-start shrink-0 min-w-[190px] sm:min-w-0 flex items-center gap-2.5 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-all active:scale-95"
+            >
+              <span class="text-xl p-1.5 rounded-lg bg-orange-500/20 text-orange-400 shrink-0">📐</span>
+              <div class="min-w-0">
+                <span class="block text-[11px] font-mono uppercase text-orange-400 tracking-wider">Yeon-Mu-Son</span>
+                <span class="block text-xs font-bold truncate">Diagramas Tuls</span>
               </div>
             </a>
           </div>
@@ -176,6 +207,18 @@ const structuredData = hasError ? undefined : {
       window.addEventListener('appinstalled', () => {
         if (installBtn) installBtn.hidden = true;
       });
+
+      // Detección para banner de iOS Safari
+      const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const iosBanner = document.getElementById('ios-install-banner');
+      if (isIos && !isStandalone && iosBanner && !localStorage.getItem('fechitat:ios-banner-dismissed')) {
+        iosBanner.hidden = false;
+        document.getElementById('ios-dismiss-btn')?.addEventListener('click', () => {
+          iosBanner.hidden = true;
+          localStorage.setItem('fechitat:ios-banner-dismissed', 'true');
+        });
+      }
     </script>
   </BaseLayout>
 )}

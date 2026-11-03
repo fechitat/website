@@ -58,3 +58,40 @@ export function urlGoogleCalendar(evento: {
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
+
+/**
+ * Genera un Data URI de archivo iCalendar (.ics) para Apple Calendar, Outlook o dispositivos móviles.
+ */
+export function dataUrlIcs(evento: {
+  titulo: string;
+  fecha: string;
+  fechaFin?: string;
+  direccion?: string;
+  ciudad?: string;
+  lugar?: string;
+  descripcion?: string;
+}): string {
+  const inicio = aFormatoGoogleCalendar(evento.fecha);
+  const fin = evento.fechaFin
+    ? aFormatoGoogleCalendar(evento.fechaFin)
+    : aFormatoGoogleCalendar(new Date(new Date(evento.fecha).getTime() + DURACION_DEFECTO_HORAS * 3_600_000).toISOString());
+  const ubicacion = [evento.direccion, evento.ciudad, evento.lugar].filter(Boolean).join(', ');
+
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//FECHITAT//Eventos//ES',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    `SUMMARY:${evento.titulo}`,
+    `DESCRIPTION:${evento.descripcion || 'Evento oficial FECHITAT'}`,
+    `LOCATION:${ubicacion || 'Chile'}`,
+    `DTSTART:${inicio}`,
+    `DTEND:${fin}`,
+    'STATUS:CONFIRMED',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
+
+  return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
+}

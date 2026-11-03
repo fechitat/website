@@ -1,0 +1,240 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import UIcon from '../../../components/icons/UIcon.astro';
+
+interface TulInfo {
+  id: string;
+  nombre: string;
+  movimientos: number;
+  diagrama: string;
+  simbolo: string;
+  grado: string;
+  significado: string;
+  descripcionDiagrama: string;
+}
+
+const tuls: TulInfo[] = [
+  {
+    id: 'chon-ji',
+    nombre: 'Chon-Ji',
+    movimientos: 19,
+    diagrama: '+',
+    simbolo: '十',
+    grado: '9° a 8° Gup (Amarillo)',
+    significado: 'Significa literalmente "El Cielo y la Tierra". En Oriente se interpreta como la creación del mundo o el comienzo de la historia humana, por eso es el Tul inicial ejecutado por el principiante.',
+    descripcionDiagrama: 'Cruz regular de cuatro direcciones con punto de partida central.',
+  },
+  {
+    id: 'dan-gun',
+    nombre: 'Dan-Gun',
+    movimientos: 21,
+    diagrama: 'I',
+    simbolo: '工',
+    grado: '8° a 7° Gup (Punta Verde)',
+    significado: 'Lleva el nombre del Santo Dan-Gun, el legendario fundador de Corea en el año 2333 antes de Cristo.',
+    descripcionDiagrama: 'Línea mayúscula en forma de "I" con movimientos hacia los lados y frente.',
+  },
+  {
+    id: 'do-san',
+    nombre: 'Do-San',
+    movimientos: 24,
+    diagrama: 'Z',
+    simbolo: 'Z',
+    grado: '7° a 6° Gup (Verde)',
+    significado: 'Es el seudónimo del patriota Ahn Chang-Ho (1876-1938). Los 24 movimientos representan toda su vida dedicada a fomentar la educación en Corea y su movimiento independentista.',
+    descripcionDiagrama: 'Diagrama escalonado en zigzag ("Z"), simbolizando avance continuo con obstáculos.',
+  },
+  {
+    id: 'won-hyo',
+    nombre: 'Won-Hyo',
+    movimientos: 28,
+    diagrama: 'I',
+    simbolo: '工',
+    grado: '6° a 5° Gup (Punta Azul)',
+    significado: 'Fue el eminente monje que introdujo el Budismo en la dinastía Silla en el año 686 después de Cristo.',
+    descripcionDiagrama: 'Línea mayúscula "I" con desplazamientos en L (Niunja Sogi) y bloqueos circulares.',
+  },
+  {
+    id: 'yul-gok',
+    nombre: 'Yul-Gok',
+    movimientos: 38,
+    diagrama: '士',
+    simbolo: '士',
+    grado: '5° a 4° Gup (Azul)',
+    significado: 'Es el seudónimo del gran filósofo y erudito Yi I (1536-1584), llamado "el Confucio de Corea". Los 38 movimientos hacen referencia a su lugar de nacimiento en el paralelo 38.',
+    descripcionDiagrama: 'Caracter chino "Erudito" (士) con extensiones laterales y diagonales.',
+  },
+  {
+    id: 'joong-gun',
+    nombre: 'Joong-Gun',
+    movimientos: 32,
+    diagrama: 'I',
+    simbolo: '工',
+    grado: '4° a 3° Gup (Punta Roja)',
+    significado: 'Lleva el nombre del patriota Ahn Joong-Gun, quien ejecutó a Hiro-Bumi Ito, el primer gobernador general japonés de Corea. Los 32 movimientos representan la edad del Sr. Ahn al ser ejecutado en la prisión de Lui-Shung (1910).',
+    descripcionDiagrama: 'Línea mayúscula "I" con bloqueos lentos y defensas dobles.',
+  },
+  {
+    id: 'toi-gye',
+    nombre: 'Toi-Gye',
+    movimientos: 37,
+    diagrama: '士',
+    simbolo: '士',
+    grado: '3° a 2° Gup (Rojo)',
+    significado: 'Es el nombre de pluma del renombrado erudito Yi Hwang (siglo XVI), autoridad del neo-confucianismo. Los 37 movimientos hacen referencia a su lugar de nacimiento en el paralelo 37.',
+    descripcionDiagrama: 'Caracter chino "Erudito" (士) con técnicas de rodilla y roturas.',
+  },
+  {
+    id: 'hwa-rang',
+    nombre: 'Hwa-Rang',
+    movimientos: 29,
+    diagrama: 'I',
+    simbolo: '工',
+    grado: '2° a 1° Gup (Punta Negra)',
+    significado: 'Nombrado por el grupo guerrero juvenil Hwa-Rang, originado en la dinastía Silla a principios del siglo VII. Los 29 movimientos hacen referencia a la 29° División de Infantería donde el Taekwon-Do maduró.',
+    descripcionDiagrama: 'Línea mayúscula "I" con golpes de codo, puños laterales y empujes.',
+  },
+  {
+    id: 'choong-moo',
+    nombre: 'Choong-Moo',
+    movimientos: 30,
+    diagrama: 'I',
+    simbolo: '工',
+    grado: '1° Gup a I Dan (Cinturón Negro)',
+    significado: 'Fue el nombre otorgado al gran Almirante Yi Soon-Shin de la dinastía Yi. Se le atribuye la invención del primer barco blindado (Kobukson), precursor del submarino moderno en 1592.',
+    descripcionDiagrama: 'Línea mayúscula "I" que finaliza con un ataque con la mano izquierda, simbolizando su muerte sin haber demostrado todo su potencial por lealtad incondicional al rey.',
+  },
+  {
+    id: 'kwang-gae',
+    nombre: 'Kwang-Gae',
+    movimientos: 39,
+    diagrama: '土',
+    simbolo: '土',
+    grado: 'I Dan',
+    significado: 'Nombrado por el célebre Kwang-Gae-T\'o-Wang, el 19° rey de la dinastía Koguryo, quien recuperó todos los territorios perdidos. Los 39 movimientos hacen referencia a las dos primeras cifras del año 391 d.C., año en que subió al trono.',
+    descripcionDiagrama: 'Diagrama del caracter "Tierra" (土), simbolizando la expansión y recuperación de territorios.',
+  },
+  {
+    id: 'po-eun',
+    nombre: 'Po-Eun',
+    movimientos: 36,
+    diagrama: '一',
+    simbolo: '一',
+    grado: 'I Dan',
+    significado: 'Es el seudónimo del fiel servidor Chong Mong-Chu (1400), cuyo poema "No serviría a un segundo señor aunque fuera crucificado cien veces" es conocido por todo coreano.',
+    descripcionDiagrama: 'Línea horizontal recta (一), representando una lealtad inquebrantable que nunca se desvía.',
+  },
+  {
+    id: 'ge-baek',
+    nombre: 'Ge-Baek',
+    movimientos: 44,
+    diagrama: 'I',
+    simbolo: '工',
+    grado: 'I Dan',
+    significado: 'Nombrado por el gran General Ge-Baek de la dinastía Baek Je (660 d.C.). El diagrama representa su severa y estricta disciplina militar.',
+    descripcionDiagrama: 'Línea mayúscula "I" ejecutada en estricta simetría y disciplina.',
+  },
+];
+---
+
+<BaseLayout title="Diagramas de Tuls — FECHITAT" description="Guía de esquemas, diagramas en el suelo (Yeon-Mu-Son) y significados históricos de los Tuls de Taekwon-Do ITF.">
+  <PageHero
+    title="Diagramas de Tuls"
+    crumb="Recursos"
+    crumbHref="/recursos"
+    description="Esquemas de desplazamiento en el suelo (Yeon-Mu-Son), cantidad de movimientos y significado histórico oficial de cada forma."
+  />
+
+  <section class="max-w-6xl mx-auto px-5 md:px-7 py-8 md:py-12">
+    <!-- Buscador de Tuls -->
+    <div class="mb-8 max-w-md">
+      <label for="buscar-tul" class="block text-sm font-bold text-ink mb-2">Buscar forma o grado</label>
+      <div class="relative">
+        <span class="absolute inset-y-0 left-3.5 flex items-center text-text-soft pointer-events-none">
+          <UIcon name="search" size={18} />
+        </span>
+        <input
+          id="buscar-tul"
+          type="search"
+          placeholder="Escribe Chon-Ji, Dan-Gun, Azul, 19 movimientos..."
+          class="w-full border border-line bg-white pl-10 pr-4 py-2.5 rounded-lg text-sm text-ink focus-visible:outline-2 focus-visible:outline-red shadow-2xs"
+        />
+      </div>
+    </div>
+
+    <!-- Rejilla de tarjetas de Tuls con diagramas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="grid-tuls">
+      {tuls.map((tul) => (
+        <article
+          class="tul-card bg-white border border-line rounded-xl p-5 shadow-xs hover:border-red hover:shadow-md transition-all flex flex-col justify-between"
+          data-tul={`${tul.nombre} ${tul.grado} ${tul.movimientos} ${tul.diagrama} ${tul.significado}`.toLocaleLowerCase()}
+        >
+          <div>
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <span class="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-ink text-white font-mono text-xl font-bold border border-line shadow-inner">
+                {tul.simbolo}
+              </span>
+              <div class="text-right">
+                <span class="text-xs font-mono font-bold text-red uppercase tracking-wider block">
+                  {tul.movimientos} Movimientos
+                </span>
+                <span class="text-[11px] font-mono text-text-soft block">
+                  Diagrama: {tul.diagrama}
+                </span>
+              </div>
+            </div>
+
+            <h3 class="text-xl font-bold font-heading text-ink mb-1">{tul.nombre}</h3>
+            <p class="text-xs font-mono text-text-soft mb-3">{tul.grado}</p>
+
+            <div class="p-3 rounded-lg bg-paper/60 border border-line/60 mb-3 text-xs text-text-soft leading-relaxed">
+              <strong>Diagrama:</strong> {tul.descripcionDiagrama}
+            </div>
+
+            <p class="text-xs text-text-soft leading-relaxed line-clamp-4">
+              {tul.significado}
+            </p>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-line flex items-center justify-between">
+            <a
+              href={`/recursos/formacion/temporizador`}
+              class="inline-flex items-center gap-1.5 text-xs font-bold text-red hover:underline"
+            >
+              ⏱️ Cronometrar en Temporizador
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <p id="sin-tuls" hidden class="p-8 text-center border border-dashed border-line rounded-xl bg-white text-text-soft mt-6">
+      No se encontraron Tuls que coincidan con la búsqueda.
+    </p>
+  </section>
+
+  <script is:inline>
+    function setupTulsSearch() {
+      const search = document.getElementById('buscar-tul');
+      const cards = [...document.querySelectorAll('.tul-card')];
+      const emptyMsg = document.getElementById('sin-tuls');
+
+      search?.addEventListener('input', () => {
+        const query = search.value.trim().toLocaleLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const match = !query || (card.dataset.tul || '').includes(query);
+          card.hidden = !match;
+          if (match) visibleCount++;
+        });
+
+        if (emptyMsg) emptyMsg.hidden = visibleCount > 0;
+      });
+    }
+
+    setupTulsSearch();
+    document.addEventListener('astro:page-load', setupTulsSearch);
+  </script>
+</BaseLayout>

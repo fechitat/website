@@ -1,0 +1,309 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import UIcon from '../../../components/icons/UIcon.astro';
+
+const gradosDisponibles = [
+  '9° Gup — Blanco Punta Amarilla',
+  '8° Gup — Amarillo',
+  '7° Gup — Amarillo Punta Verde',
+  '6° Gup — Verde',
+  '5° Gup — Verde Punta Azul',
+  '4° Gup — Azul',
+  '3° Gup — Azul Punta Roja',
+  '2° Gup — Rojo',
+  '1° Gup — Rojo Punta Negra',
+  'I Dan — Cinturón Negro',
+];
+
+const rubros = [
+  { id: 'posiciones', label: 'Posiciones y Técnicas Fundamentales', desc: 'Sogi, Ap Joomuk, Palmok, Sonkal y desplazamientos' },
+  { id: 'formas', label: 'Formas (Tuls)', desc: 'Diagrama, potencia, ritmo reglamentario y control' },
+  { id: 'combate', label: 'Combate (Matsokgi)', desc: '1 paso, 2 pasos, 3 pasos o libre reglamentario' },
+  { id: 'defensaRotura', label: 'Defensa Personal / Roturas', desc: 'Técnica de escape, efectividad y rompimiento (si aplica)' },
+  { id: 'teoria', label: 'Teoría y Protocolo Marcial', desc: 'Significados, historia, principios y actitud de respeto' },
+];
+
+const calificaciones = [
+  { valor: 4, label: 'Excelente', badge: 'bg-emerald-500 text-white' },
+  { valor: 3, label: 'Bueno', badge: 'bg-blue text-white' },
+  { valor: 2, label: 'Regular', badge: 'bg-amber-500 text-white' },
+  { valor: 1, label: 'Insuficiente', badge: 'bg-red text-white' },
+];
+---
+
+<BaseLayout title="Ficha de Evaluación de Examen — FECHITAT" description="Herramienta digital para mesas examinadoras de Taekwon-Do ITF. Evalúa y genera informes de aprobación instantáneos.">
+  <PageHero
+    title="Ficha de Evaluación"
+    crumb="Recursos"
+    crumbHref="/recursos"
+    description="Herramienta interactiva para mesas examinadoras. Califica ítems técnicos con un solo toque y genera el veredicto instantáneo."
+  />
+
+  <section class="max-w-4xl mx-auto px-5 md:px-7 py-8 md:py-12">
+    <!-- Formulario evaluador -->
+    <div class="bg-white border border-line rounded-2xl p-6 md:p-8 shadow-sm">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label for="eval-nombre" class="block text-xs font-mono uppercase tracking-wider text-text-soft mb-1.5">Nombre del Postulante</label>
+          <input
+            id="eval-nombre"
+            type="text"
+            placeholder="Ej. Matías Silva"
+            class="w-full border border-line bg-paper/40 px-3.5 py-2.5 rounded-lg text-ink font-semibold focus-visible:outline-2 focus-visible:outline-red"
+          />
+        </div>
+        <div>
+          <label for="eval-grado" class="block text-xs font-mono uppercase tracking-wider text-text-soft mb-1.5">Grado al que Postula</label>
+          <select
+            id="eval-grado"
+            class="w-full border border-line bg-paper/40 px-3.5 py-2.5 rounded-lg text-ink font-semibold focus-visible:outline-2 focus-visible:outline-red"
+          >
+            {gradosDisponibles.map((grado) => (
+              <option value={grado}>{grado}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label for="eval-examinador" class="block text-xs font-mono uppercase tracking-wider text-text-soft mb-1.5">Mesa Examinadora / Instructor</label>
+          <input
+            id="eval-examinador"
+            type="text"
+            placeholder="Ej. Sabum Nim Roberto Pérez"
+            class="w-full border border-line bg-paper/40 px-3.5 py-2.5 rounded-lg text-ink focus-visible:outline-2 focus-visible:outline-red"
+          />
+        </div>
+        <div>
+          <label for="eval-fecha" class="block text-xs font-mono uppercase tracking-wider text-text-soft mb-1.5">Fecha del Examen</label>
+          <input
+            id="eval-fecha"
+            type="date"
+            class="w-full border border-line bg-paper/40 px-3.5 py-2.5 rounded-lg text-ink focus-visible:outline-2 focus-visible:outline-red"
+          />
+        </div>
+      </div>
+
+      <!-- Criterios de Evaluación -->
+      <div class="border-t border-line pt-6">
+        <h2 class="text-lg font-bold text-ink mb-4">Criterios de Evaluación</h2>
+        <div class="space-y-5" id="rubros-container">
+          {rubros.map((rubro) => (
+            <div class="p-4 rounded-xl border border-line bg-paper/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div class="max-w-md">
+                <p class="font-bold text-sm text-ink mb-0.5">{rubro.label}</p>
+                <p class="text-xs text-text-soft">{rubro.desc}</p>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0" role="group" aria-label={`Calificación para ${rubro.label}`}>
+                {calificaciones.map((cal) => (
+                  <button
+                    type="button"
+                    data-rubro={rubro.id}
+                    data-valor={cal.valor}
+                    class="rubro-btn px-2.5 py-1.5 rounded-md text-xs font-bold border border-line bg-white text-text-soft hover:border-ink hover:text-ink transition-all cursor-pointer select-none"
+                  >
+                    {cal.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Observaciones -->
+      <div class="mt-6 border-t border-line pt-5">
+        <label for="eval-obs" class="block text-xs font-mono uppercase tracking-wider text-text-soft mb-1.5">Observaciones Técnicas o Recomendaciones</label>
+        <textarea
+          id="eval-obs"
+          rows="2"
+          placeholder="Ej. Reforzar la flexión en la posición Gunnun Sogi y la respiración en Chon-Ji."
+          class="w-full border border-line bg-paper/40 p-3 rounded-lg text-sm text-ink focus-visible:outline-2 focus-visible:outline-red"
+        ></textarea>
+      </div>
+
+      <!-- Veredicto Calculado en Tiempo Real -->
+      <div class="mt-6 p-5 rounded-xl border border-line bg-ink text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-widest text-light-soft block">Veredicto Calculado</span>
+          <p id="eval-resultado" class="text-2xl font-extrabold tracking-wide mt-1 text-emerald-400">
+            Pendiente de calificación
+          </p>
+          <span id="eval-promedio" class="text-xs font-mono text-light-muted">Completa los 5 rubros para calcular el resultado.</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="btn-copiar-resumen"
+            class="px-3.5 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold uppercase tracking-wider text-white transition-colors cursor-pointer"
+          >
+            📋 Copiar Resumen
+          </button>
+          <button
+            type="button"
+            id="btn-imprimir"
+            class="px-3.5 py-2 rounded-lg bg-red hover:bg-red-dark text-xs font-bold uppercase tracking-wider text-white transition-colors cursor-pointer"
+          >
+            🖨️ Imprimir / PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Historial local de la sesión (offline) -->
+      <div class="mt-8 border-t border-line pt-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-ink">Evaluados en esta sesión</h3>
+          <button type="button" id="btn-guardar-alumno" class="text-xs font-bold text-red hover:underline cursor-pointer">
+            + Guardar postulante
+          </button>
+        </div>
+        <ul id="lista-evaluados" class="divide-y divide-line border border-line rounded-lg bg-paper/20 text-xs">
+          <li class="p-3 text-text-soft text-center" id="empty-history">No hay alumnos guardados aún en esta sesión.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    function setupEvaluacion() {
+      const fechaInput = document.getElementById('eval-fecha');
+      if (fechaInput && !fechaInput.value) {
+        fechaInput.value = new Date().toISOString().split('T')[0];
+      }
+
+      const notas = {};
+      const rubroBtns = [...document.querySelectorAll('.rubro-btn')];
+      const resultadoEl = document.getElementById('eval-resultado');
+      const promedioEl = document.getElementById('eval-promedio');
+      const nombreInput = document.getElementById('eval-nombre');
+      const gradoSelect = document.getElementById('eval-grado');
+      const examinadorInput = document.getElementById('eval-examinador');
+      const obsInput = document.getElementById('eval-obs');
+
+      rubroBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const rubro = btn.dataset.rubro;
+          const valor = Number(btn.dataset.valor);
+          notas[rubro] = valor;
+
+          // Estilo de selección
+          document.querySelectorAll(`[data-rubro="${rubro}"]`).forEach((b) => {
+            b.classList.remove('bg-ink', 'text-white', 'border-ink');
+            b.classList.add('bg-white', 'text-text-soft', 'border-line');
+          });
+          btn.classList.remove('bg-white', 'text-text-soft', 'border-line');
+          btn.classList.add('bg-ink', 'text-white', 'border-ink');
+
+          calcularVeredicto();
+        });
+      });
+
+      function calcularVeredicto() {
+        const valores = Object.values(notas);
+        if (valores.length < 5) {
+          resultadoEl.textContent = `Pendiente (${valores.length}/5 calificados)`;
+          resultadoEl.className = 'text-2xl font-extrabold tracking-wide mt-1 text-amber-400';
+          promedioEl.textContent = 'Faltan rubros por calificar.';
+          return;
+        }
+
+        const suma = valores.reduce((acc, v) => acc + v, 0);
+        const promedio = suma / 5;
+        const tieneInsuficiente = valores.some((v) => v === 1);
+        const tieneRegular = valores.some((v) => v === 2);
+
+        if (tieneInsuficiente) {
+          resultadoEl.textContent = '❌ PENDIENTE / REPROGRAMAR';
+          resultadoEl.className = 'text-2xl font-extrabold tracking-wide mt-1 text-red';
+          promedioEl.textContent = 'Presenta ítems insuficientes que deben corregirse.';
+        } else if (promedio >= 3.6 && !tieneRegular) {
+          resultadoEl.textContent = '⭐ APROBADO CON DISTINCIÓN';
+          resultadoEl.className = 'text-2xl font-extrabold tracking-wide mt-1 text-amber-300';
+          promedioEl.textContent = `Promedio: ${promedio.toFixed(1)} / 4.0 — Excelente desempeño técnico.`;
+        } else if (promedio >= 2.8) {
+          resultadoEl.textContent = '✓ APROBADO';
+          resultadoEl.className = 'text-2xl font-extrabold tracking-wide mt-1 text-emerald-400';
+          promedioEl.textContent = `Promedio: ${promedio.toFixed(1)} / 4.0 — Cumple satisfactoriamente el programa.`;
+        } else {
+          resultadoEl.textContent = '⚠️ APROBADO CON OBSERVACIÓN';
+          resultadoEl.className = 'text-2xl font-extrabold tracking-wide mt-1 text-amber-400';
+          promedioEl.textContent = `Promedio: ${promedio.toFixed(1)} / 4.0 — Requiere reforzar puntos observados.`;
+        }
+      }
+
+      // Copiar resumen
+      document.getElementById('btn-copiar-resumen')?.addEventListener('click', () => {
+        const nombre = nombreInput?.value.trim() || 'Postulante';
+        const grado = gradoSelect?.value || '';
+        const veredicto = resultadoEl?.textContent || '';
+        const obs = obsInput?.value.trim() || 'Sin observaciones adicionales.';
+
+        const texto = `🥋 FECHITAT — EVALUACIÓN DE EXAMEN\n` +
+          `Alumno: ${nombre}\n` +
+          `Grado: ${grado}\n` +
+          `Resultado: ${veredicto}\n` +
+          `Observaciones: ${obs}\n` +
+          `Fecha: ${fechaInput?.value || ''}`;
+
+        navigator.clipboard.writeText(texto).then(() => {
+          alert('¡Resumen copiado al portapapeles!');
+        }).catch(() => {});
+      });
+
+      // Imprimir
+      document.getElementById('btn-imprimir')?.addEventListener('click', () => {
+        window.print();
+      });
+
+      // Historial en localStorage
+      const listaEl = document.getElementById('lista-evaluados');
+      const emptyEl = document.getElementById('empty-history');
+
+      function cargarHistorial() {
+        try {
+          const guardados = JSON.parse(localStorage.getItem('fechitat:evaluaciones') || '[]');
+          if (guardados.length === 0) {
+            if (emptyEl) emptyEl.hidden = false;
+            return;
+          }
+          if (emptyEl) emptyEl.hidden = true;
+          listaEl.innerHTML = guardados.map((item) => `
+            <li class="p-3 flex items-center justify-between gap-3">
+              <div>
+                <strong>${item.nombre}</strong> — <span class="text-text-soft">${item.grado}</span>
+              </div>
+              <span class="font-bold">${item.veredicto}</span>
+            </li>
+          `).join('');
+        } catch { /* Ignorar error */ }
+      }
+
+      document.getElementById('btn-guardar-alumno')?.addEventListener('click', () => {
+        const nombre = nombreInput?.value.trim();
+        if (!nombre) {
+          alert('Por favor ingresa el nombre del alumno.');
+          return;
+        }
+        const item = {
+          nombre,
+          grado: gradoSelect?.value || '',
+          veredicto: resultadoEl?.textContent || 'Aprobado',
+          fecha: fechaInput?.value || '',
+        };
+        try {
+          const guardados = JSON.parse(localStorage.getItem('fechitat:evaluaciones') || '[]');
+          guardados.unshift(item);
+          localStorage.setItem('fechitat:evaluaciones', JSON.stringify(guardados.slice(0, 30)));
+          cargarHistorial();
+          nombreInput.value = '';
+          obsInput.value = '';
+          alert(`Evaluación de ${nombre} guardada en esta sesión.`);
+        } catch { /* Ignorar error */ }
+      });
+
+      cargarHistorial();
+    }
+
+    setupEvaluacion();
+    document.addEventListener('astro:page-load', setupEvaluacion);
+  </script>
+</BaseLayout>

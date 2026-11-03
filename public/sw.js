@@ -7,6 +7,8 @@ const PRECACHE_ASSETS = [
   '/recursos/formacion/teoria',
   '/recursos/formacion/terminologia',
   '/recursos/formacion/temporizador',
+  '/recursos/formacion/evaluacion-examen',
+  '/recursos/formacion/diagramas-tuls',
   '/recursos/documentos-oficiales',
   '/documentos/programa-examen-fechitat.pdf',
   '/documentos/teoria-examen-fechitat.pdf',
