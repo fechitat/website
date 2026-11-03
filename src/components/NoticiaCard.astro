@@ -17,32 +17,26 @@ const fecha = fechaValida
   : undefined;
 ---
 
-<a href={href} class="noticia-card group flex h-full flex-col border border-itf-blue-border bg-itf-blue-light">
+<a href={href} class="noticia-card group flex h-full flex-col rounded-xl overflow-hidden border border-slate-200 bg-white hover:border-blue hover:shadow-md transition-all duration-200 shadow-xs">
   {post.imagenUrl && (
     <img src={post.imagenUrl} alt={post.imagenAlt || ''} class="aspect-[16/10] w-full object-cover" loading="lazy" decoding="async" />
   )}
   <div class="flex h-full flex-col p-5">
-    <p class="mb-2 text-xs font-bold uppercase tracking-wider text-blue">
-      {etiquetas[categoria] ?? categoria}
-      {fecha && <time datetime={fechaValida} class="ml-2 font-normal normal-case tracking-normal text-text-soft">{fecha}</time>}
-    </p>
-    <h3 class="mb-0 text-xl leading-snug group-hover:text-blue">{post.titulo}</h3>
+    <div class="mb-3 flex items-center justify-between gap-2">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-blue/10 text-blue border border-blue/20">
+        {etiquetas[categoria] ?? categoria}
+      </span>
+      {fecha && <time datetime={fechaValida} class="text-xs text-text-soft">{fecha}</time>}
+    </div>
+    <h3 class="mb-0 text-lg sm:text-xl font-bold font-heading leading-snug text-ink group-hover:text-blue transition-colors">{post.titulo}</h3>
     {post.extracto && <p class="mt-2 mb-0 line-clamp-3 text-sm leading-relaxed text-text-soft">{post.extracto}</p>}
-    <span class="mt-auto pt-5 text-sm font-bold text-blue">Leer noticia</span>
+    <span class="mt-auto pt-5 text-sm font-bold text-blue flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+      Leer noticia ➔
+    </span>
   </div>
 </a>
 
 <style>
-  .noticia-card {
-    box-shadow: inset 4px 0 0 var(--color-blue);
-    transition: border-color 150ms;
-  }
-
-  .noticia-card:hover,
-  .noticia-card:focus-visible {
-    border-color: var(--color-blue);
-  }
-
   .noticia-card:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: 3px;

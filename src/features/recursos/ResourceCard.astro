@@ -52,10 +52,7 @@ const esNoticia = resource.format === 'articulo' || resource.category.id === 'no
 
 <style>
   :global(.resource-card) {
-    border-color: var(--color-line);
-    border-radius: 0;
-    box-shadow: none;
-    transition: border-color 150ms, background-color 150ms;
+    transition: border-color 150ms, box-shadow 150ms, transform 150ms;
     overflow-wrap: anywhere;
   }
 
@@ -63,12 +60,6 @@ const esNoticia = resource.format === 'articulo' || resource.category.id === 'no
   :global(.resource-card:hover),
   :global(.resource-card:focus-visible) {
     border-color: var(--color-red);
-  }
-
-  :global(.resource-card--noticia) {
-    border-color: var(--color-itf-blue-border);
-    background: var(--color-itf-blue-light);
-    box-shadow: inset 4px 0 0 var(--color-blue);
   }
 
   :global(.resource-card--noticia.resource-card--featured),
@@ -88,10 +79,6 @@ const esNoticia = resource.format === 'articulo' || resource.category.id === 'no
 
   :global(.resource-card:active) {
     background: var(--color-paper);
-  }
-
-  :global(.resource-card--noticia:active) {
-    background: var(--color-itf-blue-light);
   }
 
   /* El teclado permite leer el extracto completo sin depender del hover. */

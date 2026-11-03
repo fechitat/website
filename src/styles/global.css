@@ -45,10 +45,10 @@
   --color-text-soft: #5b5648;
   --color-line: #d8d0ba;
 
-  /* Colores para texto sobre fondos oscuros */
-  --color-light: #e6e8ee;
-  --color-light-soft: #c9cdd6;
-  --color-light-muted: #8b93a4;
+  /* Colores para texto sobre fondos oscuros (alto contraste) */
+  --color-light: #ffffff;
+  --color-light-soft: #f8fafc;
+  --color-light-muted: #e2e8f0;
 
   /* Fondos oscuros */
   --color-dark: #0a0f1a;
