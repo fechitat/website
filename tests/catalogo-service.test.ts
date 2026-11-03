@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { afterEach, mock, test } from 'node:test';
 import { sanity } from '../src/lib/sanity.ts';
-import { loadCatalogResources } from '../src/features/recursos/service.ts';
+import { clearCatalogCache, loadCatalogResources } from '../src/features/recursos/service.ts';
 import { getCatalogPage } from '../src/features/recursos/catalogo.ts';
 
 const originalProvider = process.env.WORDPRESS_URL;
 afterEach(() => {
   mock.restoreAll();
+  clearCatalogCache();
   if (originalProvider === undefined) delete process.env.WORDPRESS_URL;
   else process.env.WORDPRESS_URL = originalProvider;
 });
@@ -29,7 +30,7 @@ test('no mezcla las noticias del blog en el catálogo de recursos', async () => 
   assert.equal(resources.filter((resource) => resource.id === 'programa-examen').length, 1);
   assert.equal(resources.find((resource) => resource.id === 'programa-examen')?.title, 'Programa actualizado');
   assert.equal(resources.find((resource) => resource.id === 'document')?.validity, 'reemplazado');
-  assert.equal(getCatalogPage(resources, { query: '', category: '' }).resources.length, 5);
+  assert.equal(getCatalogPage(resources, { query: '', category: '' }).resources.length, 4);
 });
 
 test('permite despublicar recursos iniciales mediante una ficha editorial inactiva', async () => {
@@ -44,7 +45,7 @@ test('permite despublicar recursos iniciales mediante una ficha editorial inacti
   });
   const resources = await loadCatalogResources();
   const result = getCatalogPage(resources, { query: '', category: '' });
-  assert.equal(result.inventoryTotal, 3);
+  assert.equal(result.inventoryTotal, 2);
   assert.ok(!result.resources.some((resource) => resource.id === 'terminologia'));
 });
 

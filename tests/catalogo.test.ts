@@ -29,13 +29,12 @@ const post: BlogPost = {
 const emptyFilters: CatalogFilters = { query: '', category: '' };
 
 test('conserva los recursos locales, sus destinos y formatos sin fotos de relleno', () => {
-  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.id), ['programa-examen', 'terminologia', 'temporizador-formas', 'teoria-examen']);
+  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.id), ['programa-examen', 'terminologia', 'temporizador-formas']);
   assert.equal(LOCAL_RESOURCES[0]?.href, '/recursos/formacion/programa-examen');
   assert.equal(LOCAL_RESOURCES[0]?.format, 'documento');
   assert.equal(LOCAL_RESOURCES[1]?.href, '/recursos/formacion/terminologia');
   assert.equal(LOCAL_RESOURCES[2]?.href, '/recursos/formacion/temporizador');
-  assert.equal(LOCAL_RESOURCES[3]?.href, '/recursos/formacion/teoria');
-  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.format), ['documento', 'guia', 'herramienta', 'documento']);
+  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.format), ['documento', 'guia', 'herramienta']);
   assert.ok(LOCAL_RESOURCES.every((resource) => !resource.image && resource.category.id));
 });
 
@@ -103,7 +102,7 @@ test('combina búsqueda y tipo de contenido sin perder recursos ni categorías t
   const count = (filters: CatalogFilters): number => indexes.filter((index) => matchesResource(index, filters)).length;
 
   assert.equal(count(emptyFilters), resources.length);
-  for (const [category, expected] of [['guia', 1], ['herramienta', 1], ['articulo', 1], ['documento', 3]] as const) {
+  for (const [category, expected] of [['guia', 1], ['herramienta', 1], ['articulo', 1], ['documento', 2]] as const) {
     assert.equal(count({ query: '', category }), expected, category);
   }
   assert.equal(count({ query: 'terminologia', category: 'guia' }), 1);

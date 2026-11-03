@@ -32,24 +32,24 @@ const hasFilters = Boolean(filters.query || filters.category || filters.sort || 
     </div>
     <input name="categoria" type="hidden" value={filters.category} />
     <nav aria-label="Tipos de recursos" class="category-navigation mt-3">
-      <ul class="category-selector flex flex-wrap items-center gap-2">
+      <ul class="category-selector flex overflow-x-auto pb-2 scrollbar-none items-center gap-2 -mx-4 px-4 sm:mx-0 sm:px-0">
         {categories.map((category) => {
           const url = getCatalogUrl(Astro.url, { ...filters, category: category.id, page: undefined });
           return (
-            <li>
+            <li class="shrink-0">
               <a
                 href={`${url.pathname}${url.search}`}
                 data-category-filter={category.id}
                 aria-controls="catalogo-recursos"
                 aria-current={filters.category === category.id ? 'true' : undefined}
-                class="inline-flex min-h-10 items-center px-4 py-1.5 rounded-full border border-line bg-transparent text-sm font-medium whitespace-nowrap transition-colors hover:border-red hover:text-red"
+                class="inline-flex min-h-10 items-center px-4 py-1.5 rounded-full border border-line bg-white text-sm font-medium whitespace-nowrap transition-colors hover:border-red hover:text-red"
               >
                 {category.label}
               </a>
             </li>
           );
         })}
-        <li>
+        <li class="shrink-0">
           <a
             href="/recursos"
             data-clear-filters
@@ -280,6 +280,38 @@ const hasFilters = Boolean(filters.query || filters.category || filters.sort || 
         else if (target instanceof HTMLAnchorElement && target.hasAttribute('data-page-link')) void navigate(readCatalogFilters(new URL(target.href).searchParams), 'push', true);
         else void navigate(readCatalogFilters(new URL(window.location.href).searchParams), false);
       }, options);
+
+      // Gesto de swipe táctil para navegar rápidamente entre pestañas de recursos
+      let touchStartX = 0;
+      let touchStartY = 0;
+      shell.addEventListener('touchstart', (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }
+      }, { passive: true, signal: lifecycle.signal });
+
+      shell.addEventListener('touchend', (e: TouchEvent) => {
+        if (e.changedTouches.length !== 1) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+          const links = [...this.querySelectorAll<HTMLAnchorElement>('[data-category-filter]')];
+          if (links.length <= 1) return;
+          const currentCat = category.value;
+          const currentIndex = links.findIndex((el) => (el.dataset.categoryFilter ?? '') === currentCat);
+          if (currentIndex === -1) return;
+
+          if (deltaX < 0 && currentIndex < links.length - 1) {
+            const nextCat = links[currentIndex + 1].dataset.categoryFilter ?? '';
+            void navigate({ ...currentFilters(), category: nextCat, page: undefined }, 'push');
+          } else if (deltaX > 0 && currentIndex > 0) {
+            const prevCat = links[currentIndex - 1].dataset.categoryFilter ?? '';
+            void navigate({ ...currentFilters(), category: prevCat, page: undefined }, 'push');
+          }
+        }
+      }, { passive: true, signal: lifecycle.signal });
+
       window.addEventListener('popstate', () => { void navigate(readCatalogFilters(new URL(window.location.href).searchParams), false); }, options);
     }
 

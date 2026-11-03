@@ -17,15 +17,13 @@ const estadosDocumento: Record<string, string> = { vigente: 'Vigente', archivado
 ---
 
 <BaseLayout title={titulo} description={descripcion}>
-  <PageHero
-    title="Documentos oficiales"
-    crumb="Recursos"
-    crumbHref="/recursos"
-    description="Descarga los protocolos, reglamentos y estatutos oficiales vigentes de FECHITAT. Los documentos archivados se mantienen como registro histórico institucional."
-  />
+  <div class="bg-white border-b border-line py-5 md:py-6">
+    <div class="max-w-6xl mx-auto px-5 md:px-7">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold font-heading text-ink tracking-tight m-0">Documentos oficiales</h1>
+    </div>
+  </div>
 
-
-  <section class="py-10 md:py-16 bg-slate-50 min-h-screen">
+  <section class="py-6 md:py-10 bg-slate-50 min-h-screen">
     <div class="max-w-6xl mx-auto px-5 md:px-7">
       {documentos.length > 0 ? (
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -12,21 +12,27 @@ interface Props {
 
 const { resource, headingLevel: Heading = 'h2', variant = 'standard' } = Astro.props;
 const format = RESOURCE_FORMATS.find((option) => option.id === resource.format);
-const esNoticia = resource.format === 'articulo' || resource.category.id === 'noticias';
+
+// Icono temático para hacer visualmente identificable cada card
+const iconosPorRecurso: Record<string, string> = {
+  'programa-examen': '🥋',
+  'terminologia': '🗣️',
+  'temporizador-formas': '⏱️',
+  'evaluacion-examen': '📋',
+  'diagramas-tuls': '📐',
+};
+const cardEmoji = iconosPorRecurso[resource.id] ?? (format?.icon === 'wrench' ? '🔧' : format?.icon === 'book-open' ? '📖' : '📄');
 ---
 
 <Card href={resource.href} class={`resource-card group h-full block rounded-xl border border-line bg-white shadow-xs hover:border-red hover:shadow-md transition-all${variant === 'featured' ? ' resource-card--featured' : ''}`}>
   <div class="p-5 sm:p-6 h-full flex flex-col">
-    <div class="flex items-center justify-between gap-2 mb-3">
-      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-paper text-ink border border-line">
-        {format?.icon && <UIcon name={format.icon} size={14} class="text-red shrink-0" />}
-        {resource.category.label}
+    <div class="flex items-center justify-between gap-3 mb-3">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-paper text-ink border border-line">
+        {format?.label ?? resource.category.label}
       </span>
-      {resource.isFundamental && (
-        <span class="text-[11px] font-mono font-bold text-red uppercase tracking-wider">
-          Examen
-        </span>
-      )}
+      <span class="text-2xl p-1.5 rounded-lg bg-paper shrink-0 select-none" aria-hidden="true">
+        {cardEmoji}
+      </span>
     </div>
     <Heading class="text-lg sm:text-xl font-bold font-heading leading-snug tracking-normal mb-0 text-ink group-hover:text-red transition-colors">
       {resource.title}
@@ -43,7 +49,7 @@ const esNoticia = resource.format === 'articulo' || resource.category.id === 'no
     )}
     <div class="mt-auto pt-5">
       <Button as="span" variant="brand" class="w-full justify-center group-hover:bg-red-dark text-sm font-bold min-h-11">
-        {resource.actionLabel ?? 'Abrir recurso'}
+        Abrir recurso
         <UIcon name="arrow-up-right" size={16} class="shrink-0" />
       </Button>
     </div>
