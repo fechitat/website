@@ -159,6 +159,8 @@ const hasFilters = Boolean(filters.query || filters.category || filters.sort || 
 <script>
   import { getCatalogUrl, readCatalogFilters, type CatalogFilters } from './catalogo';
 
+  const catalogMemoryCache = new Map<string, string>();
+
   class ResourceFilter extends HTMLElement {
     private cleanup?: () => void;
 
@@ -218,16 +220,33 @@ const hasFilters = Boolean(filters.query || filters.category || filters.sort || 
           else window.history.replaceState(window.history.state, '', url);
         }
         syncControls(filters, shouldSyncSearch);
+
+        const cacheKey = url.search || '__default__';
+        const cachedHtml = catalogMemoryCache.get(cacheKey);
+        if (cachedHtml) {
+          const documentResult = new DOMParser().parseFromString(cachedHtml, 'text/html');
+          const results = documentResult.querySelector<HTMLElement>('[data-catalog-results]');
+          if (results) {
+            host.replaceChildren(document.importNode(results, true));
+            setLoading(false);
+            const status = host.querySelector<HTMLElement>('[data-filter-status]');
+            announcement.textContent = status?.textContent ?? 'Recursos actualizados.';
+            return;
+          }
+        }
+
         setLoading(true);
         error.hidden = true;
         announcement.textContent = 'Cargando recursos…';
         try {
           const response = await fetch(url, {
-            headers: { 'X-Resource-Catalog': 'partial' }, cache: 'no-store',
+            headers: { 'X-Resource-Catalog': 'partial' },
             signal: AbortSignal.any([activeRequest.signal, AbortSignal.timeout(15000)]),
           });
           if (!response.ok) throw new Error(`No se pudo consultar el catálogo (HTTP ${response.status}).`);
-          const documentResult = new DOMParser().parseFromString(await response.text(), 'text/html');
+          const text = await response.text();
+          catalogMemoryCache.set(cacheKey, text);
+          const documentResult = new DOMParser().parseFromString(text, 'text/html');
           const results = documentResult.querySelector<HTMLElement>('[data-catalog-results]');
           if (!results) throw new Error('La respuesta del catálogo no contiene resultados válidos.');
           if (activeRequest.signal.aborted) return;

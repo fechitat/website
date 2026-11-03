@@ -3,7 +3,7 @@ import { documentToResource, entryToResource, type CatalogDocument, type Catalog
 import { LOCAL_RESOURCES } from './recursos.ts';
 
 let cache: { data: CatalogResource[]; timestamp: number } | null = null;
-const CACHE_TTL_MS = 60 * 1000; // 60 segundos de caché en memoria para carga ultra rápida
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos de caché en memoria para respuestas inmediatas
 
 export function clearCatalogCache(): void {
   cache = null;

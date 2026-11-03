@@ -8,7 +8,13 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://fechitat-website.vercel.app',
   output: 'server',
-  adapter: vercel(),
+  adapter: vercel({
+    isr: true,
+  }),
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'viewport',
+  },
   image: {
     // Patrones remotos permitidos para <Image> de astro:assets
     remotePatterns: [
