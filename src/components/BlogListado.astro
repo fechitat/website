@@ -1,0 +1,37 @@
+---
+import NoticiaCard from './NoticiaCard.astro';
+import type { PublicBlogPost } from '../lib/blog';
+
+interface Props {
+  posts: PublicBlogPost[];
+  actual: number;
+  totalPaginas: number;
+}
+
+const { posts, actual, totalPaginas } = Astro.props;
+const hrefPagina = (pagina: number): string => pagina <= 1 ? '/blog' : `/blog/pagina/${pagina}`;
+---
+
+<section class="bg-white py-8 md:py-12">
+  <div class="mx-auto w-full max-w-7xl px-5 md:px-8">
+    {posts.length > 0 ? (
+      <ul class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
+        {posts.filter((post) => post.slug?.current).map((post) => (
+          <li class="min-w-0"><NoticiaCard post={post} /></li>
+        ))}
+      </ul>
+    ) : (
+      <div class="border border-dashed border-itf-blue-border bg-itf-blue-light p-8 text-center">
+        <h2 class="text-2xl">Todavía no hay noticias</h2>
+        <p class="mt-2 text-text-soft">Las publicaciones del blog aparecerán aquí.</p>
+      </div>
+    )}
+    {totalPaginas > 1 && (
+      <nav aria-label="Páginas del blog" class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        {actual > 1 && <a href={hrefPagina(actual - 1)} class="inline-flex min-h-11 items-center border border-blue bg-white px-3 text-sm font-bold text-blue">← Anterior</a>}
+        <span class="text-sm text-text-soft">Página {actual} de {totalPaginas}</span>
+        {actual < totalPaginas && <a href={hrefPagina(actual + 1)} class="inline-flex min-h-11 items-center border border-blue bg-white px-3 text-sm font-bold text-blue">Siguiente →</a>}
+      </nav>
+    )}
+  </div>
+</section>

@@ -11,16 +11,11 @@ afterEach(() => {
   else process.env.WORDPRESS_URL = originalProvider;
 });
 
-test('consolida más de cien artículos, documentos y fichas sin duplicar recursos iniciales', async () => {
+test('no mezcla las noticias del blog en el catálogo de recursos', async () => {
   delete process.env.WORDPRESS_URL;
   mock.method(sanity, 'fetch', async (query: string): Promise<unknown> => {
-    if (query.includes('count(*[_type == "blogPost"]')) return 137;
-    if (query.includes('_type == "blogPost"')) {
-      const start = Number(query.match(/\[(\d+)\.\.\./)?.[1] ?? '0');
-      return Array.from({ length: Math.min(100, 137 - start) }, (_, index) => ({
-        _id: `article-${start + index}`, titulo: `Artículo ${start + index}`,
-        slug: { current: `articulo-${start + index}` }, categorias: ['tecnica'], destacado: false,
-      }));
+    if (query.includes('_type == "blogPost"') || query.includes('count(*[_type == "blogPost"]')) {
+      throw new Error('El catálogo no debe consultar el blog.');
     }
     if (query.includes('_type == "documentoOficial"')) return [{ _id: 'document', titulo: 'Reglamento', estado: 'reemplazado', archivoUrl: 'https://cms.test/reglamento.pdf' }];
     if (query.includes('_type == "recurso"')) return [{
@@ -30,11 +25,11 @@ test('consolida más de cien artículos, documentos y fichas sin duplicar recurs
     throw new Error(`Consulta inesperada: ${query}`);
   });
   const resources = await loadCatalogResources();
-  assert.equal(resources.length, 143);
+  assert.equal(resources.some((resource) => resource.href.startsWith('/blog/')), false);
   assert.equal(resources.filter((resource) => resource.id === 'programa-examen').length, 1);
   assert.equal(resources.find((resource) => resource.id === 'programa-examen')?.title, 'Programa actualizado');
   assert.equal(resources.find((resource) => resource.id === 'document')?.validity, 'reemplazado');
-  assert.equal(getCatalogPage(resources, { query: '', category: '' }).resources.length, 12);
+  assert.equal(getCatalogPage(resources, { query: '', category: '' }).resources.length, 6);
 });
 
 test('permite despublicar recursos iniciales mediante una ficha editorial inactiva', async () => {

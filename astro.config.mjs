@@ -25,7 +25,7 @@ export default defineConfig({
       customSitemaps: ['https://fechitat-website.vercel.app/blog-sitemap.xml'],
       filter: (page) =>
         ![
-          '/blog', '/federacion/documentos', '/recursos/formacion', '/recursos/herramientas',
+          '/federacion/documentos', '/recursos/formacion', '/recursos/herramientas',
           '/recursos/formacion/tuls', '/recursos/formacion/material-estudio', '/estudio', '/examen', '/tools',
         ].includes(new URL(page).pathname.replace(/\/$/, '')) &&
         !page.includes('/admin/') &&

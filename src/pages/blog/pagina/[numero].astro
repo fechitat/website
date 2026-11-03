@@ -1,4 +1,27 @@
 ---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import BlogListado from '../../../components/BlogListado.astro';
+import { getBlogPosts, getTotalBlogPosts } from '../../../lib/blog';
+
 export const prerender = false;
-return Astro.redirect('/recursos', 301);
+
+const porPagina = 12;
+const numero = Number(Astro.params.numero);
+const total = Number.isInteger(numero) && numero > 1 ? await getTotalBlogPosts() : 0;
+const totalPaginas = Math.max(1, Math.ceil(total / porPagina));
+const descripcion = 'Archivo de noticias de FECHITAT.';
+
+if (!Number.isInteger(numero) || numero < 1 || (numero > 1 && numero > totalPaginas)) {
+  Astro.response.status = 404;
+  return Astro.rewrite('/404');
+}
+if (numero === 1) return Astro.redirect('/blog', 301);
+
+const posts = await getBlogPosts(numero, porPagina);
 ---
+
+<BaseLayout title={`Noticias, página ${numero} — FECHITAT`} description={descripcion} noindex>
+  <PageHero title="Noticias" crumb="Noticias" crumbHref="/blog" accent="blue" description={`Página ${numero} del archivo.`} />
+  <BlogListado posts={posts} actual={numero} totalPaginas={totalPaginas} />
+</BaseLayout>

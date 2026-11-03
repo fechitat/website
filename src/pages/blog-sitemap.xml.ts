@@ -12,7 +12,8 @@ export const prerender = false;
 export const GET: APIRoute = async ({ site }) => {
   const posts = await getAllBlogPosts();
   const base = site ?? new URL('https://fechitat-website.vercel.app');
-  const paths: string[] = [];
+  const indice = new URL('/blog', base);
+  const paths = [`<url><loc>${indice.href}</loc></url>`];
 
   for (const post of posts) {
     if (post.slug?.current) {

@@ -1,0 +1,50 @@
+---
+import type { PublicBlogPost } from '../lib/blog';
+
+interface Props {
+  post: PublicBlogPost;
+}
+
+const { post } = Astro.props;
+const href = `/blog/${encodeURIComponent(post.slug.current)}`;
+const etiquetas: Record<string, string> = {
+  noticias: 'Noticias', tecnica: 'Técnica', entrevistas: 'Entrevistas', historia: 'Historia', arbitraje: 'Arbitraje',
+};
+const categoria = post.categorias?.find((valor) => valor && valor !== 'eventos') ?? 'noticias';
+const fechaValida = post.fecha && !Number.isNaN(Date.parse(post.fecha)) ? post.fecha : undefined;
+const fecha = fechaValida
+  ? new Date(fechaValida).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' })
+  : undefined;
+---
+
+<a href={href} class="noticia-card group flex h-full flex-col border border-itf-blue-border bg-itf-blue-light">
+  {post.imagenUrl && (
+    <img src={post.imagenUrl} alt={post.imagenAlt || ''} class="aspect-[16/10] w-full object-cover" loading="lazy" decoding="async" />
+  )}
+  <div class="flex h-full flex-col p-5">
+    <p class="mb-2 text-xs font-bold uppercase tracking-wider text-blue">
+      {etiquetas[categoria] ?? categoria}
+      {fecha && <time datetime={fechaValida} class="ml-2 font-normal normal-case tracking-normal text-text-soft">{fecha}</time>}
+    </p>
+    <h3 class="mb-0 text-xl leading-snug group-hover:text-blue">{post.titulo}</h3>
+    {post.extracto && <p class="mt-2 mb-0 line-clamp-3 text-sm leading-relaxed text-text-soft">{post.extracto}</p>}
+    <span class="mt-auto pt-5 text-sm font-bold text-blue">Leer noticia</span>
+  </div>
+</a>
+
+<style>
+  .noticia-card {
+    box-shadow: inset 4px 0 0 var(--color-blue);
+    transition: border-color 150ms;
+  }
+
+  .noticia-card:hover,
+  .noticia-card:focus-visible {
+    border-color: var(--color-blue);
+  }
+
+  .noticia-card:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 3px;
+  }
+</style>

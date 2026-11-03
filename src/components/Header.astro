@@ -4,7 +4,8 @@ const { pathname } = Astro.url;
 const esActivo = (href) =>
   href === "/" ? pathname === "/" : pathname.startsWith(href);
 const federacionActiva = esActivo("/federacion") || esActivo("/escuelas");
-const recursosActivos = esActivo("/recursos") || esActivo("/blog");
+const recursosActivos = esActivo("/recursos");
+const noticiasActivas = esActivo("/blog");
 ---
 
 <header class="sticky top-0 z-50 bg-ink border-b border-white/10">
@@ -57,6 +58,15 @@ const recursosActivos = esActivo("/recursos") || esActivo("/blog");
         aria-current={recursosActivos ? "page" : undefined}
       >
         Recursos
+      </a>
+      <a
+        href="/blog"
+        data-astro-prefetch="hover"
+        class="font-mono text-xs tracking-widest uppercase py-1 border-b-2 border-transparent transition-colors duration-150"
+        class:list={noticiasActivas ? "text-white border-blue" : "text-light-soft hover:text-white hover:border-blue"}
+        aria-current={noticiasActivas ? "page" : undefined}
+      >
+        Noticias
       </a>
 
     </nav>
@@ -118,6 +128,17 @@ const recursosActivos = esActivo("/recursos") || esActivo("/blog");
       aria-current={recursosActivos ? "page" : undefined}
     >
       Recursos
+    </a>
+    <a
+      href="/blog"
+      data-astro-prefetch="hover"
+      class:list={[
+        "font-mono text-sm tracking-widest uppercase py-2 border-l-2 transition-colors duration-150 pl-4",
+        noticiasActivas ? "text-white border-blue" : "text-light-soft hover:text-white border-transparent",
+      ]}
+      aria-current={noticiasActivas ? "page" : undefined}
+    >
+      Noticias
     </a>
   </nav>
 </header>

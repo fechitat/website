@@ -1,4 +1,24 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import BlogListado from '../components/BlogListado.astro';
+import { getBlogPosts, getTotalBlogPosts } from '../lib/blog';
+
 export const prerender = false;
-return Astro.redirect('/recursos', 301);
+
+const porPagina = 12;
+const descripcion = 'Noticias, técnica e historia del Taekwon-Do ITF en Chile, publicadas por FECHITAT.';
+const [posts, total] = await Promise.all([getBlogPosts(1, porPagina), getTotalBlogPosts()]);
+const totalPaginas = Math.max(1, Math.ceil(total / porPagina));
 ---
+
+<BaseLayout title="Noticias — FECHITAT" description={descripcion}>
+  <PageHero
+    title="Noticias"
+    crumb="Inicio"
+    crumbHref="/"
+    accent="blue"
+    description={descripcion}
+  />
+  <BlogListado posts={posts} actual={1} totalPaginas={totalPaginas} />
+</BaseLayout>

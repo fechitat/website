@@ -9,8 +9,7 @@ import heroImg from "../assets/hero/hero.webp";
 import { img } from "../lib/imagenes";
 import { getMetricas, getProximoEventoDestacado, getEscuelasPorRegion } from "../lib/sanityQueries";
 import { getBlogPostsDestacados } from "../lib/blog";
-import ResourceCard from "../features/recursos/ResourceCard.astro";
-import { articleToResource } from "../features/recursos/catalogo";
+import NoticiaCard from "../components/NoticiaCard.astro";
 import "leaflet/dist/leaflet.css";
 
 // La portada se sirve dinámicamente sólo cuando sus noticias provienen de WordPress.
@@ -227,10 +226,10 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
           <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Últimas noticias</h2>
         </div>
         <a
-          href="/recursos"
+          href="/blog"
           class="inline-flex items-center gap-2 font-mono text-xs tracking-widest uppercase text-blue font-bold hover:underline"
         >
-          Ver todos los recursos
+          Ver todas las noticias
           <span>→</span>
         </a>
       </div>
@@ -238,10 +237,10 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
         {noticias.length > 0 ? (
           noticias.filter((post) => post.slug?.current).slice(0, 3).map((post) => (
-            <ResourceCard resource={articleToResource(post)} headingLevel="h3" />
+            <NoticiaCard post={post} />
           ))
         ) : (
-          <p class="text-text-soft">Las publicaciones estarán disponibles próximamente en <a href="/recursos" class="font-bold text-blue hover:underline">Recursos</a>.</p>
+          <p class="text-text-soft">Las publicaciones estarán disponibles próximamente en <a href="/blog" class="font-bold text-blue hover:underline">Noticias</a>.</p>
         )}
       </div>
     </div>

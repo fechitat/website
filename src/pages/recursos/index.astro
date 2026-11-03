@@ -16,7 +16,7 @@ if (Astro.url.searchParams.has('formato') || (Astro.url.searchParams.has('catego
 const isPartial = Astro.request.headers.get('X-Resource-Catalog') === 'partial';
 Astro.response.headers.set('Vary', 'X-Resource-Catalog');
 Astro.response.headers.set('Cache-Control', 'no-store');
-const description = 'Guías, herramientas, documentos y artículos para estudiar y practicar Taekwon-Do ITF.';
+const description = 'Guías, herramientas y documentos para estudiar y practicar Taekwon-Do ITF.';
 let resources: CatalogResource[] = [];
 let hasError = false;
 try {
