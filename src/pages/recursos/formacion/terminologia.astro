@@ -6,6 +6,7 @@ import UIcon from '../../../components/icons/UIcon.astro';
 const terminos = [
   // General
   { coreano: '태권도', romanizacion: 'Taekwon-Do', espanol: 'Arte marcial de pies y puños', ingles: 'The way of foot and fist', categoria: 'General' },
+  { coreano: '국기', romanizacion: 'Ku (Gukgi)', espanol: 'Bandera nacional', ingles: 'National flag', categoria: 'General' },
   { coreano: '틀', romanizacion: 'Tul', espanol: 'Forma o patrón', ingles: 'Pattern', categoria: 'General' },
   { coreano: '도장', romanizacion: 'Dojang', espanol: 'Lugar de entrenamiento', ingles: 'Training hall', categoria: 'General' },
   { coreano: '도복', romanizacion: 'Dobok', espanol: 'Traje de entrenamiento', ingles: 'Training suit', categoria: 'General' },
@@ -95,41 +96,35 @@ const categorias = ['Todos', 'Comandos', 'Posiciones', 'Técnica', 'Grados', 'N�
         </div>
       </div>
 
-      <!-- Barra de categorías deslizables y control de vista -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <nav aria-label="Filtrar términos por categoría" class="overflow-x-auto pb-1 scrollbar-none flex gap-2">
-          {categorias.map((cat, i) => (
-            <button
-              type="button"
-              data-filtro-cat={cat === 'Todos' ? '' : cat}
-              aria-pressed={i === 0 ? 'true' : 'false'}
-              class:list={[
-                'filtro-cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer',
-                i === 0
-                  ? 'bg-ink text-white border-ink'
-                  : 'bg-white text-text-soft border-line hover:border-ink hover:text-ink',
-              ]}
-            >
-              {cat}
-            </button>
-          ))}
-        </nav>
-
-        <button
-          type="button"
-          data-toggle-todos
-          class="self-start sm:self-auto text-xs font-mono font-medium text-text-soft hover:text-ink underline underline-offset-4 cursor-pointer"
-        >
-          Desplegar todas
-        </button>
-      </div>
+      <!-- Barra de categorías deslizables -->
+      <nav aria-label="Filtrar términos por categoría" class="overflow-x-auto pb-1 scrollbar-none flex gap-2">
+        {categorias.map((cat, i) => (
+          <button
+            type="button"
+            data-filtro-cat={cat === 'Todos' ? '' : cat}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            class:list={[
+              'filtro-cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer',
+              i === 0
+                ? 'bg-ink text-white border-ink'
+                : 'bg-white text-text-soft border-line hover:border-ink hover:text-ink',
+            ]}
+          >
+            {cat}
+          </button>
+        ))}
+      </nav>
     </div>
 
-    <!-- Lista de términos en tarjetas compactas -->
+    <!-- Lista de términos en tarjetas compactas con carga progresiva -->
     <div id="terminos-diccionario" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-      {terminos.map((termino) => (
+      {terminos.map((termino, indice) => (
         <article
-          class="tarjeta-termino bg-white border border-line rounded-xl p-3.5 sm:p-4 shadow-2xs hover:border-ink/20 transition-all flex flex-col justify-between"
+          class:list={[
+            'tarjeta-termino bg-white border border-line rounded-xl p-3.5 sm:p-4 shadow-2xs hover:border-ink/20 transition-all flex flex-col justify-between',
+            indice >= 18 ? 'hidden' : '',
+          ]}
+          data-indice={indice}
           data-termino={`${termino.coreano} ${termino.romanizacion} ${termino.espanol} ${termino.ingles} ${termino.categoria}`.toLocaleLowerCase()}
           data-cat={termino.categoria}
         >
@@ -181,133 +176,164 @@ const categorias = ['Todos', 'Comandos', 'Posiciones', 'Técnica', 'Grados', 'N�
       ))}
     </div>
 
+    <!-- Centinela para scroll infinito -->
+    <div id="scroll-centinela" class="h-10 flex items-center justify-center mt-4"></div>
+
     <p id="sin-resultados" hidden class="p-8 text-center border border-dashed border-line rounded-xl bg-white text-text-soft mt-4">
       No se encontraron términos para esta búsqueda.
     </p>
   </section>
 
   <script is:inline>
-    function setupTerminologiaAudio() {
-      const buscador = document.querySelector('#buscar-termino');
-      const tarjetas = [...document.querySelectorAll('#terminos-diccionario .tarjeta-termino')];
-      const sinResultados = document.querySelector('#sin-resultados');
-      const filtroBotones = [...document.querySelectorAll('[data-filtro-cat]')];
-      const btnAlternarTodos = document.querySelector('[data-toggle-todos]');
-      let categoriaActiva = '';
-      let todosDesplegados = false;
+    (function () {
+      function setupGlosario() {
+        const contenedor = document.getElementById('terminos-diccionario');
+        const buscador = document.getElementById('buscar-termino');
+        const sinResultados = document.getElementById('sin-resultados');
+        const filtroBotones = [...document.querySelectorAll('[data-filtro-cat]')];
+        const centinela = document.getElementById('scroll-centinela');
+        if (!contenedor) return;
 
-      // Síntesis de voz nativa en Coreano (ko-KR)
-      const reproducirCoreano = (texto, boton) => {
-        if (!('speechSynthesis' in window)) {
-          alert('Tu navegador no soporta síntesis de voz.');
-          return;
-        }
+        const tarjetas = [...contenedor.querySelectorAll('.tarjeta-termino')];
+        let categoriaActiva = '';
+        const TAMANO_LOTE = 18;
+        let cantidadVisible = TAMANO_LOTE;
 
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(texto);
-        utterance.lang = 'ko-KR';
-        utterance.rate = 0.82; // Velocidad pausada para estudio marcial
-        utterance.pitch = 1.0;
+        // Cargar más palabras al hacer scroll
+        const cargarMas = () => {
+          const consulta = (buscador?.value || '').trim().toLocaleLowerCase();
+          if (consulta || categoriaActiva) return;
 
-        if (boton) {
-          boton.classList.add('text-red', 'bg-red/20', 'scale-110');
-          utterance.onend = () => {
-            boton.classList.remove('text-red', 'bg-red/20', 'scale-110');
-          };
-          utterance.onerror = () => {
-            boton.classList.remove('text-red', 'bg-red/20', 'scale-110');
-          };
-        }
+          cantidadVisible = Math.min(tarjetas.length, cantidadVisible + TAMANO_LOTE);
 
-        window.speechSynthesis.speak(utterance);
-      };
-
-      document.querySelectorAll('[data-pronunciar]').forEach((boton) => {
-        boton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const coreano = boton.dataset.pronunciar;
-          if (coreano) reproducirCoreano(coreano, boton);
-        });
-      });
-
-      // Alternar desplegable individual
-      document.querySelectorAll('[data-toggle-desplegar]').forEach((boton) => {
-        boton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const card = boton.closest('.tarjeta-termino');
-          const panel = card?.querySelector('[data-desplegable]');
-          const icon = boton.querySelector('svg');
-          if (panel) {
-            const oculto = panel.hidden;
-            panel.hidden = !oculto;
-            boton.setAttribute('aria-expanded', String(oculto));
-            if (icon) {
-              icon.style.transform = oculto ? 'rotate(180deg)' : '';
+          tarjetas.forEach((tarjeta, i) => {
+            if (i < cantidadVisible) {
+              tarjeta.classList.remove('hidden');
+              tarjeta.hidden = false;
             }
-          }
-        });
-      });
+          });
 
-      // Alternar todos los significados
-      if (btnAlternarTodos) {
-        btnAlternarTodos.addEventListener('click', () => {
-          todosDesplegados = !todosDesplegados;
-          btnAlternarTodos.textContent = todosDesplegados ? 'Plegar todas' : 'Desplegar todas';
-          tarjetas.forEach((card) => {
-            const panel = card.querySelector('[data-desplegable]');
-            const boton = card.querySelector('[data-toggle-desplegar]');
-            const icon = boton?.querySelector('svg');
+          if (cantidadVisible >= tarjetas.length && observer) {
+            observer.disconnect();
+          }
+        };
+
+        let observer = null;
+        if (centinela && 'IntersectionObserver' in window) {
+          observer = new IntersectionObserver((entries) => {
+            if (entries[0]?.isIntersecting) {
+              cargarMas();
+            }
+          }, { rootMargin: '300px' });
+          observer.observe(centinela);
+        }
+
+        // Síntesis de voz nativa en Coreano (ko-KR)
+        const reproducirCoreano = (texto, boton) => {
+          if (!('speechSynthesis' in window)) {
+            alert('Tu navegador no soporta síntesis de voz.');
+            return;
+          }
+
+          try {
+            window.speechSynthesis.cancel();
+          } catch (e) {}
+
+          const utterance = new SpeechSynthesisUtterance(texto);
+          utterance.lang = 'ko-KR';
+          utterance.rate = 0.82;
+          utterance.pitch = 1.0;
+
+          if (boton) {
+            boton.classList.add('text-red', 'bg-red/20', 'scale-110');
+            utterance.onend = () => boton.classList.remove('text-red', 'bg-red/20', 'scale-110');
+            utterance.onerror = () => boton.classList.remove('text-red', 'bg-red/20', 'scale-110');
+          }
+
+          window.setTimeout(() => {
+            window.speechSynthesis.speak(utterance);
+          }, 35);
+        };
+
+        // Event delegation en el contenedor para click (desplegar / audio)
+        contenedor.addEventListener('click', (e) => {
+          const btnDesplegar = e.target.closest('[data-toggle-desplegar]');
+          if (btnDesplegar) {
+            e.stopPropagation();
+            const card = btnDesplegar.closest('.tarjeta-termino');
+            const panel = card?.querySelector('[data-desplegable]');
+            const icon = btnDesplegar.querySelector('svg');
             if (panel) {
-              panel.hidden = !todosDesplegados;
-              boton?.setAttribute('aria-expanded', String(todosDesplegados));
+              const estaOculto = panel.hidden;
+              panel.hidden = !estaOculto;
+              btnDesplegar.setAttribute('aria-expanded', String(estaOculto));
               if (icon) {
-                icon.style.transform = todosDesplegados ? 'rotate(180deg)' : '';
+                icon.style.transform = estaOculto ? 'rotate(180deg)' : '';
               }
             }
+            return;
+          }
+
+          const btnAudio = e.target.closest('[data-pronunciar]');
+          if (btnAudio) {
+            e.stopPropagation();
+            const coreano = btnAudio.dataset.pronunciar;
+            if (coreano) reproducirCoreano(coreano, btnAudio);
+            return;
+          }
+        });
+
+        // Filtro por texto y categoría
+        const aplicarFiltros = () => {
+          const consulta = (buscador?.value || '').trim().toLocaleLowerCase();
+          let visibles = 0;
+
+          tarjetas.forEach((tarjeta, index) => {
+            const coincideTexto = !consulta || (tarjeta.dataset.termino || '').includes(consulta);
+            const coincideCat = !categoriaActiva || tarjeta.dataset.cat === categoriaActiva;
+            const coincide = coincideTexto && coincideCat;
+
+            if (consulta || categoriaActiva) {
+              tarjeta.classList.remove('hidden');
+              tarjeta.hidden = !coincide;
+            } else {
+              const dentroDelLote = index < cantidadVisible;
+              tarjeta.classList.toggle('hidden', !dentroDelLote);
+              tarjeta.hidden = !dentroDelLote;
+            }
+
+            if (coincide && (consulta || categoriaActiva || index < cantidadVisible)) {
+              visibles++;
+            }
+          });
+
+          if (sinResultados) {
+            sinResultados.hidden = visibles > 0;
+          }
+        };
+
+        buscador?.addEventListener('input', aplicarFiltros);
+
+        filtroBotones.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            categoriaActiva = btn.dataset.filtroCat || '';
+            filtroBotones.forEach((b) => {
+              const activo = b === btn;
+              b.setAttribute('aria-pressed', String(activo));
+              b.classList.toggle('bg-ink', activo);
+              b.classList.toggle('text-white', activo);
+              b.classList.toggle('border-ink', activo);
+              b.classList.toggle('bg-white', !activo);
+              b.classList.toggle('text-text-soft', !activo);
+              b.classList.toggle('border-line', !activo);
+            });
+            aplicarFiltros();
           });
         });
       }
 
-      // Filtro por texto y categoría
-      const aplicarFiltros = () => {
-        const consulta = (buscador?.value || '').trim().toLocaleLowerCase();
-        let visibles = 0;
-
-        tarjetas.forEach((tarjeta) => {
-          const coincideTexto = !consulta || (tarjeta.dataset.termino || '').includes(consulta);
-          const coincideCat = !categoriaActiva || tarjeta.dataset.cat === categoriaActiva;
-          const visible = coincideTexto && coincideCat;
-
-          tarjeta.hidden = !visible;
-          if (visible) visibles++;
-        });
-
-        if (sinResultados) {
-          sinResultados.hidden = visibles > 0;
-        }
-      };
-
-      buscador?.addEventListener('input', aplicarFiltros);
-
-      filtroBotones.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          categoriaActiva = btn.dataset.filtroCat || '';
-          filtroBotones.forEach((b) => {
-            const activo = b === btn;
-            b.setAttribute('aria-pressed', String(activo));
-            b.classList.toggle('bg-ink', activo);
-            b.classList.toggle('text-white', activo);
-            b.classList.toggle('border-ink', activo);
-            b.classList.toggle('bg-white', !activo);
-            b.classList.toggle('text-text-soft', !activo);
-            b.classList.toggle('border-line', !activo);
-          });
-          aplicarFiltros();
-        });
-      });
-    }
-
-    setupTerminologiaAudio();
-    document.addEventListener('astro:page-load', setupTerminologiaAudio);
+      setupGlosario();
+      document.addEventListener('astro:page-load', setupGlosario);
+    })();
   </script>
 </BaseLayout>

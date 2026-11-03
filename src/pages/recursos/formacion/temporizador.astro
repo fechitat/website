@@ -6,25 +6,26 @@ export const prerender = true;
 
 const titulo = 'Temporizador de formas — FECHITAT';
 const descripcion = 'Cronómetro oficial de Tuls con límites reglamentarios ITF.';
+const formaInicial = PATRONES[0];
 ---
 
 <BaseLayout title={titulo} description={descripcion} mostrarFooter={false}>
-  <div class="bg-white border-b border-line py-5 md:py-6">
-    <div class="mx-auto w-full max-w-xl px-4 md:px-8">
-      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold font-heading text-ink tracking-tight m-0">Temporizador</h1>
+  <div class="bg-white border-b border-line py-4 md:py-5">
+    <div class="mx-auto w-full max-w-lg px-4 md:px-6 text-center">
+      <h1 class="text-2xl sm:text-3xl font-extrabold font-heading text-ink tracking-tight m-0">Temporizador</h1>
     </div>
   </div>
 
-  <section class="bg-white py-6 md:py-10">
-    <div class="mx-auto w-full max-w-xl px-4 md:px-8">
-      <div id="temporizador-formas" class="space-y-6">
+  <section class="bg-white py-6 md:py-8 min-h-[calc(100dvh-5.5rem)] flex flex-col">
+    <div class="mx-auto w-full max-w-lg px-4 md:px-6 my-auto">
+      <div id="temporizador-formas" class="space-y-5">
         <!-- Selector desplegable de formas en orden oficial -->
         <div>
-          <label for="selector-forma" class="block text-xs font-mono font-bold uppercase tracking-wider text-text-soft mb-2">Selecciona la forma</label>
+          <label for="selector-forma" class="block text-xs font-mono font-bold uppercase tracking-wider text-text-soft mb-2 text-center">Selecciona la forma</label>
           <select
             id="selector-forma"
             data-select-forma
-            class="w-full min-h-12 border border-line bg-white px-4 py-2.5 text-base font-bold text-ink rounded-xl shadow-2xs focus-visible:outline-2 focus-visible:outline-red cursor-pointer"
+            class="w-full min-h-12 border border-line bg-white px-4 py-2.5 text-base font-bold text-ink rounded-xl shadow-2xs focus-visible:outline-2 focus-visible:outline-red cursor-pointer text-center"
           >
             {PATRONES.map((patron) => (
               <option value={patron.id}>
@@ -34,13 +35,19 @@ const descripcion = 'Cronómetro oficial de Tuls con límites reglamentarios ITF
           </select>
         </div>
 
-        <section data-panel aria-labelledby="forma-activa" class="border border-line rounded-2xl bg-white p-5 md:p-7 shadow-xs">
-          <p data-grado class="font-mono text-xs uppercase tracking-widest text-red font-bold mb-1"></p>
-          <h2 id="forma-activa" data-nombre class="text-3xl md:text-4xl font-extrabold font-heading text-ink tracking-tight m-0"></h2>
-          <p class="mt-4 font-mono text-[clamp(3.5rem,14vw,6rem)] leading-none font-bold text-ink" data-limite aria-hidden="true">00:00.00</p>
+        <section data-panel aria-labelledby="forma-activa" class="border border-line rounded-2xl bg-white p-6 md:p-8 shadow-xs text-center flex flex-col items-center">
+          <p data-grado class="font-mono text-xs uppercase tracking-widest text-red font-bold mb-1 text-center">
+            {formaInicial?.grado ?? '9° a 8° Gup'}
+          </p>
+          <h2 id="forma-activa" data-nombre class="text-3xl md:text-4xl font-extrabold font-heading text-ink tracking-tight m-0 text-center">
+            {formaInicial?.nombre ?? 'Chon-Ji'}
+          </h2>
+          <p class="my-4 font-mono text-[clamp(3.5rem,14vw,5.5rem)] leading-none font-bold text-ink text-center tracking-tight" data-limite aria-hidden="true">
+            01:00.00
+          </p>
 
-          <fieldset class="mt-6 border-0 p-0">
-            <legend class="mb-2 text-xs font-mono font-bold uppercase tracking-wider text-text-soft">Retraso de inicio</legend>
+          <fieldset class="mt-4 border-0 p-0 w-full max-w-sm">
+            <legend class="mb-2 text-xs font-mono font-bold uppercase tracking-wider text-text-soft text-center">Retraso de inicio</legend>
             <div class="grid grid-cols-3 gap-2">
               <button type="button" data-retraso="0" aria-pressed="false" class="opcion min-h-11 rounded-lg border border-line font-mono font-bold text-sm cursor-pointer">Sin espera</button>
               <button type="button" data-retraso="3" aria-pressed="true" class="opcion is-activo min-h-11 rounded-lg border border-line font-mono font-bold text-sm cursor-pointer">3 Seg</button>
@@ -48,34 +55,23 @@ const descripcion = 'Cronómetro oficial de Tuls con límites reglamentarios ITF
             </div>
           </fieldset>
 
-          <fieldset class="mt-5 border-0 p-0">
-            <legend class="mb-2 text-xs font-mono font-bold uppercase tracking-wider text-text-soft">Metrónomo de ritmo</legend>
+          <fieldset class="mt-4 border-0 p-0 w-full max-w-sm">
+            <legend class="mb-2 text-xs font-mono font-bold uppercase tracking-wider text-text-soft text-center">Metrónomo de ritmo</legend>
             <div class="grid grid-cols-2 gap-2" role="group" aria-label="Metrónomo">
               <button type="button" data-metronomo="si" aria-pressed="true" class="opcion is-activo min-h-11 rounded-lg border border-line font-mono font-bold text-sm cursor-pointer">Activado</button>
               <button type="button" data-metronomo="no" aria-pressed="false" class="opcion min-h-11 rounded-lg border border-line font-mono font-bold text-sm cursor-pointer">Desactivado</button>
             </div>
-            <div class="mt-4 grid grid-cols-2 gap-3 p-3 rounded-xl bg-paper border border-line/60">
-              <div>
-                <p class="text-xs font-mono uppercase text-text-soft m-0">Movimientos</p>
-                <p data-movimientos class="text-lg font-bold font-mono text-ink mt-0.5 mb-0">—</p>
-              </div>
-              <div>
-                <p class="text-xs font-mono uppercase text-text-soft m-0">Mov / segundo</p>
-                <p data-cadencia class="text-lg font-bold font-mono text-ink mt-0.5 mb-0">—</p>
-              </div>
-            </div>
           </fieldset>
 
-          <label class="mt-5 flex min-h-11 items-center gap-3 text-sm font-medium cursor-pointer">
+          <label class="mt-4 flex min-h-11 items-center justify-center gap-3 text-sm font-medium cursor-pointer">
             <input data-sonido type="checkbox" checked class="h-5 w-5 accent-red rounded cursor-pointer" />
             Efectos sonoros y beeps
           </label>
-          <button type="button" data-iniciar class="mt-5 min-h-14 w-full rounded-xl bg-red px-5 text-base font-bold uppercase tracking-wider text-white hover:bg-red-dark transition-all shadow-md active:scale-98 cursor-pointer">Comenzar</button>
+          <button type="button" data-iniciar class="mt-4 min-h-14 w-full max-w-sm rounded-xl bg-red px-5 text-base font-bold uppercase tracking-wider text-white hover:bg-red-dark transition-all shadow-md active:scale-98 cursor-pointer">Comenzar</button>
         </section>
 
         <!-- Overlay de cronómetro a pantalla completa -->
         <div data-overlay hidden class="overlay" role="dialog" aria-modal="true" aria-labelledby="overlay-nombre">
-          <!-- Botón minimalista de pantalla completa arriba a la derecha (sin emoji) -->
           <button
             type="button"
             data-pantalla-completa
@@ -88,7 +84,7 @@ const descripcion = 'Cronómetro oficial de Tuls con límites reglamentarios ITF
             </svg>
           </button>
 
-          <p id="overlay-nombre" data-overlay-nombre class="font-mono text-xs uppercase tracking-widest text-white/80"></p>
+          <p id="overlay-nombre" data-overlay-nombre class="font-mono text-xs uppercase tracking-widest text-white/80 text-center"></p>
           <div data-reloj class="reloj" style="--progreso: 0">
             <div class="reloj-centro">
               <span data-pulso class="pulso" aria-hidden="true"></span>
@@ -111,16 +107,14 @@ const descripcion = 'Cronómetro oficial de Tuls con límites reglamentarios ITF
 <script>
   import { iniciarTemporizador } from '../../../features/temporizador/controlador.ts';
 
-  /** Evita enganchar dos veces el mismo contenedor tras una transición de página. */
-  function montarTemporizador(): void {
+  function montar(): void {
     const raiz = document.getElementById('temporizador-formas');
-    if (!raiz || raiz.dataset.listo === 'true') return;
-    raiz.dataset.listo = 'true';
+    if (!raiz) return;
     iniciarTemporizador(raiz);
   }
 
-  montarTemporizador();
-  document.addEventListener('astro:page-load', montarTemporizador);
+  montar();
+  document.addEventListener('astro:page-load', montar);
 </script>
 
 <style>

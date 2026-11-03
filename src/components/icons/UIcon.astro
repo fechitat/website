@@ -23,6 +23,7 @@ interface Props {
     | 'award'
     | 'timer'
     | 'languages'
+    | 'chevron-down'
     | 'wifi-off';
   size?: number;
   class?: string;
@@ -56,6 +57,7 @@ const strokePaths: Record<string, string> = {
   award: 'M12 15a7 7 0 1 0 0-14 7 7 0 0 0 0 14z M8.21 13.89L7 23l5-3 5 3-1.21-9.12',
   timer: 'M10 2h4 M12 14V8 M12 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16z',
   languages: 'M5 8l6 6 M4 14l6-6 2-3 M2 5h12 M7 2h1 M22 22l-5-10-5 10 M14 18h6',
+  'chevron-down': 'M6 9l6 6 6-6',
   'wifi-off': 'M1 1l22 22 M16.72 11.06A10.94 10.94 0 0 1 19 12.55 M5 12.55a10.94 10.94 0 0 1 5.17-2.39 M10.71 5.05A16 16 0 0 1 22.58 9 M1.42 9a15.91 15.91 0 0 1 4.7-2.88 M8.53 16.11a6 6 0 0 1 6.95 0 M12 20h.01',
 };
 

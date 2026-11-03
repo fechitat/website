@@ -43,8 +43,8 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
   const nombre = requerido<HTMLElement>(raiz, '[data-nombre]');
   const grado = requerido<HTMLElement>(raiz, '[data-grado]');
   const limite = requerido<HTMLElement>(raiz, '[data-limite]');
-  const movimientosTexto = requerido<HTMLElement>(raiz, '[data-movimientos]');
-  const cadenciaTexto = requerido<HTMLElement>(raiz, '[data-cadencia]');
+  const movimientosTexto = raiz.querySelector<HTMLElement>('[data-movimientos]');
+  const cadenciaTexto = raiz.querySelector<HTMLElement>('[data-cadencia]');
   const retrasos = [...raiz.querySelectorAll<HTMLButtonElement>('[data-retraso]')];
   const metronomos = [...raiz.querySelectorAll<HTMLButtonElement>('[data-metronomo]')];
   const sonido = requerido<HTMLInputElement>(raiz, '[data-sonido]');
@@ -174,8 +174,8 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     grado.textContent = elegido.grado;
     limite.textContent = formatearTiempo(elegido.limiteSegundos * 1000);
     const oficial = cadenciaOficial(elegido);
-    movimientosTexto.textContent = elegido.movimientos == null ? '—' : String(elegido.movimientos);
-    cadenciaTexto.textContent = oficial == null ? '—' : numeros.format(oficial);
+    if (movimientosTexto) movimientosTexto.textContent = elegido.movimientos == null ? '—' : String(elegido.movimientos);
+    if (cadenciaTexto) cadenciaTexto.textContent = oficial == null ? '—' : numeros.format(oficial);
     if (selectForma && selectForma.value !== id) selectForma.value = id;
     if (vacio) vacio.hidden = true;
     panel.hidden = false;
@@ -270,7 +270,9 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
   async function partir(): Promise<void> {
     if (!patron || fase === 'running' || fase === 'delay') return;
     setEnabled(ajustes.sonido);
-    if (ajustes.sonido) await unlock();
+    if (ajustes.sonido) {
+      void unlock();
+    }
     acumuladoMs = 0;
     ultimoIndice = -1;
     overlay.hidden = false;
