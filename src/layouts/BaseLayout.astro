@@ -84,12 +84,8 @@ const imagenSocial = new URL(ogImage, Astro.site ?? "https://fechitat-website.ve
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Recursos ITF" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Tipografía propia autoalojada (sin dependencias externas de Google Fonts) -->
+    <link rel="preload" href="/fonts/kumbh-sans.woff2" as="font" type="font/woff2" crossorigin />
 
     <!-- Datos estructurados: organización (global) -->
     <script type="application/ld+json" set:html={jsonLdOrganizacion}></script>

@@ -1,6 +1,5 @@
 ---
-// Estadística con contador animado (data-count) + label, borde izquierdo rojo.
-// En secciones oscuras usar variant="dark" (borde gold, texto claro).
+// Estadística con contador animado (data-count) + label usando jerarquía tipográfica limpia.
 interface Props {
   count: number;
   suffix?: string;
@@ -11,10 +10,10 @@ interface Props {
 const { count, suffix = '', label, dark = false } = Astro.props;
 ---
 
-<div class:list={['border-l-2 pl-[1em]', dark ? 'border-gold' : 'border-red']}>
+<div>
   <div
     class:list={[
-      'font-heading font-extrabold text-[2.6rem] leading-none',
+      'font-heading font-extrabold text-[2.75rem] leading-none tracking-tight',
       dark ? 'text-white' : 'text-ink',
     ]}
     data-count={count}
@@ -22,7 +21,7 @@ const { count, suffix = '', label, dark = false } = Astro.props;
   >{count}{suffix}</div>
   <div
     class:list={[
-      'font-mono text-[0.72rem] tracking-[0.06em] uppercase',
+      'font-mono text-xs font-semibold tracking-wider uppercase mt-2',
       dark ? 'text-light-muted' : 'text-text-soft',
     ]}
   >{label}</div>

@@ -60,7 +60,7 @@ const structuredData = hasError ? undefined : {
     </div>
 
     <!-- Cabecera simple orientada a examen y clase con soporte PWA -->
-    <section class="bg-ink text-white border-b-4 border-red py-6 md:py-8">
+    <section class="bg-ink text-white border-b border-white/10 py-6 md:py-8">
       <div class="max-w-7xl mx-auto px-4 md:px-8">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -99,14 +99,14 @@ const structuredData = hasError ? undefined : {
               <strong>¿Usas iPhone o iPad?</strong> Toca el botón <strong>Compartir</strong> (<span class="font-bold text-white">⎋</span>) abajo en Safari y selecciona <strong class="text-white">"Agregar a pantalla de inicio" ➕</strong> para usar sin conexión.
             </p>
           </div>
-          <button type="button" id="ios-dismiss-btn" aria-label="Cerrar aviso" class="text-white/60 hover:text-white text-base px-2 py-1 cursor-pointer">✕</button>
+          <button type="button" id="ios-dismiss-btn" aria-label="Cerrar aviso" class="text-white hover:text-slate-200 text-base px-2 py-1 cursor-pointer">✕</button>
         </div>
 
         <!-- Barra deslizable de acceso rápido a los recursos esenciales (ideal en examen o clase) -->
         <nav aria-label="Barra deslizable de recursos para examen" class="mt-6 pt-5 border-t border-white/10">
           <div class="flex items-center justify-between mb-2.5">
             <p class="text-xs font-mono uppercase tracking-wider text-light-muted">Herramientas de consulta rápida:</p>
-            <span class="text-[11px] font-mono text-light-muted/70 sm:hidden">Desliza ➔</span>
+            <span class="text-[11px] font-mono text-light-muted sm:hidden">Desliza ➔</span>
           </div>
           <div class="flex overflow-x-auto pb-2 scrollbar-none snap-x gap-2.5 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-6">
             <a
