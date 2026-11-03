@@ -17,6 +17,7 @@ interface Props {
   structuredData?: Record<string, unknown> | Array<Record<string, unknown>>;
   /** Evita indexar páginas auxiliares como la paginación. */
   noindex?: boolean;
+  mostrarFooter?: boolean;
 }
 
 const {
@@ -25,6 +26,7 @@ const {
   ogImage = "/images/social/fechitat-social.jpg",
   structuredData,
   noindex = false,
+  mostrarFooter = true,
 } = Astro.props;
 
 const url = new URL(Astro.url.pathname, Astro.site ?? "https://fechitat-website.vercel.app");
@@ -116,7 +118,7 @@ const imagenSocial = new URL(ogImage, Astro.site ?? "https://fechitat-website.ve
     <main id="contenido" transition:animate="fade" class:list={[Astro.url.pathname.startsWith('/recursos') ? 'pb-16 md:pb-0' : '']}>
       <slot />
     </main>
-    <Footer />
+    {mostrarFooter && <Footer />}
     <PwaBottomNav />
     <OfflineToast />
     <script>

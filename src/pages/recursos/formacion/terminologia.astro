@@ -70,10 +70,10 @@ const terminos = [
 const categorias = ['Todos', 'Comandos', 'Posiciones', 'Técnica', 'Grados', 'Números', 'Zonas', 'General'];
 ---
 
-<BaseLayout title="Terminología con Audio — FECHITAT" description="Diccionario interactivo de Taekwon-Do ITF en español, inglés y coreano con pronunciación nativa en audio.">
+<BaseLayout title="Glosario — FECHITAT" description="Diccionario interactivo de Taekwon-Do ITF en español, inglés y coreano con pronunciación nativa en audio.">
   <div class="bg-white border-b border-line py-5 md:py-6">
     <div class="max-w-6xl mx-auto px-5 md:px-7">
-      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold font-heading text-ink tracking-tight m-0">Terminología</h1>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold font-heading text-ink tracking-tight m-0">Glosario</h1>
     </div>
   </div>
 
@@ -95,76 +95,90 @@ const categorias = ['Todos', 'Comandos', 'Posiciones', 'Técnica', 'Grados', 'N�
         </div>
       </div>
 
-      <!-- Barra de categorías deslizables -->
-      <nav aria-label="Filtrar términos por categoría" class="overflow-x-auto pb-2 scrollbar-none flex gap-2">
-        {categorias.map((cat, i) => (
-          <button
-            type="button"
-            data-filtro-cat={cat === 'Todos' ? '' : cat}
-            aria-pressed={i === 0 ? 'true' : 'false'}
-            class:list={[
-              'filtro-cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer',
-              i === 0
-                ? 'bg-ink text-white border-ink'
-                : 'bg-white text-text-soft border-line hover:border-ink hover:text-ink',
-            ]}
-          >
-            {cat}
-          </button>
-        ))}
-      </nav>
+      <!-- Barra de categorías deslizables y control de vista -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <nav aria-label="Filtrar términos por categoría" class="overflow-x-auto pb-1 scrollbar-none flex gap-2">
+          {categorias.map((cat, i) => (
+            <button
+              type="button"
+              data-filtro-cat={cat === 'Todos' ? '' : cat}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+              class:list={[
+                'filtro-cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer',
+                i === 0
+                  ? 'bg-ink text-white border-ink'
+                  : 'bg-white text-text-soft border-line hover:border-ink hover:text-ink',
+              ]}
+            >
+              {cat}
+            </button>
+          ))}
+        </nav>
+
+        <button
+          type="button"
+          data-toggle-todos
+          class="self-start sm:self-auto text-xs font-mono font-medium text-text-soft hover:text-ink underline underline-offset-4 cursor-pointer"
+        >
+          Desplegar todas
+        </button>
+      </div>
     </div>
 
-    <!-- Lista de términos en tabla accesible con botón de audio -->
-    <div class="overflow-x-auto border border-line rounded-xl bg-white shadow-xs">
-      <table class="w-full border-collapse text-left">
-        <thead>
-          <tr class="border-b border-line bg-paper text-ink font-heading text-xs uppercase tracking-wider">
-            <th scope="col" class="py-3.5 px-4 w-12 text-center">Audio</th>
-            <th scope="col" class="py-3.5 px-4">Coreano / Romanización</th>
-            <th scope="col" class="py-3.5 px-4">Significado en Español</th>
-            <th scope="col" class="py-3.5 px-4 hidden md:table-cell">English</th>
-            <th scope="col" class="py-3.5 px-4">Categoría</th>
-          </tr>
-        </thead>
-        <tbody id="terminos-diccionario" class="divide-y divide-line">
-          {terminos.map((termino) => (
-            <tr
-              class="hover:bg-paper/70 transition-colors"
-              data-termino={`${termino.coreano} ${termino.romanizacion} ${termino.espanol} ${termino.ingles} ${termino.categoria}`.toLocaleLowerCase()}
-              data-cat={termino.categoria}
-            >
-              <td class="py-3 px-3 text-center">
-                <button
-                  type="button"
-                  data-pronunciar={termino.coreano}
-                  data-nombre={termino.romanizacion}
-                  aria-label={`Pronunciar ${termino.romanizacion} en coreano`}
-                  title={`Escuchar pronunciación de ${termino.romanizacion}`}
-                  class="audio-speak-btn inline-flex items-center justify-center w-9 h-9 rounded-full bg-paper hover:bg-red/10 text-text-soft hover:text-red transition-all active:scale-90 focus-visible:outline-2 focus-visible:outline-red cursor-pointer"
-                >
-                  <UIcon name="volume-2" size={18} />
-                </button>
-              </td>
-              <td class="py-3 px-4">
-                <span lang="ko" class="text-base sm:text-lg font-bold text-ink block leading-snug">{termino.coreano}</span>
-                <span class="block text-xs font-mono text-text-soft">{termino.romanizacion}</span>
-              </td>
-              <td class="py-3 px-4 text-sm font-medium text-ink">
-                {termino.espanol}
-              </td>
-              <td class="py-3 px-4 text-sm text-text-soft hidden md:table-cell" lang="en">
+    <!-- Lista de términos en tarjetas compactas -->
+    <div id="terminos-diccionario" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {terminos.map((termino) => (
+        <article
+          class="tarjeta-termino bg-white border border-line rounded-xl p-3.5 sm:p-4 shadow-2xs hover:border-ink/20 transition-all flex flex-col justify-between"
+          data-termino={`${termino.coreano} ${termino.romanizacion} ${termino.espanol} ${termino.ingles} ${termino.categoria}`.toLocaleLowerCase()}
+          data-cat={termino.categoria}
+        >
+          <div class="flex items-start justify-between gap-2.5">
+            <div class="min-w-0">
+              <span lang="ko" class="text-base sm:text-lg font-bold text-ink block leading-tight">
+                {termino.coreano}
+              </span>
+              <span class="block text-xs font-mono text-text-soft mt-0.5">
+                {termino.romanizacion}
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                data-pronunciar={termino.coreano}
+                data-nombre={termino.romanizacion}
+                aria-label={`Pronunciar ${termino.romanizacion} en coreano`}
+                title={`Escuchar pronunciación de ${termino.romanizacion}`}
+                class="audio-speak-btn inline-flex items-center justify-center w-8 h-8 rounded-full border border-line bg-paper/60 hover:bg-paper text-text-soft hover:text-red transition-all active:scale-90 focus-visible:outline-2 focus-visible:outline-red cursor-pointer"
+              >
+                <UIcon name="volume-2" size={15} />
+              </button>
+              <button
+                type="button"
+                data-toggle-desplegar
+                aria-expanded="false"
+                aria-label={`Desplegar significado de ${termino.romanizacion}`}
+                title="Desplegar significado"
+                class="toggle-desplegar-btn inline-flex items-center justify-center w-8 h-8 rounded-full border border-line bg-paper/60 hover:bg-paper text-text-soft hover:text-ink transition-all active:scale-90 focus-visible:outline-2 focus-visible:outline-red cursor-pointer"
+              >
+                <UIcon name="chevron-down" size={15} class="transition-transform duration-200" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Traducción desplegable abajo -->
+          <div data-desplegable hidden class="mt-3 pt-2.5 border-t border-line text-sm">
+            <p class="font-medium text-ink m-0 leading-snug">
+              {termino.espanol}
+            </p>
+            {termino.ingles && (
+              <p class="text-xs text-text-soft m-0 mt-1 leading-snug" lang="en">
                 {termino.ingles}
-              </td>
-              <td class="py-3 px-4">
-                <span class="inline-flex px-2 py-0.5 rounded text-[11px] font-mono uppercase tracking-wider bg-paper border border-line text-text-soft">
-                  {termino.categoria}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </p>
+            )}
+          </div>
+        </article>
+      ))}
     </div>
 
     <p id="sin-resultados" hidden class="p-8 text-center border border-dashed border-line rounded-xl bg-white text-text-soft mt-4">
@@ -175,10 +189,12 @@ const categorias = ['Todos', 'Comandos', 'Posiciones', 'Técnica', 'Grados', 'N�
   <script is:inline>
     function setupTerminologiaAudio() {
       const buscador = document.querySelector('#buscar-termino');
-      const filas = [...document.querySelectorAll('#terminos-diccionario tr')];
+      const tarjetas = [...document.querySelectorAll('#terminos-diccionario .tarjeta-termino')];
       const sinResultados = document.querySelector('#sin-resultados');
       const filtroBotones = [...document.querySelectorAll('[data-filtro-cat]')];
+      const btnAlternarTodos = document.querySelector('[data-toggle-todos]');
       let categoriaActiva = '';
+      let todosDesplegados = false;
 
       // Síntesis de voz nativa en Coreano (ko-KR)
       const reproducirCoreano = (texto, boton) => {
@@ -190,7 +206,7 @@ const categorias = ['Todos', 'Comandos', 'Posiciones', 'Técnica', 'Grados', 'N�
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(texto);
         utterance.lang = 'ko-KR';
-        utterance.rate = 0.82; // Velocidad ligeramente pausada para estudio marcial
+        utterance.rate = 0.82; // Velocidad pausada para estudio marcial
         utterance.pitch = 1.0;
 
         if (boton) {
@@ -207,23 +223,62 @@ const categorias = ['Todos', 'Comandos', 'Posiciones', 'Técnica', 'Grados', 'N�
       };
 
       document.querySelectorAll('[data-pronunciar]').forEach((boton) => {
-        boton.addEventListener('click', () => {
+        boton.addEventListener('click', (e) => {
+          e.stopPropagation();
           const coreano = boton.dataset.pronunciar;
           if (coreano) reproducirCoreano(coreano, boton);
         });
       });
+
+      // Alternar desplegable individual
+      document.querySelectorAll('[data-toggle-desplegar]').forEach((boton) => {
+        boton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const card = boton.closest('.tarjeta-termino');
+          const panel = card?.querySelector('[data-desplegable]');
+          const icon = boton.querySelector('svg');
+          if (panel) {
+            const oculto = panel.hidden;
+            panel.hidden = !oculto;
+            boton.setAttribute('aria-expanded', String(oculto));
+            if (icon) {
+              icon.style.transform = oculto ? 'rotate(180deg)' : '';
+            }
+          }
+        });
+      });
+
+      // Alternar todos los significados
+      if (btnAlternarTodos) {
+        btnAlternarTodos.addEventListener('click', () => {
+          todosDesplegados = !todosDesplegados;
+          btnAlternarTodos.textContent = todosDesplegados ? 'Plegar todas' : 'Desplegar todas';
+          tarjetas.forEach((card) => {
+            const panel = card.querySelector('[data-desplegable]');
+            const boton = card.querySelector('[data-toggle-desplegar]');
+            const icon = boton?.querySelector('svg');
+            if (panel) {
+              panel.hidden = !todosDesplegados;
+              boton?.setAttribute('aria-expanded', String(todosDesplegados));
+              if (icon) {
+                icon.style.transform = todosDesplegados ? 'rotate(180deg)' : '';
+              }
+            }
+          });
+        });
+      }
 
       // Filtro por texto y categoría
       const aplicarFiltros = () => {
         const consulta = (buscador?.value || '').trim().toLocaleLowerCase();
         let visibles = 0;
 
-        filas.forEach((fila) => {
-          const coincideTexto = !consulta || (fila.dataset.termino || '').includes(consulta);
-          const coincideCat = !categoriaActiva || fila.dataset.cat === categoriaActiva;
+        tarjetas.forEach((tarjeta) => {
+          const coincideTexto = !consulta || (tarjeta.dataset.termino || '').includes(consulta);
+          const coincideCat = !categoriaActiva || tarjeta.dataset.cat === categoriaActiva;
           const visible = coincideTexto && coincideCat;
 
-          fila.hidden = !visible;
+          tarjeta.hidden = !visible;
           if (visible) visibles++;
         });
 

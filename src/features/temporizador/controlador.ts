@@ -29,15 +29,16 @@ interface BloqueoPantalla { release(): Promise<void> }
  * @throws Error Si falta un control obligatorio del temporizador.
  */
 export function iniciarTemporizador(raiz: HTMLElement): void {
-  const buscar = requerido<HTMLInputElement>(raiz, '[data-buscar]');
+  const selectForma = raiz.querySelector<HTMLSelectElement>('[data-select-forma]');
+  const buscar = raiz.querySelector<HTMLInputElement>('[data-buscar]');
   const filtros = [...raiz.querySelectorAll<HTMLButtonElement>('[data-filtro]')];
-  const listaFormas = requerido<HTMLElement>(raiz, '[data-lista-formas]');
-  const cuerpoLista = requerido<HTMLElement>(raiz, '[data-lista-cuerpo]');
-  const colapsar = requerido<HTMLButtonElement>(raiz, '[data-colapsar]');
-  const colapsarNombre = requerido<HTMLElement>(raiz, '[data-colapsar-nombre]');
-  const cargarMas = requerido<HTMLButtonElement>(raiz, '[data-cargar-mas]');
-  const resto = requerido<HTMLTemplateElement>(raiz, '[data-resto]');
-  const vacio = requerido<HTMLElement>(raiz, '[data-vacio]');
+  const listaFormas = raiz.querySelector<HTMLElement>('[data-lista-formas]');
+  const cuerpoLista = raiz.querySelector<HTMLElement>('[data-lista-cuerpo]');
+  const colapsar = raiz.querySelector<HTMLButtonElement>('[data-colapsar]');
+  const colapsarNombre = raiz.querySelector<HTMLElement>('[data-colapsar-nombre]');
+  const cargarMas = raiz.querySelector<HTMLButtonElement>('[data-cargar-mas]');
+  const resto = raiz.querySelector<HTMLTemplateElement>('[data-resto]');
+  const vacio = raiz.querySelector<HTMLElement>('[data-vacio]');
   const panel = requerido<HTMLElement>(raiz, '[data-panel]');
   const nombre = requerido<HTMLElement>(raiz, '[data-nombre]');
   const grado = requerido<HTMLElement>(raiz, '[data-grado]');
@@ -97,17 +98,18 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
   marcarMetronomo(ajustes.metronomo);
 
   function formas(): HTMLButtonElement[] {
-    return [...listaFormas.querySelectorAll<HTMLButtonElement>('[data-patron]')];
+    return listaFormas ? [...listaFormas.querySelectorAll<HTMLButtonElement>('[data-patron]')] : [];
   }
 
   function cargarResto(): void {
-    if (cargarMas.hidden) return;
+    if (!cargarMas || cargarMas.hidden || !listaFormas || !resto) return;
     listaFormas.append(resto.content.cloneNode(true));
     cargarMas.hidden = true;
     aplicarFiltro();
   }
 
   function aplicarFiltro(): void {
+    if (!buscar) return;
     const consulta = buscar.value;
     let visibles = 0;
     for (const boton of formas()) {
@@ -122,17 +124,19 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
   }
 
   function colapsarLista(id: string): void {
+    if (!colapsar || !colapsarNombre || !cuerpoLista) return;
     const elegido = obtenerPatron(id);
     colapsarNombre.textContent = elegido ? `${elegido.nombre} · ${elegido.limiteSegundos}s` : 'Cambiar';
     colapsar.hidden = false;
     cuerpoLista.hidden = true;
-    listaFormas.closest('[data-lista]')?.classList.add('is-colapsada');
+    listaFormas?.closest('[data-lista]')?.classList.add('is-colapsada');
   }
 
   function abrirLista(): void {
+    if (!cuerpoLista || !colapsar) return;
     cuerpoLista.hidden = false;
     colapsar.hidden = true;
-    listaFormas.closest('[data-lista]')?.classList.remove('is-colapsada');
+    listaFormas?.closest('[data-lista]')?.classList.remove('is-colapsada');
   }
 
   function marcarRetraso(segundos: RetrasoInicio): void {
@@ -172,7 +176,8 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     const oficial = cadenciaOficial(elegido);
     movimientosTexto.textContent = elegido.movimientos == null ? '—' : String(elegido.movimientos);
     cadenciaTexto.textContent = oficial == null ? '—' : numeros.format(oficial);
-    vacio.hidden = true;
+    if (selectForma && selectForma.value !== id) selectForma.value = id;
+    if (vacio) vacio.hidden = true;
     panel.hidden = false;
     const url = new URL(window.location.href);
     url.searchParams.set('forma', id);
@@ -382,7 +387,10 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
   });
 
   document.addEventListener('astro:before-swap', () => { void parar(); }, { once: true });
-  const inicial = new URLSearchParams(window.location.search).get('forma');
+  selectForma?.addEventListener('change', () => {
+    if (selectForma.value) seleccionar(selectForma.value, false);
+  });
+  const inicial = new URLSearchParams(window.location.search).get('forma') || (PATRONES[0] ? PATRONES[0].id : undefined);
   if (inicial && obtenerPatron(inicial)) seleccionar(inicial, false);
   aplicarFiltro();
 }

@@ -16,12 +16,12 @@ export const LOCAL_RESOURCES: CatalogResource[] = [
   {
     id: 'terminologia',
     isFundamental: true,
-    title: 'Terminología',
+    title: 'Glosario',
     description: 'Diccionario de Taekwon-Do ITF en español, inglés y coreano con buscador rápido y audio.',
     href: '/recursos/formacion/terminologia',
     category: getResourceCategory('teoria'),
     format: 'guia',
-    keywords: ['diccionario', 'vocabulario', 'idiomas', 'estudio', 'coreano'],
+    keywords: ['glosario', 'terminologia', 'diccionario', 'vocabulario', 'idiomas', 'estudio', 'coreano'],
     actionLabel: 'Abrir recurso',
   },
   {
