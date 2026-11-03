@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import UIcon from '../../../components/icons/UIcon.astro';
 import { getProgramaExamen } from '../../../lib/sanityQueries';
 
 export const prerender = true;
@@ -153,15 +154,9 @@ const programaSanity = await getProgramaExamen();
 const programaVisible = programaSanity?.grados?.length
   ? programaSanity
   : { titulo: 'Programa de examinación FECHITAT', descripcion: descripcionPrograma, grados };
-const clasesPuntos = [
-  ['border-line', 'bg-white'], ['border-gold', 'bg-gold'], ['border-gold', 'bg-gold'],
-  ['border-belt-green', 'bg-belt-green'], ['border-belt-green', 'bg-belt-green'],
-  ['border-blue', 'bg-blue'], ['border-blue', 'bg-blue'], ['border-red', 'bg-red'],
-  ['border-red', 'bg-red'], ['border-ink', 'bg-ink'],
-];
 ---
 
-<BaseLayout title={titulo} description={descripcion}>
+<BaseLayout title={titulo} description={descripcion} mostrarFooter={false}>
   <!-- Cabecera simple: solo el título de la página -->
   <div class="bg-white border-b border-line py-5 md:py-6">
     <div class="mx-auto w-full max-w-screen-2xl px-5 md:px-8 xl:px-12">
@@ -195,71 +190,72 @@ const clasesPuntos = [
         <p id="grado-contador" class="font-mono text-sm text-text-soft m-0" aria-live="polite"></p>
       </div>
 
-      <!-- Barra deslizable táctil de cinturones (ideal para examen y dojang) -->
+      <!-- Controles de grado y ajuste de texto minimalistas -->
+      <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <!-- Selector desplegable de grado -->
+        <div class="relative w-full sm:max-w-md">
+          <label for="select-grado" class="sr-only">Seleccionar grado de examen</label>
+          <select
+            id="select-grado"
+            class="w-full appearance-none bg-white border border-line rounded-xl pl-4 pr-10 py-2.5 text-sm font-bold text-ink shadow-2xs hover:border-ink/40 focus-visible:outline-2 focus-visible:outline-red cursor-pointer transition-colors"
+          >
+            {programaVisible.grados.map((grado, indice) => (
+              <option value={indice}>
+                {grado.rango} — {grado.cinturon}
+              </option>
+            ))}
+          </select>
+          <span class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-text-soft">
+            <UIcon name="chevron-down" size={16} />
+          </span>
+        </div>
+
+        <!-- Ajuste de texto minimalista con botones A- y A+ -->
+        <div class="flex items-center gap-1.5 self-end sm:self-auto" role="group" aria-label="Ajustar tamaño de texto">
+          <span class="text-xs font-mono text-text-soft mr-1">Texto:</span>
+          <button
+            type="button"
+            id="btn-font-dec"
+            title="Reducir tamaño de letra"
+            aria-label="Reducir tamaño de texto"
+            class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-line bg-white hover:bg-paper text-ink font-mono text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+          >
+            A-
+          </button>
+          <button
+            type="button"
+            id="btn-font-inc"
+            title="Aumentar tamaño de letra"
+            aria-label="Aumentar tamaño de texto"
+            class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-line bg-white hover:bg-paper text-ink font-mono text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+          >
+            A+
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de pills deslizables minimalistas con los rangos -->
       <nav
-        aria-label="Seleccionar grado por cinturón"
-        class="mb-5 -mx-5 px-5 md:mx-0 md:px-0 overflow-x-auto pb-3 pt-1 scrollbar-none flex gap-2 snap-x"
+        aria-label="Seleccionar grado rápido"
+        class="mb-6 -mx-5 px-5 md:mx-0 md:px-0 overflow-x-auto pb-2 scrollbar-none flex gap-1.5 snap-x"
         id="barra-cinturones"
       >
         {programaVisible.grados.map((grado, indice) => (
           <button
             type="button"
             data-grado-dot={indice}
-            aria-label={`Ver ${grado.rango}: ${grado.cinturon}`}
             aria-pressed={indice === 0 ? 'true' : 'false'}
             class:list={[
-              'cinturon-tab shrink-0 snap-start flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left transition-all cursor-pointer select-none',
+              'shrink-0 snap-start px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer select-none',
               indice === 0
-                ? 'bg-ink text-white border-red shadow-md scale-[1.02]'
-                : 'bg-white text-ink border-line hover:border-ink/40 hover:bg-paper',
+                ? 'bg-ink text-white border-ink'
+                : 'bg-white text-text-soft border-line hover:border-ink hover:text-ink',
             ]}
           >
-            <!-- Muestra visual del cinturón con su color característico -->
-            <span
-              class:list={[
-                'w-3 h-3 rounded-full border shrink-0',
-                clasesPuntos[indice] ? clasesPuntos[indice].join(' ') : 'bg-white border-line',
-              ]}
-            />
-            <div class="min-w-0">
-              <span class="block text-[10px] font-mono uppercase tracking-wider opacity-75">
-                {grado.rango}
-              </span>
-              <span class="block text-xs font-bold truncate max-w-[140px]">
-                {grado.cinturon}
-              </span>
-            </div>
+            {grado.rango}
           </button>
         ))}
       </nav>
-
-      <!-- Botón que despliega ajustes de tamaño y tipografía -->
-      <div class="mb-5 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          id="btn-toggle-ajustes"
-          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-line bg-white text-xs font-mono font-bold text-ink hover:bg-paper transition-colors cursor-pointer"
-        >
-          <span>Ajustes de texto</span>
-          <span>⚙️</span>
-        </button>
-        <div id="panel-ajustes-texto" hidden class="flex flex-wrap items-center gap-3 text-xs p-2.5 rounded-lg border border-line bg-paper/60">
-          <label for="tamano-lectura" class="text-text-soft font-semibold">Tamaño:</label>
-          <select id="tamano-lectura" class="border border-line bg-white rounded px-2 py-1 text-xs text-ink font-mono">
-            <option value="15">15 px</option>
-            <option value="16" selected>16 px</option>
-            <option value="18">18 px</option>
-            <option value="20">20 px</option>
-            <option value="22">22 px</option>
-          </select>
-          <label for="fuente-lectura" class="text-text-soft font-semibold">Tipografía:</label>
-          <select id="fuente-lectura" class="border border-line bg-white rounded px-2 py-1 text-xs text-ink font-mono">
-            <option value="Kumbh Sans, sans-serif">Sans</option>
-            <option value="Georgia, serif">Serif</option>
-            <option value="ui-monospace, monospace">Mono</option>
-          </select>
-        </div>
-      </div>
 
       <div id="programa-lector" class="touch-pan-y">
         {programaVisible.grados.map((grado, indice) => (
@@ -328,9 +324,20 @@ const clasesPuntos = [
       </dialog>
 
       <div class="mt-6 flex items-center justify-between gap-4">
-        <button type="button" data-grado-prev class="border border-ink px-5 py-3 font-mono text-xs uppercase tracking-wider text-ink transition-colors hover:bg-ink hover:text-white disabled:cursor-not-allowed disabled:opacity-40">← Anterior</button>
-        <span class="hidden text-sm text-text-soft sm:block">Selecciona un punto para cambiar de grado</span>
-        <button type="button" data-grado-next class="border border-ink px-5 py-3 font-mono text-xs uppercase tracking-wider text-ink transition-colors hover:bg-ink hover:text-white disabled:cursor-not-allowed disabled:opacity-40">Siguiente →</button>
+        <button
+          type="button"
+          data-grado-prev
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-line bg-white hover:bg-paper font-mono text-xs font-bold uppercase tracking-wider text-ink transition-colors disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer shadow-2xs"
+        >
+          ← Anterior
+        </button>
+        <button
+          type="button"
+          data-grado-next
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-line bg-white hover:bg-paper font-mono text-xs font-bold uppercase tracking-wider text-ink transition-colors disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer shadow-2xs"
+        >
+          Siguiente →
+        </button>
       </div>
     </div>
   </section>
@@ -338,36 +345,63 @@ const clasesPuntos = [
   <script>
     const paneles = [...document.querySelectorAll<HTMLElement>('[data-grado-panel]')];
     const puntos = [...document.querySelectorAll<HTMLButtonElement>('[data-grado-dot]')];
+    const selectGrado = document.querySelector<HTMLSelectElement>('#select-grado');
     const contador = document.querySelector<HTMLElement>('#grado-contador');
     const anterior = document.querySelector<HTMLButtonElement>('[data-grado-prev]');
     const siguiente = document.querySelector<HTMLButtonElement>('[data-grado-next]');
     const lector = document.querySelector<HTMLElement>('#programa-lector');
-    const tamanoLectura = document.querySelector<HTMLSelectElement>('#tamano-lectura');
-    const fuenteLectura = document.querySelector<HTMLSelectElement>('#fuente-lectura');
-    const descargar = document.querySelector<HTMLButtonElement>('[data-descargar]');
+    const btnFontDec = document.querySelector<HTMLButtonElement>('#btn-font-dec');
+    const btnFontInc = document.querySelector<HTMLButtonElement>('#btn-font-inc');
     const dialogoTeoria = document.querySelector<HTMLDialogElement>('#teoria-dialog');
     const tituloTeoria = document.querySelector<HTMLElement>('#teoria-titulo');
     let gradoActivo = 0;
     let inicioDeslizamiento = 0;
 
+    // Escala de tamaños de fuente minimalista
+    const tamanosFuente = [13, 14, 16, 18, 20];
+    let indiceTamano = 2; // 16px por defecto
+
+    function aplicarTamanoTexto() {
+      const px = tamanosFuente[indiceTamano];
+      document.querySelectorAll<HTMLElement>('[data-reader-text]').forEach((contenido) => {
+        contenido.style.fontSize = `${px}px`;
+      });
+      if (btnFontDec) btnFontDec.disabled = indiceTamano === 0;
+      if (btnFontInc) btnFontInc.disabled = indiceTamano === tamanosFuente.length - 1;
+    }
+
+    btnFontDec?.addEventListener('click', () => {
+      if (indiceTamano > 0) {
+        indiceTamano--;
+        aplicarTamanoTexto();
+      }
+    });
+
+    btnFontInc?.addEventListener('click', () => {
+      if (indiceTamano < tamanosFuente.length - 1) {
+        indiceTamano++;
+        aplicarTamanoTexto();
+      }
+    });
+
     /** Muestra un grado del programa y actualiza los controles de navegación.
      * @param indice Índice del grado que se mostrará.
-     * @returns No devuelve ningún valor.
      */
     function mostrarGrado(indice: number) {
       if (indice < 0 || indice >= paneles.length) return;
       gradoActivo = indice;
       paneles.forEach((panel, posicion) => { panel.hidden = posicion !== gradoActivo; });
+      if (selectGrado && selectGrado.value !== String(gradoActivo)) {
+        selectGrado.value = String(gradoActivo);
+      }
       puntos.forEach((punto, posicion) => {
         const activo = posicion === gradoActivo;
         punto.setAttribute('aria-pressed', String(activo));
         punto.classList.toggle('bg-ink', activo);
         punto.classList.toggle('text-white', activo);
-        punto.classList.toggle('border-red', activo);
-        punto.classList.toggle('shadow-md', activo);
-        punto.classList.toggle('scale-[1.02]', activo);
+        punto.classList.toggle('border-ink', activo);
         punto.classList.toggle('bg-white', !activo);
-        punto.classList.toggle('text-ink', !activo);
+        punto.classList.toggle('text-text-soft', !activo);
         punto.classList.toggle('border-line', !activo);
         if (activo) {
           punto.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -377,6 +411,10 @@ const clasesPuntos = [
       if (anterior) anterior.disabled = gradoActivo === 0;
       if (siguiente) siguiente.disabled = gradoActivo === paneles.length - 1;
     }
+
+    selectGrado?.addEventListener('change', () => {
+      mostrarGrado(Number(selectGrado.value));
+    });
 
     puntos.forEach((punto) => punto.addEventListener('click', () => mostrarGrado(Number(punto.dataset.gradoDot))));
     anterior?.addEventListener('click', () => mostrarGrado(gradoActivo - 1));
@@ -388,18 +426,6 @@ const clasesPuntos = [
       if (Math.abs(desplazamiento) > 55) mostrarGrado(gradoActivo + (desplazamiento < 0 ? 1 : -1));
     });
 
-    const btnToggleAjustes = document.getElementById('btn-toggle-ajustes');
-    const panelAjustes = document.getElementById('panel-ajustes-texto');
-    btnToggleAjustes?.addEventListener('click', () => {
-      if (panelAjustes) panelAjustes.hidden = !panelAjustes.hidden;
-    });
-
-    tamanoLectura?.addEventListener('change', () => {
-      document.querySelectorAll<HTMLElement>('[data-reader-text]').forEach((contenido) => { contenido.style.fontSize = `${tamanoLectura.value}px`; });
-    });
-    fuenteLectura?.addEventListener('change', () => {
-      document.querySelectorAll<HTMLElement>('[data-reader-text]').forEach((contenido) => { contenido.style.fontFamily = fuenteLectura.value; });
-    });
     document.querySelectorAll<HTMLButtonElement>('[data-teoria]').forEach((boton) => {
       boton.addEventListener('click', () => {
         if (tituloTeoria) tituloTeoria.textContent = boton.dataset.teoria ?? '';
@@ -407,19 +433,7 @@ const clasesPuntos = [
       });
     });
 
-    descargar?.addEventListener('click', () => {
-      const escaparHtml = (texto: string) => texto.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-      const contenido = paneles.map((panel) => `<section><pre>${escaparHtml(panel.innerText || panel.textContent || '').replaceAll('\n', '<br>')}</pre></section>`).join('');
-      const fuente = fuenteLectura?.value ?? 'Georgia, serif';
-      const tamano = tamanoLectura?.value ?? '20';
-      const html = `<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Programa de examen FECHITAT</title><style>body{max-width:900px;margin:3rem auto;padding:0 1.5rem;font:${tamano}px/1.7 ${fuente};color:#181410}section{margin-bottom:4rem}pre{white-space:pre-wrap;font:inherit}section+section{border-top:2px solid #d8d0ba;padding-top:2rem}</style><h1>Programa de examen FECHITAT</h1>${contenido}</html>`;
-      const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
-      const enlace = document.createElement('a');
-      enlace.href = url;
-      enlace.download = 'programa-examen-fechitat.html';
-      enlace.click();
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    });
+    aplicarTamanoTexto();
     mostrarGrado(0);
   </script>
   <style>
