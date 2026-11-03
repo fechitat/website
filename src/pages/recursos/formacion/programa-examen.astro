@@ -234,29 +234,6 @@ const programaVisible = programaSanity?.grados?.length
         </div>
       </div>
 
-      <!-- Barra de pills deslizables minimalistas con los rangos -->
-      <nav
-        aria-label="Seleccionar grado rápido"
-        class="mb-6 -mx-5 px-5 md:mx-0 md:px-0 overflow-x-auto pb-2 scrollbar-none flex gap-1.5 snap-x"
-        id="barra-cinturones"
-      >
-        {programaVisible.grados.map((grado, indice) => (
-          <button
-            type="button"
-            data-grado-dot={indice}
-            aria-pressed={indice === 0 ? 'true' : 'false'}
-            class:list={[
-              'shrink-0 snap-start px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer select-none',
-              indice === 0
-                ? 'bg-ink text-white border-ink'
-                : 'bg-white text-text-soft border-line hover:border-ink hover:text-ink',
-            ]}
-          >
-            {grado.rango}
-          </button>
-        ))}
-      </nav>
-
       <div id="programa-lector" class="touch-pan-y">
         {programaVisible.grados.map((grado, indice) => (
           <article data-grado-panel={indice} hidden={indice !== 0} class="overflow-hidden bg-white">
@@ -344,7 +321,6 @@ const programaVisible = programaSanity?.grados?.length
 
   <script>
     const paneles = [...document.querySelectorAll<HTMLElement>('[data-grado-panel]')];
-    const puntos = [...document.querySelectorAll<HTMLButtonElement>('[data-grado-dot]')];
     const selectGrado = document.querySelector<HTMLSelectElement>('#select-grado');
     const contador = document.querySelector<HTMLElement>('#grado-contador');
     const anterior = document.querySelector<HTMLButtonElement>('[data-grado-prev]');
@@ -394,19 +370,6 @@ const programaVisible = programaSanity?.grados?.length
       if (selectGrado && selectGrado.value !== String(gradoActivo)) {
         selectGrado.value = String(gradoActivo);
       }
-      puntos.forEach((punto, posicion) => {
-        const activo = posicion === gradoActivo;
-        punto.setAttribute('aria-pressed', String(activo));
-        punto.classList.toggle('bg-ink', activo);
-        punto.classList.toggle('text-white', activo);
-        punto.classList.toggle('border-ink', activo);
-        punto.classList.toggle('bg-white', !activo);
-        punto.classList.toggle('text-text-soft', !activo);
-        punto.classList.toggle('border-line', !activo);
-        if (activo) {
-          punto.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-      });
       if (contador) contador.textContent = `Grado ${gradoActivo + 1} de ${paneles.length}`;
       if (anterior) anterior.disabled = gradoActivo === 0;
       if (siguiente) siguiente.disabled = gradoActivo === paneles.length - 1;
@@ -416,7 +379,6 @@ const programaVisible = programaSanity?.grados?.length
       mostrarGrado(Number(selectGrado.value));
     });
 
-    puntos.forEach((punto) => punto.addEventListener('click', () => mostrarGrado(Number(punto.dataset.gradoDot))));
     anterior?.addEventListener('click', () => mostrarGrado(gradoActivo - 1));
     siguiente?.addEventListener('click', () => mostrarGrado(gradoActivo + 1));
     lector?.addEventListener('pointerdown', (evento) => { if (evento.pointerType === 'touch') inicioDeslizamiento = evento.clientX; });

@@ -344,7 +344,7 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     pausar.textContent = 'Pausar';
   }
 
-  buscar.addEventListener('input', aplicarFiltro);
+  buscar?.addEventListener('input', aplicarFiltro);
   for (const boton of filtros) {
     boton.addEventListener('click', () => {
       const siguiente = boton.dataset.filtro;
@@ -354,12 +354,12 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
       aplicarFiltro();
     });
   }
-  listaFormas.addEventListener('click', (evento) => {
+  listaFormas?.addEventListener('click', (evento) => {
     const boton = (evento.target as Element).closest<HTMLButtonElement>('[data-patron]');
     if (boton) seleccionar(boton.dataset.id ?? '', true);
   });
-  cargarMas.addEventListener('click', cargarResto);
-  colapsar.addEventListener('click', abrirLista);
+  cargarMas?.addEventListener('click', cargarResto);
+  colapsar?.addEventListener('click', abrirLista);
   for (const boton of retrasos) {
     boton.addEventListener('click', () => {
       const segundos = Number(boton.dataset.retraso);
