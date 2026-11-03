@@ -12,7 +12,7 @@ FECHITAT reúne escuelas afiliadas, instructores y practicantes de Taekwon-Do IT
 - Para conocer la organización: [La Federación](https://fechitat-website.vercel.app/federacion)
 - Para consultar fechas: [Eventos y competencias](https://fechitat-website.vercel.app/eventos)
 - Para estudiar: [Teoría de examen](https://fechitat-website.vercel.app/recursos/formacion/teoria) y [Programa de examen](https://fechitat-website.vercel.app/examen)
-- Para practicar los tiempos oficiales de las formas: [Temporizador de formas](https://temp.agencia-ai.vercel.app/)
+- Para practicar los tiempos oficiales de las formas: [Temporizador de formas](https://temp-fechitat.vercel.app/)
 - Para noticias y artículos: [Blog FECHITAT](https://fechitat-website.vercel.app/blog)
 
 ## Audiencias

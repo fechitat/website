@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "temp.agencia-ai.vercel.app" }],
+      "has": [{ "type": "host", "value": "temp-fechitat.vercel.app" }],
       "destination": "/recursos/formacion/temporizador"
     },
     {
