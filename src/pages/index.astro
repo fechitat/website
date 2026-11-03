@@ -219,15 +219,16 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
   </section>
 
   <!-- Últimas noticias -->
-  <section class="py-12 md:py-20 bg-white" id="noticias">
+  <section class="py-12 md:py-20 bg-white border-t-4 border-blue" id="noticias">
     <div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
       <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-10">
         <div>
+          <p class="font-mono text-xs uppercase tracking-widest text-blue mb-2">Noticias</p>
           <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Últimas noticias</h2>
         </div>
         <a
           href="/recursos"
-          class="inline-flex items-center gap-2 font-mono text-xs tracking-widest uppercase text-red font-bold hover:underline"
+          class="inline-flex items-center gap-2 font-mono text-xs tracking-widest uppercase text-blue font-bold hover:underline"
         >
           Ver todos los recursos
           <span>→</span>
@@ -240,7 +241,7 @@ Conectamos escuelas, instructores y practicantes para compartir formación,
             <ResourceCard resource={articleToResource(post)} headingLevel="h3" />
           ))
         ) : (
-          <p class="text-text-soft">Las publicaciones estarán disponibles próximamente en <a href="/recursos" class="font-bold text-red hover:underline">Recursos</a>.</p>
+          <p class="text-text-soft">Las publicaciones estarán disponibles próximamente en <a href="/recursos" class="font-bold text-blue hover:underline">Recursos</a>.</p>
         )}
       </div>
     </div>

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHero from '../../../components/PageHero.astro';
+import DocumentoVisor from '../../../components/DocumentoVisor.astro';
 import { getProgramaExamen } from '../../../lib/sanityQueries';
 
 export const prerender = true;
@@ -166,6 +167,13 @@ const clasesPuntos = [
   <PageHero
     title={programaVisible.titulo}
     description={programaVisible.descripcion ?? 'Requisitos de cada grado para los exámenes de progresión de FECHITAT.'}
+  />
+  <DocumentoVisor
+    titulo="Programa de examinación FECHITAT"
+    archivo="/documentos/programa-examen-fechitat.pdf"
+    nombreDescarga="Programa-examen-FECHITAT.pdf"
+    paginas={23}
+    peso="1,6 MB"
   />
 
   <section class="bg-white py-10 md:py-16">

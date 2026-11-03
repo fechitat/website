@@ -7,12 +7,13 @@ interface Props {
   image?: string;
   imageAlt?: string;
   imageStyle?: string;
+  accent?: 'blue';
 }
 
-const { title, description, crumb, crumbHref, image, imageAlt, imageStyle } = Astro.props;
+const { title, description, crumb, crumbHref, image, imageAlt, imageStyle, accent } = Astro.props;
 ---
 
-<section class="bg-ink text-white py-10 md:py-14 pb-8 md:pb-10">
+<section class:list={['bg-ink text-white py-10 md:py-14 pb-8 md:pb-10', accent === 'blue' && 'border-b-4 border-blue']}>
   <div
     class:list={[
       'max-w-6xl mx-auto px-5 md:px-7',

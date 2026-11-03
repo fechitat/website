@@ -28,13 +28,15 @@ const post: BlogPost = {
 };
 const emptyFilters: CatalogFilters = { query: '', category: '' };
 
-test('conserva los cuatro recursos originales, sus destinos y formatos sin fotos de relleno', () => {
-  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.id), ['programa-examen', 'terminologia', 'sonkal-itf', 'temporizador-formas']);
+test('conserva los recursos locales, sus destinos y formatos sin fotos de relleno', () => {
+  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.id), ['programa-examen', 'terminologia', 'sonkal-itf', 'temporizador-formas', 'teoria-examen']);
   assert.equal(LOCAL_RESOURCES[0]?.href, '/recursos/formacion/programa-examen');
+  assert.equal(LOCAL_RESOURCES[0]?.format, 'documento');
   assert.equal(LOCAL_RESOURCES[1]?.href, '/recursos/formacion/terminologia');
   assert.ok(LOCAL_RESOURCES[2]?.href.startsWith('https://play.google.com/'));
-  assert.equal(LOCAL_RESOURCES[3]?.href, 'https://tools-sigma-olive.vercel.app/temporizador');
-  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.format), ['guia', 'guia', 'herramienta', 'herramienta']);
+  assert.equal(LOCAL_RESOURCES[3]?.href, '/recursos/formacion/temporizador');
+  assert.equal(LOCAL_RESOURCES[4]?.href, '/recursos/formacion/teoria');
+  assert.deepEqual(LOCAL_RESOURCES.map((resource) => resource.format), ['documento', 'guia', 'herramienta', 'herramienta', 'documento']);
   assert.ok(LOCAL_RESOURCES.every((resource) => !resource.image && resource.category.id));
 });
 
@@ -102,7 +104,7 @@ test('combina búsqueda y tipo de contenido sin perder recursos ni categorías t
   const count = (filters: CatalogFilters): number => indexes.filter((index) => matchesResource(index, filters)).length;
 
   assert.equal(count(emptyFilters), resources.length);
-  for (const [category, expected] of [['guia', 2], ['herramienta', 2], ['articulo', 1], ['documento', 1]] as const) {
+  for (const [category, expected] of [['guia', 1], ['herramienta', 2], ['articulo', 1], ['documento', 3]] as const) {
     assert.equal(count({ query: '', category }), expected, category);
   }
   assert.equal(count({ query: 'terminologia', category: 'guia' }), 1);

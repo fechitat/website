@@ -12,20 +12,21 @@ interface Props {
 
 const { resource, headingLevel: Heading = 'h2', variant = 'standard' } = Astro.props;
 const format = RESOURCE_FORMATS.find((option) => option.id === resource.format);
+const esNoticia = resource.format === 'articulo' || resource.category.id === 'noticias';
 ---
 
-<Card href={resource.href} class={`resource-card group h-full${variant === 'featured' ? ' resource-card--featured' : ''}`}>
+<Card href={resource.href} class={`resource-card group h-full${variant === 'featured' ? ' resource-card--featured' : ''}${esNoticia ? ' resource-card--noticia' : ''}`}>
   <div class="p-5 h-full flex flex-col">
-    <p class="text-xs font-bold text-ink mb-2">
+    <p class:list={['text-xs font-bold mb-2', esNoticia ? 'text-blue' : 'text-ink']}>
       {resource.category.label}
       <span class="sr-only"> · {format?.singularLabel}</span>
     </p>
-    <Heading class="text-xl leading-snug tracking-normal mb-0 group-hover:text-red group-focus-visible:text-red transition-colors">{resource.title}</Heading>
+    <Heading class:list={['text-xl leading-snug tracking-normal mb-0 transition-colors', esNoticia ? 'group-hover:text-blue group-focus-visible:text-blue' : 'group-hover:text-red group-focus-visible:text-red']}>{resource.title}</Heading>
     {resource.description && <p class="resource-description text-sm text-text-soft mt-2 mb-0 leading-relaxed line-clamp-2">{resource.description}</p>}
     {resource.details && resource.details.length > 0 && <p class="text-xs text-text-soft mt-2 mb-0 leading-relaxed">{resource.details.join(' · ')}</p>}
     <div class="mt-auto pt-5">
-      <Button as="span" variant="brand" class="w-full group-hover:bg-red-dark">
-        Ir a ver
+      <Button as="span" variant={esNoticia ? 'blue' : 'brand'} class={esNoticia ? 'w-full group-hover:bg-itf-blue-dark' : 'w-full group-hover:bg-red-dark'}>
+        {resource.actionLabel ?? 'Ir a ver'}
         <UIcon name="arrow-up-right" size={16} class="shrink-0" />
       </Button>
     </div>
@@ -47,13 +48,33 @@ const format = RESOURCE_FORMATS.find((option) => option.id === resource.format);
     border-color: var(--color-red);
   }
 
+  :global(.resource-card--noticia) {
+    border-color: var(--color-itf-blue-border);
+    background: var(--color-itf-blue-light);
+    box-shadow: inset 4px 0 0 var(--color-blue);
+  }
+
+  :global(.resource-card--noticia.resource-card--featured),
+  :global(.resource-card--noticia:hover),
+  :global(.resource-card--noticia:focus-visible) {
+    border-color: var(--color-blue);
+  }
+
   :global(.resource-card:focus-visible) {
     outline: 2px solid var(--color-red);
     outline-offset: 3px;
   }
 
+  :global(.resource-card--noticia:focus-visible) {
+    outline-color: var(--color-blue);
+  }
+
   :global(.resource-card:active) {
     background: var(--color-paper);
+  }
+
+  :global(.resource-card--noticia:active) {
+    background: var(--color-itf-blue-light);
   }
 
   /* El teclado permite leer el extracto completo sin depender del hover. */

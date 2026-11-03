@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import DocumentoVisor from '../../../components/DocumentoVisor.astro';
+
+export const prerender = true;
+
+const titulo = 'Teoría de examen — FECHITAT';
+const descripcion = 'Consulta y descarga el manual de teoría para los exámenes de Taekwon-Do ITF de FECHITAT.';
+const temas = [
+  'Definición, fundador e historia del Taekwon-Do',
+  'Principios, juramento y significado del dobok',
+  'Combate a uno, dos y tres pasos',
+  'Puntos vitales y vocabulario',
+  'Teoría del poder y significado de los cinturones',
+];
+---
+
+<BaseLayout title={titulo} description={descripcion}>
+  <PageHero
+    title="Teoría de examen"
+    crumb="Recursos"
+    crumbHref="/recursos"
+    description="Manual oficial de teoría FECHITAT. Puedes verlo en el navegador o descargarlo para estudiar."
+  />
+  <DocumentoVisor
+    titulo="Manual de examen FECHITAT"
+    archivo="/documentos/teoria-examen-fechitat.pdf"
+    nombreDescarga="Teoria-examen-FECHITAT.pdf"
+    paginas={34}
+    peso="1,4 MB"
+  />
+  <section class="bg-paper py-8 md:py-12">
+    <div class="mx-auto w-full max-w-3xl px-5 md:px-8">
+      <h2>Qué incluye</h2>
+      <ul class="mt-4 space-y-2">
+        {temas.map((tema) => <li class="text-text-soft">• {tema}</li>)}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

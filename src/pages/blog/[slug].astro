@@ -70,9 +70,10 @@ const jsonLd = JSON.stringify({
     crumbHref="/recursos"
     image={imagenUrl}
     imageAlt={imagenAlt}
+    accent="blue"
   />
 
-  <article class="py-10 md:py-16">
+  <article class="articulo-noticia py-10 md:py-16">
     <div class="max-w-3xl mx-auto px-5 md:px-7">
       <a href="/recursos" class="inline-flex items-center gap-2 bg-ink text-white font-mono text-xs tracking-widest uppercase py-3 px-5 rounded-sm mb-8 transition-colors hover:bg-black">
         <UIcon name="arrow-right" size={16} class="rotate-180" />
@@ -100,3 +101,11 @@ const jsonLd = JSON.stringify({
     </div>
   </article>
 </BaseLayout>
+
+<style>
+  .articulo-noticia :global(.contenido-articulo a) {
+    color: var(--color-blue);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

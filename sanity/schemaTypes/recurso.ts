@@ -7,7 +7,7 @@ export default defineType({
     defineField({name: 'titulo', title: 'Título', type: 'string', validation: (Rule) => Rule.required()}),
     defineField({
       name: 'slug', title: 'Identificador único', type: 'slug', options: {source: 'titulo'},
-      description: 'Para administrar un recurso inicial, utiliza programa-examen, terminologia, sonkal-itf o temporizador-formas.',
+      description: 'Para administrar un recurso inicial, utiliza programa-examen, teoria-examen, terminologia, sonkal-itf o temporizador-formas.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({name: 'descripcion', title: 'Descripción', type: 'text', rows: 3, validation: (Rule) => Rule.max(500)}),

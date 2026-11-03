@@ -30,7 +30,7 @@ test('consolida más de cien artículos, documentos y fichas sin duplicar recurs
     throw new Error(`Consulta inesperada: ${query}`);
   });
   const resources = await loadCatalogResources();
-  assert.equal(resources.length, 142);
+  assert.equal(resources.length, 143);
   assert.equal(resources.filter((resource) => resource.id === 'programa-examen').length, 1);
   assert.equal(resources.find((resource) => resource.id === 'programa-examen')?.title, 'Programa actualizado');
   assert.equal(resources.find((resource) => resource.id === 'document')?.validity, 'reemplazado');
@@ -49,7 +49,7 @@ test('permite despublicar recursos iniciales mediante una ficha editorial inacti
   });
   const resources = await loadCatalogResources();
   const result = getCatalogPage(resources, { query: '', category: '' });
-  assert.equal(result.inventoryTotal, 3);
+  assert.equal(result.inventoryTotal, 4);
   assert.ok(!result.resources.some((resource) => resource.id === 'terminologia'));
 });
 
