@@ -6,78 +6,92 @@ import { PATRONES } from '../../../features/temporizador/patrones';
 export const prerender = true;
 
 const titulo = 'Temporizador de formas — FECHITAT';
-const descripcion = 'Practica cada Tul con el límite de tiempo del reglamento ITF 2026, retraso de salida y metrónomo por movimientos.';
+const descripcion = 'Elige una forma y practica con su tiempo.';
+const primeras = PATRONES.filter((patron) => patron.grupo === 'gup');
+const restantes = PATRONES.filter((patron) => patron.grupo !== 'gup');
 ---
 
 <BaseLayout title={titulo} description={descripcion}>
   <PageHero
-    title="Temporizador de formas"
+    title="Temporizador"
     crumb="Recursos"
     crumbHref="/recursos"
-    description="Elige una forma y se despliega su límite oficial. Puedes esperar 3 o 10 segundos antes de partir y marcar el ritmo en movimientos por segundo."
+    description="Elige una forma."
   />
 
   <section class="bg-white py-6 md:py-10">
     <div class="mx-auto w-full max-w-screen-2xl px-4 md:px-8">
-      <p class="mb-5 max-w-3xl text-sm text-text-soft">
-        Tiempos del artículo 8.6.2.1, ITF Tournament Rules, versión 22.03.2026. Superar el límite deja la forma en cero puntos. El tiempo incluye anunciar el nombre al terminar. Esa tabla lista Chang-Hon (94 s) y no incluye Tong-Il.
-      </p>
       <div id="temporizador-formas" class="temporizador-layout">
-        <div class="lista-formas">
-          <label for="buscar-forma" class="mb-2 block text-sm font-bold text-ink">Buscar forma</label>
-          <input id="buscar-forma" data-buscar type="search" placeholder="Chon-Ji, Dan, 1º Gup" class="mb-3 min-h-12 w-full border border-line bg-white px-4 text-base text-ink" />
-          <div class="mb-3 flex gap-2" role="group" aria-label="Filtrar por grado">
-            <button type="button" data-filtro="todos" aria-pressed="true" class="filtro min-h-11 flex-1 border border-line bg-white px-3 text-sm font-bold">Todas</button>
-            <button type="button" data-filtro="gup" aria-pressed="false" class="filtro min-h-11 flex-1 border border-line bg-white px-3 text-sm font-bold">Gup</button>
-            <button type="button" data-filtro="dan" aria-pressed="false" class="filtro min-h-11 flex-1 border border-line bg-white px-3 text-sm font-bold">Dan</button>
+        <div class="lista-formas" data-lista>
+          <button type="button" data-colapsar hidden class="mb-3 flex min-h-12 w-full items-center justify-between border border-ink bg-ink px-3 text-left text-white">
+            <span data-colapsar-nombre class="font-bold">Cambiar</span>
+            <span class="text-sm">Cambiar</span>
+          </button>
+          <div data-lista-cuerpo>
+            <label for="buscar-forma" class="mb-2 block text-sm font-bold text-ink">Buscar</label>
+            <input id="buscar-forma" data-buscar type="search" placeholder="Nombre o grado" class="mb-3 min-h-12 w-full border border-line bg-white px-4 text-base text-ink" />
+            <div class="mb-3 flex gap-2" role="group" aria-label="Filtrar">
+              <button type="button" data-filtro="todos" aria-pressed="true" class="filtro min-h-11 flex-1 border border-line bg-white px-3 text-sm font-bold">Todas</button>
+              <button type="button" data-filtro="gup" aria-pressed="false" class="filtro min-h-11 flex-1 border border-line bg-white px-3 text-sm font-bold">Gup</button>
+              <button type="button" data-filtro="dan" aria-pressed="false" class="filtro min-h-11 flex-1 border border-line bg-white px-3 text-sm font-bold">Dan</button>
+            </div>
+            <p data-sin-resultados hidden class="border border-dashed border-line p-4 text-sm text-text-soft">Nada por aquí.</p>
+            <ul data-lista-formas class="grid grid-cols-1 gap-2" aria-label="Formas">
+              {primeras.map((patron) => (
+                <li>
+                  <button type="button" data-patron data-id={patron.id} aria-pressed="false" class="forma flex min-h-14 w-full items-center justify-between gap-3 border border-line bg-white px-3 py-2 text-left">
+                    <span>
+                      <span class="block font-bold text-ink">{patron.nombre}</span>
+                      <span class="block text-xs text-text-soft">{patron.grado}</span>
+                    </span>
+                    <span class="font-mono text-lg font-bold text-ink">{patron.limiteSegundos}s</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button type="button" data-cargar-mas class="mt-3 min-h-12 w-full border border-ink px-3 text-sm font-bold">Cargar más</button>
+            <template data-resto>
+              {restantes.map((patron) => (
+                <li>
+                  <button type="button" data-patron data-id={patron.id} aria-pressed="false" class="forma flex min-h-14 w-full items-center justify-between gap-3 border border-line bg-white px-3 py-2 text-left">
+                    <span>
+                      <span class="block font-bold text-ink">{patron.nombre}</span>
+                      <span class="block text-xs text-text-soft">{patron.grado}</span>
+                    </span>
+                    <span class="font-mono text-lg font-bold text-ink">{patron.limiteSegundos}s</span>
+                  </button>
+                </li>
+              ))}
+            </template>
           </div>
-          <p data-sin-resultados hidden class="border border-dashed border-line p-4 text-sm text-text-soft">No hay formas con esa búsqueda.</p>
-          <ul class="grid grid-cols-1 gap-2" aria-label="Formas y límites oficiales">
-            {PATRONES.map((patron) => (
-              <li>
-                <button type="button" data-patron data-id={patron.id} aria-pressed="false" class="forma flex min-h-14 w-full items-center justify-between gap-3 border border-line bg-white px-3 py-2 text-left">
-                  <span>
-                    <span class="block font-bold text-ink">{patron.nombre}</span>
-                    <span class="block text-xs text-text-soft">{patron.grado}{patron.movimientos ? ` · ${patron.movimientos} mov.` : ''}</span>
-                  </span>
-                  <span class="font-mono text-lg font-bold text-ink">{patron.limiteSegundos}s</span>
-                </button>
-              </li>
-            ))}
-          </ul>
         </div>
 
         <div class="min-w-0">
-          <p data-vacio class="border border-dashed border-line bg-paper p-6 text-text-soft">Elige una forma para desplegar su temporizador.</p>
+          <p data-vacio class="border border-dashed border-line bg-paper p-6 text-text-soft">Elige una forma.</p>
           <section data-panel hidden aria-labelledby="forma-activa" class="border border-ink bg-white p-4 md:p-6">
             <p data-grado class="font-mono text-xs uppercase tracking-widest text-red"></p>
             <h2 id="forma-activa" data-nombre class="mt-1 text-3xl md:text-5xl"></h2>
-            <p data-nota class="mt-2 text-sm text-text-soft"></p>
             <p class="mt-5 font-mono text-[clamp(3.5rem,16vw,7rem)] leading-none font-bold text-ink" data-limite aria-hidden="true">00:00.00</p>
-            <p class="text-sm text-text-soft">Límite oficial</p>
 
             <fieldset class="mt-6 border-0 p-0">
-              <legend class="mb-2 text-sm font-bold text-ink">Retraso al inicio</legend>
+              <legend class="mb-2 text-sm font-bold text-ink">Retraso</legend>
               <div class="grid grid-cols-3 gap-2">
-                <button type="button" data-retraso="0" aria-pressed="false" class="opcion min-h-12 border border-line">Sin retraso</button>
-                <button type="button" data-retraso="3" aria-pressed="true" class="opcion is-activo min-h-12 border border-line">3 segundos</button>
-                <button type="button" data-retraso="10" aria-pressed="false" class="opcion min-h-12 border border-line">10 segundos</button>
+                <button type="button" data-retraso="0" aria-pressed="false" class="opcion min-h-12 border border-line">No</button>
+                <button type="button" data-retraso="3" aria-pressed="true" class="opcion is-activo min-h-12 border border-line">3S</button>
+                <button type="button" data-retraso="10" aria-pressed="false" class="opcion min-h-12 border border-line">10S</button>
               </div>
             </fieldset>
 
             <fieldset class="mt-5 border-0 p-0">
               <legend class="mb-2 text-sm font-bold text-ink">Metrónomo</legend>
-              <label class="flex min-h-11 items-center gap-3 text-sm">
-                <input data-metronomo type="checkbox" checked class="h-5 w-5" />
-                Marcar cada movimiento
-              </label>
-              <label for="movimientos-forma" class="mt-3 block text-sm text-text-soft">Movimientos</label>
-              <input id="movimientos-forma" data-movimientos-input type="number" inputmode="numeric" min="1" max="200" class="mt-1 min-h-12 w-full border border-line px-3 text-base" />
-              <label for="cadencia-forma" class="mt-3 block text-sm text-text-soft">Movimientos por segundo</label>
-              <input id="cadencia-forma" data-cadencia type="number" inputmode="decimal" min="0.2" max="3" step="0.01" class="mt-1 min-h-12 w-full border border-line px-3 text-base" />
-              <p data-cadencia-texto class="mt-2 text-sm font-bold text-ink"></p>
-              <p data-proyeccion class="mt-1 text-sm text-text-soft"></p>
-              <button type="button" data-ritmo-oficial class="mt-3 min-h-11 text-sm font-bold text-red underline underline-offset-4">Usar el ritmo del límite</button>
+              <div class="grid grid-cols-2 gap-2" role="group" aria-label="Metrónomo">
+                <button type="button" data-metronomo="si" aria-pressed="true" class="opcion is-activo min-h-12 border border-line">Sí</button>
+                <button type="button" data-metronomo="no" aria-pressed="false" class="opcion min-h-12 border border-line">No</button>
+              </div>
+              <p class="mt-4 text-sm text-text-soft">Movimientos</p>
+              <p data-movimientos class="text-lg font-bold text-ink">—</p>
+              <p class="mt-3 text-sm text-text-soft">Mov/s</p>
+              <p data-cadencia class="text-lg font-bold text-ink">—</p>
             </fieldset>
 
             <label class="mt-5 flex min-h-11 items-center gap-3 text-sm">
@@ -126,6 +140,7 @@ const descripcion = 'Practica cada Tul con el límite de tiempo del reglamento I
 <style>
   .temporizador-layout { display: grid; gap: 1.25rem; }
   .lista-formas { min-width: 0; }
+  .lista-formas.is-colapsada { margin-bottom: 0; }
   .forma[aria-pressed="true"] { border-color: var(--color-ink); background: var(--color-ink); color: white; }
   .forma[aria-pressed="true"] span { color: white; }
   .filtro[aria-pressed="true"] { border-color: var(--color-ink); background: var(--color-ink); color: white; }

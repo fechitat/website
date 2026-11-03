@@ -1,8 +1,8 @@
+import { play, setEnabled, unlock } from 'cuelume';
 import {
   RETRASOS_INICIO,
   cadenciaOficial,
   coincidePatron,
-  duracionProyectadaSegundos,
   formatearTiempo,
   intervaloMetronomoMs,
   obtenerPatron,
@@ -31,19 +31,21 @@ interface BloqueoPantalla { release(): Promise<void> }
 export function iniciarTemporizador(raiz: HTMLElement): void {
   const buscar = requerido<HTMLInputElement>(raiz, '[data-buscar]');
   const filtros = [...raiz.querySelectorAll<HTMLButtonElement>('[data-filtro]')];
-  const botones = [...raiz.querySelectorAll<HTMLButtonElement>('[data-patron]')];
+  const listaFormas = requerido<HTMLElement>(raiz, '[data-lista-formas]');
+  const cuerpoLista = requerido<HTMLElement>(raiz, '[data-lista-cuerpo]');
+  const colapsar = requerido<HTMLButtonElement>(raiz, '[data-colapsar]');
+  const colapsarNombre = requerido<HTMLElement>(raiz, '[data-colapsar-nombre]');
+  const cargarMas = requerido<HTMLButtonElement>(raiz, '[data-cargar-mas]');
+  const resto = requerido<HTMLTemplateElement>(raiz, '[data-resto]');
   const vacio = requerido<HTMLElement>(raiz, '[data-vacio]');
   const panel = requerido<HTMLElement>(raiz, '[data-panel]');
   const nombre = requerido<HTMLElement>(raiz, '[data-nombre]');
   const grado = requerido<HTMLElement>(raiz, '[data-grado]');
   const limite = requerido<HTMLElement>(raiz, '[data-limite]');
-  const nota = requerido<HTMLElement>(raiz, '[data-nota]');
-  const movimientosInput = requerido<HTMLInputElement>(raiz, '[data-movimientos-input]');
+  const movimientosTexto = requerido<HTMLElement>(raiz, '[data-movimientos]');
+  const cadenciaTexto = requerido<HTMLElement>(raiz, '[data-cadencia]');
   const retrasos = [...raiz.querySelectorAll<HTMLButtonElement>('[data-retraso]')];
-  const metronomo = requerido<HTMLInputElement>(raiz, '[data-metronomo]');
-  const cadencia = requerido<HTMLInputElement>(raiz, '[data-cadencia]');
-  const cadenciaTexto = requerido<HTMLElement>(raiz, '[data-cadencia-texto]');
-  const proyeccion = requerido<HTMLElement>(raiz, '[data-proyeccion]');
+  const metronomos = [...raiz.querySelectorAll<HTMLButtonElement>('[data-metronomo]')];
   const sonido = requerido<HTMLInputElement>(raiz, '[data-sonido]');
   const iniciar = requerido<HTMLButtonElement>(raiz, '[data-iniciar]');
   const overlay = requerido<HTMLElement>(raiz, '[data-overlay]');
@@ -70,17 +72,28 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
   let ultimoIndice = -1;
   let ultimoSegundoAnuncio = -1;
   let ultimoRetrasoMostrado = -1;
-  let audio: AudioContext | undefined;
   let pantalla: BloqueoPantalla | undefined;
 
   sonido.checked = ajustes.sonido;
-  metronomo.checked = ajustes.metronomo;
+  setEnabled(ajustes.sonido);
   marcarRetraso(ajustes.retraso);
+  marcarMetronomo(ajustes.metronomo);
+
+  function formas(): HTMLButtonElement[] {
+    return [...listaFormas.querySelectorAll<HTMLButtonElement>('[data-patron]')];
+  }
+
+  function cargarResto(): void {
+    if (cargarMas.hidden) return;
+    listaFormas.append(resto.content.cloneNode(true));
+    cargarMas.hidden = true;
+    aplicarFiltro();
+  }
 
   function aplicarFiltro(): void {
     const consulta = buscar.value;
     let visibles = 0;
-    for (const boton of botones) {
+    for (const boton of formas()) {
       const actual = obtenerPatron(boton.dataset.id ?? '');
       const visible = actual ? coincidePatron(actual, consulta, grupo) : false;
       const item = boton.closest('li');
@@ -89,6 +102,20 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     }
     const aviso = raiz.querySelector<HTMLElement>('[data-sin-resultados]');
     if (aviso) aviso.hidden = visibles > 0;
+  }
+
+  function colapsarLista(id: string): void {
+    const elegido = obtenerPatron(id);
+    colapsarNombre.textContent = elegido ? `${elegido.nombre} · ${elegido.limiteSegundos}s` : 'Cambiar';
+    colapsar.hidden = false;
+    cuerpoLista.hidden = true;
+    listaFormas.closest('[data-lista]')?.classList.add('is-colapsada');
+  }
+
+  function abrirLista(): void {
+    cuerpoLista.hidden = false;
+    colapsar.hidden = true;
+    listaFormas.closest('[data-lista]')?.classList.remove('is-colapsada');
   }
 
   function marcarRetraso(segundos: RetrasoInicio): void {
@@ -101,80 +128,40 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     guardarAjustes(ajustes);
   }
 
-  function movimientosActivos(): number | null {
-    const valor = Number(movimientosInput.value);
-    return Number.isInteger(valor) && valor > 0 ? valor : null;
+  function marcarMetronomo(activo: boolean): void {
+    ajustes.metronomo = activo;
+    for (const boton of metronomos) {
+      const seleccionado = (boton.dataset.metronomo === 'si') === activo;
+      boton.setAttribute('aria-pressed', String(seleccionado));
+      boton.classList.toggle('is-activo', seleccionado);
+    }
+    guardarAjustes(ajustes);
   }
 
   function ritmoActual(): number | null {
-    const valor = Number(cadencia.value);
-    return Number.isFinite(valor) && valor > 0 ? valor : null;
-  }
-
-  function actualizarCadencia(): void {
-    const valor = ritmoActual();
-    const movimientos = movimientosActivos();
-    if (valor == null) {
-      cadenciaTexto.textContent = 'Indica movimientos por segundo.';
-      proyeccion.textContent = '';
-      return;
-    }
-    cadenciaTexto.textContent = `${numeros.format(valor)} mov/s · ${numeros.format(1 / valor)} s por movimiento`;
-    if (!patron || movimientos == null) {
-      proyeccion.textContent = 'Sin cantidad de movimientos no se puede proyectar el final.';
-      return;
-    }
-    const proyectada = duracionProyectadaSegundos(movimientos, valor);
-    const diferencia = proyectada - patron.limiteSegundos;
-    proyeccion.textContent = diferencia > 0.05
-      ? `A este ritmo superas el límite por ${numeros.format(diferencia)} s.`
-      : `A este ritmo los movimientos caben en ${numeros.format(proyectada)} s. El límite incluye anunciar el nombre.`;
+    if (!patron || !ajustes.metronomo) return null;
+    return cadenciaOficial(patron);
   }
 
   function seleccionar(id: string, desplazar: boolean): void {
     const elegido = obtenerPatron(id);
     if (!elegido) return;
     patron = elegido;
-    for (const boton of botones) boton.setAttribute('aria-pressed', String(boton.dataset.id === id));
+    if (!formas().some((boton) => boton.dataset.id === id)) cargarResto();
+    for (const boton of formas()) boton.setAttribute('aria-pressed', String(boton.dataset.id === id));
     nombre.textContent = elegido.nombre;
     grado.textContent = elegido.grado;
     limite.textContent = formatearTiempo(elegido.limiteSegundos * 1000);
-    movimientosInput.value = elegido.movimientos == null ? '' : String(elegido.movimientos);
-    nota.textContent = elegido.movimientos == null
-      ? 'El reglamento 2026 publica 94 s, pero no la cantidad de movimientos.'
-      : `${elegido.movimientos} movimientos · límite ${elegido.limiteSegundos} s`;
     const oficial = cadenciaOficial(elegido);
-    cadencia.value = oficial ? oficial.toFixed(2) : '';
+    movimientosTexto.textContent = elegido.movimientos == null ? '—' : String(elegido.movimientos);
+    cadenciaTexto.textContent = oficial == null ? '—' : numeros.format(oficial);
     vacio.hidden = true;
     panel.hidden = false;
     const url = new URL(window.location.href);
     url.searchParams.set('forma', id);
     window.history.replaceState(null, '', `${url.pathname}${url.search}`);
-    actualizarCadencia();
+    colapsarLista(id);
     if (desplazar) panel.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
-  }
-
-  async function asegurarAudio(): Promise<void> {
-    if (!ajustes.sonido) return;
-    const ventana = window as Window & { webkitAudioContext?: typeof AudioContext };
-    const Contexto = window.AudioContext ?? ventana.webkitAudioContext;
-    if (!Contexto) return;
-    audio ??= new Contexto();
-    if (audio.state === 'suspended') await audio.resume();
-  }
-
-  function tono(frecuencia: number, duracion: number, volumen = 0.08): void {
-    if (!audio) return;
-    const oscilador = audio.createOscillator();
-    const ganancia = audio.createGain();
-    oscilador.type = 'sine';
-    oscilador.frequency.value = frecuencia;
-    ganancia.gain.setValueAtTime(0.0001, audio.currentTime);
-    ganancia.gain.exponentialRampToValueAtTime(volumen, audio.currentTime + 0.01);
-    ganancia.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duracion);
-    oscilador.connect(ganancia).connect(audio.destination);
-    oscilador.start();
-    oscilador.stop(audio.currentTime + duracion + 0.02);
   }
 
   function marcarPulso(): void {
@@ -192,8 +179,8 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     tiempo.classList.toggle('is-excedido', excedido);
     reloj.style.setProperty('--progreso', String(Math.min(1, Math.max(0, transcurridoMs / limiteMs))));
     estado.textContent = excedido ? 'Tiempo excedido' : fase === 'paused' ? 'En pausa' : 'En curso';
-    const ritmo = metronomo.checked ? ritmoActual() : null;
-    const movimientos = movimientosActivos();
+    const ritmo = ritmoActual();
+    const movimientos = patron.movimientos;
     if (ritmo) {
       const pulsoActual = proximoPulso(inicioPractica, inicioPractica + transcurridoMs, intervaloMetronomoMs(ritmo));
       const numero = pulsoActual.indice + 1;
@@ -201,12 +188,12 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
       const dentro = movimientos == null || numero <= movimientos;
       if (dentro && pulsoActual.indice !== ultimoIndice) {
         const salto = pulsoActual.indice - ultimoIndice;
-        if (ajustes.sonido && salto > 0 && salto < 3) tono(980, 0.045, 0.05);
+        if (ajustes.sonido && salto > 0 && salto < 3) play('tap');
         marcarPulso();
         ultimoIndice = pulsoActual.indice;
       }
     } else {
-      movimiento.textContent = 'Metrónomo apagado';
+      movimiento.textContent = ajustes.metronomo ? 'Sin ritmo definido' : 'Metrónomo apagado';
     }
     const segundo = Math.floor(Math.abs(restante) / 1000);
     if (segundo !== ultimoSegundoAnuncio) {
@@ -222,12 +209,12 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
       const restante = ajustes.retraso * 1000 - (performance.now() - inicioRetraso);
       const segundos = Math.max(1, Math.ceil(restante / 1000));
       if (segundos !== ultimoRetrasoMostrado) {
-        if (ultimoRetrasoMostrado !== -1) tono(660, 0.08, 0.07);
+        if (ultimoRetrasoMostrado !== -1 && ajustes.sonido) play('count');
         ultimoRetrasoMostrado = segundos;
       }
       tiempo.textContent = String(segundos);
       estado.textContent = 'Prepárate';
-      movimiento.textContent = 'El límite empieza al terminar la espera';
+      movimiento.textContent = 'Espera';
       reloj.style.setProperty('--progreso', '0');
       if (restante <= 0) comenzarPractica();
       else frame = window.requestAnimationFrame(cuadro);
@@ -238,8 +225,7 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     if (fase === 'running' && transcurrido >= patron.limiteSegundos * 1000) {
       fase = 'exceeded';
       overlay.dataset.fase = 'exceeded';
-      tono(440, 0.18, 0.12);
-      window.setTimeout(() => tono(330, 0.28, 0.12), 180);
+      if (ajustes.sonido) play('warning');
     }
     pintar(transcurrido);
     frame = window.requestAnimationFrame(cuadro);
@@ -253,13 +239,14 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     ultimoSegundoAnuncio = -1;
     overlay.dataset.fase = 'running';
     pausar.textContent = 'Pausar';
-    tono(880, 0.12, 0.1);
+    if (ajustes.sonido) play('ready');
     frame = window.requestAnimationFrame(cuadro);
   }
 
   async function partir(): Promise<void> {
     if (!patron || fase === 'running' || fase === 'delay') return;
-    await asegurarAudio();
+    setEnabled(ajustes.sonido);
+    if (ajustes.sonido) await unlock();
     acumuladoMs = 0;
     ultimoIndice = -1;
     overlay.hidden = false;
@@ -274,8 +261,8 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
       overlay.dataset.fase = 'delay';
       tiempo.textContent = String(ajustes.retraso);
       estado.textContent = 'Prepárate';
-      movimiento.textContent = 'El límite empieza al terminar la espera';
-      tono(660, 0.08, 0.07);
+      movimiento.textContent = 'Espera';
+      if (ajustes.sonido) play('count');
       frame = window.requestAnimationFrame(cuadro);
       return;
     }
@@ -336,30 +323,30 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
     boton.addEventListener('click', () => {
       const siguiente = boton.dataset.filtro;
       grupo = siguiente === 'gup' || siguiente === 'dan' ? siguiente : 'todos';
+      if (grupo === 'dan') cargarResto();
       for (const otro of filtros) otro.setAttribute('aria-pressed', String(otro === boton));
       aplicarFiltro();
     });
   }
-  for (const boton of botones) boton.addEventListener('click', () => seleccionar(boton.dataset.id ?? '', true));
+  listaFormas.addEventListener('click', (evento) => {
+    const boton = (evento.target as Element).closest<HTMLButtonElement>('[data-patron]');
+    if (boton) seleccionar(boton.dataset.id ?? '', true);
+  });
+  cargarMas.addEventListener('click', cargarResto);
+  colapsar.addEventListener('click', abrirLista);
   for (const boton of retrasos) {
     boton.addEventListener('click', () => {
       const segundos = Number(boton.dataset.retraso);
       if ((RETRASOS_INICIO as readonly number[]).includes(segundos)) marcarRetraso(segundos as RetrasoInicio);
     });
   }
-  metronomo.addEventListener('change', () => { ajustes.metronomo = metronomo.checked; guardarAjustes(ajustes); });
-  sonido.addEventListener('change', () => { ajustes.sonido = sonido.checked; guardarAjustes(ajustes); });
-  cadencia.addEventListener('input', actualizarCadencia);
-  movimientosInput.addEventListener('input', actualizarCadencia);
-  raiz.querySelector('[data-ritmo-oficial]')?.addEventListener('click', () => {
-    if (!patron) return;
-    const oficial = cadenciaOficial({ ...patron, movimientos: movimientosActivos() });
-    if (!oficial) return;
-    cadencia.value = oficial.toFixed(2);
-    metronomo.checked = true;
-    ajustes.metronomo = true;
+  for (const boton of metronomos) {
+    boton.addEventListener('click', () => marcarMetronomo(boton.dataset.metronomo === 'si'));
+  }
+  sonido.addEventListener('change', () => {
+    ajustes.sonido = sonido.checked;
+    setEnabled(ajustes.sonido);
     guardarAjustes(ajustes);
-    actualizarCadencia();
   });
   iniciar.addEventListener('click', () => { void partir(); });
   pausar.addEventListener('click', pausarOReanudar);
@@ -367,10 +354,10 @@ export function iniciarTemporizador(raiz: HTMLElement): void {
   window.addEventListener('keydown', (evento) => {
     if (!overlay.isConnected || overlay.hidden) return;
     if (evento.target instanceof HTMLInputElement || evento.target instanceof HTMLTextAreaElement) return;
-    if (evento.code === 'Space' && !overlay.hidden) {
+    if (evento.code === 'Space') {
       evento.preventDefault();
       pausarOReanudar();
-    } else if (evento.code === 'Escape' && !overlay.hidden) {
+    } else if (evento.code === 'Escape') {
       void parar();
     }
   });

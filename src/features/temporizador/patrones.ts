@@ -42,7 +42,7 @@ export const PATRONES: readonly Patron[] = [
   { id: 'moon-moo', nombre: 'Moon-Moo', nombreReglamento: 'MOON-MOO', movimientos: 61, limiteSegundos: 101, grado: '4º Dan', grupo: 'dan' },
   { id: 'so-san', nombre: 'So-San', nombreReglamento: 'SO-SAN', movimientos: 72, limiteSegundos: 110, grado: '5º Dan', grupo: 'dan' },
   { id: 'se-jong', nombre: 'Se-Jong', nombreReglamento: 'SE-JONG', movimientos: 24, limiteSegundos: 51, grado: '5º Dan', grupo: 'dan' },
-  { id: 'chang-hon', nombre: 'Chang-Hon', nombreReglamento: 'CHANG-HON', movimientos: null, limiteSegundos: 94, grado: 'Reglamento 2026', grupo: 'dan' },
+  { id: 'chang-hon', nombre: 'Chang-Hon', nombreReglamento: 'CHANG-HON', movimientos: null, limiteSegundos: 94, grado: 'Dan', grupo: 'dan' },
 ];
 
 const LIMITES_REGLAMENTO: Record<string, number> = {
