@@ -379,3 +379,101 @@ export async function getCamisetas() {
   )
 }
 
+export interface TerminoGlosario {
+  coreano: string;
+  romanizacion: string;
+  espanol: string;
+  ingles?: string;
+  categoria: string;
+  audioUrl?: string;
+  orden?: number;
+}
+
+export const TERMINOS_GLOSARIO_BASE: TerminoGlosario[] = [
+  // General
+  { coreano: '태권도', romanizacion: 'Taekwon-Do', espanol: 'Arte marcial de pies y puños', ingles: 'The way of foot and fist', categoria: 'General', orden: 1 },
+  { coreano: '국기', romanizacion: 'Ku (Gukgi)', espanol: 'Bandera nacional', ingles: 'National flag', categoria: 'General', orden: 2 },
+  { coreano: '틀', romanizacion: 'Tul', espanol: 'Forma o patrón', ingles: 'Pattern', categoria: 'General', orden: 3 },
+  { coreano: '도장', romanizacion: 'Dojang', espanol: 'Lugar de entrenamiento', ingles: 'Training hall', categoria: 'General', orden: 4 },
+  { coreano: '도복', romanizacion: 'Dobok', espanol: 'Traje de entrenamiento', ingles: 'Training suit', categoria: 'General', orden: 5 },
+  { coreano: '띠', romanizacion: 'Ti', espanol: 'Cinturón', ingles: 'Belt', categoria: 'General', orden: 6 },
+  { coreano: '사범', romanizacion: 'Sabum', espanol: 'Instructor (IV a VI Dan)', ingles: 'Instructor', categoria: 'General', orden: 7 },
+  { coreano: '사현', romanizacion: 'Sahyun', espanol: 'Maestro (VII y VIII Dan)', ingles: 'Master', categoria: 'General', orden: 8 },
+  { coreano: '사성', romanizacion: 'Sasung', espanol: 'Gran Maestro (IX Dan)', ingles: 'Grand Master', categoria: 'General', orden: 9 },
+  { coreano: '급', romanizacion: 'Gup', espanol: 'Grado de cinturón de color', ingles: 'Colour-belt rank', categoria: 'Grados', orden: 10 },
+  { coreano: '단', romanizacion: 'Dan', espanol: 'Grado de cinturón negro', ingles: 'Black-belt degree', categoria: 'Grados', orden: 11 },
+
+  // Comandos
+  { coreano: '차렷', romanizacion: 'Charyot', espanol: 'Atención / Firmes', ingles: 'Attention', categoria: 'Comandos', orden: 12 },
+  { coreano: '경례', romanizacion: 'Kyong Ye', espanol: 'Saludo de cortesía', ingles: 'Bow', categoria: 'Comandos', orden: 13 },
+  { coreano: '준비', romanizacion: 'Junbi', espanol: 'Listo / En guardia', ingles: 'Ready', categoria: 'Comandos', orden: 14 },
+  { coreano: '시작', romanizacion: 'Sijak', espanol: 'Comenzar', ingles: 'Begin / Start', categoria: 'Comandos', orden: 15 },
+  { coreano: '그만', romanizacion: 'Goman', espanol: 'Detenerse / Alto', ingles: 'Stop', categoria: 'Comandos', orden: 16 },
+  { coreano: '쉬어', romanizacion: 'Swiyo', espanol: 'Descanso', ingles: 'Relax / At ease', categoria: 'Comandos', orden: 17 },
+  { coreano: '해산', romanizacion: 'Haesan', espanol: 'Rompan filas / Salir', ingles: 'Dismiss', categoria: 'Comandos', orden: 18 },
+
+  // Posiciones (Sogi)
+  { coreano: '서기', romanizacion: 'Sogi', espanol: 'Posición', ingles: 'Stance', categoria: 'Posiciones', orden: 19 },
+  { coreano: '차렷서기', romanizacion: 'Charyot Sogi', espanol: 'Posición de atención', ingles: 'Attention stance', categoria: 'Posiciones', orden: 20 },
+  { coreano: '나란히서기', romanizacion: 'Narani Sogi', espanol: 'Posición de pies paralelos', ingles: 'Parallel stance', categoria: 'Posiciones', orden: 21 },
+  { coreano: '건눈서기', romanizacion: 'Gunnun Sogi', espanol: 'Posición de caminar', ingles: 'Walking stance', categoria: 'Posiciones', orden: 22 },
+  { coreano: '니은자서기', romanizacion: 'Niunja Sogi', espanol: 'Posición en L', ingles: 'L-stance', categoria: 'Posiciones', orden: 23 },
+  { coreano: '앉은서기', romanizacion: 'Annun Sogi', espanol: 'Posición de jinete', ingles: 'Sitting stance', categoria: 'Posiciones', orden: 24 },
+  { coreano: '고정서기', romanizacion: 'Gojung Sogi', espanol: 'Posición en L larga / fija', ingles: 'Fixed stance', categoria: 'Posiciones', orden: 25 },
+  { coreano: '교차서기', romanizacion: 'Kyocha Sogi', espanol: 'Posición de pies cruzados', ingles: 'X-stance', categoria: 'Posiciones', orden: 26 },
+
+  // Técnicas (Ataques y Defensas)
+  { coreano: '지르기', romanizacion: 'Jirugi', espanol: 'Golpe de puño', ingles: 'Punch', categoria: 'Técnica', orden: 27 },
+  { coreano: '막기', romanizacion: 'Makgi', espanol: 'Defensa o bloqueo', ingles: 'Block', categoria: 'Técnica', orden: 28 },
+  { coreano: '차기', romanizacion: 'Chagi', espanol: 'Patada', ingles: 'Kick', categoria: 'Técnica', orden: 29 },
+  { coreano: '앞차기', romanizacion: 'Ap Chagi', espanol: 'Patada frontal', ingles: 'Front kick', categoria: 'Técnica', orden: 30 },
+  { coreano: '돌려차기', romanizacion: 'Dollyo Chagi', espanol: 'Patada circular', ingles: 'Turning kick', categoria: 'Técnica', orden: 31 },
+  { coreano: '옆차기', romanizacion: 'Yop Chagi', espanol: 'Patada lateral', ingles: 'Side kick', categoria: 'Técnica', orden: 32 },
+  { coreano: '반대돌려차기', romanizacion: 'Bandae Dollyo Chagi', espanol: 'Patada con giro talón', ingles: 'Reverse turning kick', categoria: 'Técnica', orden: 33 },
+  { coreano: '내려차기', romanizacion: 'Naeryo Chagi', espanol: 'Patada descendente', ingles: 'Downward kick', categoria: 'Técnica', orden: 34 },
+  { coreano: '손칼', romanizacion: 'Sonkal', espanol: 'Canto de la mano', ingles: 'Knife-hand', categoria: 'Técnica', orden: 35 },
+  { coreano: '팔목', romanizacion: 'Palmok', espanol: 'Antebrazo', ingles: 'Forearm', categoria: 'Técnica', orden: 36 },
+  { coreano: '맞서기', romanizacion: 'Matsokgi', espanol: 'Combate', ingles: 'Sparring', categoria: 'Técnica', orden: 37 },
+  { coreano: '위력', romanizacion: 'Wiryok', espanol: 'Rotura de poder', ingles: 'Power breaking', categoria: 'Técnica', orden: 38 },
+
+  // Números
+  { coreano: '하나', romanizacion: 'Hana', espanol: 'Uno (1)', ingles: 'One', categoria: 'Números', orden: 39 },
+  { coreano: '둘', romanizacion: 'Dul', espanol: 'Dos (2)', ingles: 'Two', categoria: 'Números', orden: 40 },
+  { coreano: '셋', romanizacion: 'Set', espanol: 'Tres (3)', ingles: 'Three', categoria: 'Números', orden: 41 },
+  { coreano: '넷', romanizacion: 'Net', espanol: 'Cuatro (4)', ingles: 'Four', categoria: 'Números', orden: 42 },
+  { coreano: '다섯', romanizacion: 'Dasot', espanol: 'Cinco (5)', ingles: 'Five', categoria: 'Números', orden: 43 },
+  { coreano: '여섯', romanizacion: 'Yosot', espanol: 'Seis (6)', ingles: 'Six', categoria: 'Números', orden: 44 },
+  { coreano: '일곱', romanizacion: 'Ilgop', espanol: 'Siete (7)', ingles: 'Seven', categoria: 'Números', orden: 45 },
+  { coreano: '여덟', romanizacion: 'Yodol', espanol: 'Ocho (8)', ingles: 'Eight', categoria: 'Números', orden: 46 },
+  { coreano: '아홉', romanizacion: 'Ahop', espanol: 'Nueve (9)', ingles: 'Nine', categoria: 'Números', orden: 47 },
+  { coreano: '열', romanizacion: 'Yol', espanol: 'Diez (10)', ingles: 'Ten', categoria: 'Números', orden: 48 },
+
+  // Zonas del cuerpo
+  { coreano: '높은데', romanizacion: 'Nopunde', espanol: 'Zona alta (cuello hacia arriba)', ingles: 'High section', categoria: 'Zonas', orden: 49 },
+  { coreano: '가운데', romanizacion: 'Kaunde', espanol: 'Zona media (hombros al ombligo)', ingles: 'Middle section', categoria: 'Zonas', orden: 50 },
+  { coreano: '낮은데', romanizacion: 'Najunde', espanol: 'Zona baja (ombligo hacia abajo)', ingles: 'Low section', categoria: 'Zonas', orden: 51 },
+];
+
+/** Obtiene los términos del glosario técnico desde Sanity con fallback seguro */
+export async function getTerminosGlosario(): Promise<TerminoGlosario[]> {
+  try {
+    const terminos = await sanity.fetch<TerminoGlosario[]>(`
+      *[_type == "glosarioTermino" && (activo == true || !defined(activo))] | order(coalesce(orden, 999) asc, romanizacion asc) {
+        coreano,
+        romanizacion,
+        espanol,
+        ingles,
+        categoria,
+        "audioUrl": audio.asset->url,
+        orden
+      }
+    `);
+    if (terminos && terminos.length > 0) {
+      return terminos;
+    }
+  } catch (error) {
+    console.warn('Error al consultar glosario desde Sanity, usando términos base:', error);
+  }
+  return TERMINOS_GLOSARIO_BASE;
+}
+

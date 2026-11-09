@@ -13,6 +13,7 @@ import comision from './comision'
 import documentoOficial from './documentoOficial'
 import camiseta from './camiseta'
 import recurso from './recurso'
+import glosarioTermino from './glosarioTermino'
 
 export const schemaTypes = [
   evento,
@@ -30,4 +31,5 @@ export const schemaTypes = [
   documentoOficial,
   camiseta,
   recurso,
+  glosarioTermino,
 ]

@@ -336,7 +336,7 @@ const structuredData = {
             </h3>
             <div
               id="mapa-escuela-detalle"
-              class="w-full h-64 rounded-lg bg-slate-100 border border-slate-200"
+              class="w-full h-64 rounded-lg bg-slate-100 border border-slate-200 relative z-0"
               data-lat={lat}
               data-lng={lng}
               data-nombre={escuela.nombre}
@@ -353,26 +353,73 @@ const structuredData = {
 <script>
   import L from "leaflet";
 
-  const contenedor = document.getElementById("mapa-escuela-detalle") as HTMLElement;
+  const COORDENADAS_CIUDADES: Record<string, [number, number]> = {
+    coquimbo: [-29.9533, -71.3436],
+    sindempart: [-29.9701, -71.3288],
+    "la serena": [-29.9027, -71.2519],
+    santiago: [-33.4489, -70.6693],
+    "la florida": [-33.5227, -70.5983],
+    "la granja": [-33.5358, -70.6272],
+    ovalle: [-30.5983, -71.2003],
+    iquique: [-20.2141, -70.1524],
+    guanaqueros: [-30.1983, -71.4244],
+    copiapo: [-27.3668, -70.3323],
+    valparaiso: [-33.0472, -71.6127],
+    "vina del mar": [-33.0245, -71.5518],
+    concepcion: [-36.827, -73.0503],
+    antofagasta: [-23.6509, -70.3975],
+  };
 
-  if (contenedor) {
+  const normalizarTexto = (t: string) =>
+    t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+  const obtenerCoordenadasCiudad = (ciudad: string): [number, number] | null => {
+    const norm = normalizarTexto(ciudad);
+    for (const [key, coords] of Object.entries(COORDENADAS_CIUDADES)) {
+      if (norm === key || norm.includes(key) || key.includes(norm)) {
+        return coords;
+      }
+    }
+    return null;
+  };
+
+  let mapaInstancia: L.Map | null = null;
+
+  function inicializarMapaEscuela() {
+    const contenedor = document.getElementById("mapa-escuela-detalle") as HTMLElement | null;
+    if (!contenedor) return;
+
+    if (mapaInstancia) {
+      try {
+        mapaInstancia.remove();
+      } catch {}
+      mapaInstancia = null;
+    }
+
     const latAttr = contenedor.dataset.lat;
     const lngAttr = contenedor.dataset.lng;
     const nombre = contenedor.dataset.nombre || "Dojang";
     const ciudad = contenedor.dataset.ciudad || "";
     const direccion = contenedor.dataset.direccion || "";
 
-    const coordsDefault: [number, number] = [-33.4489, -70.6693]; // Santiago por defecto
-    const tieneCoordenadas = latAttr && lngAttr && !isNaN(parseFloat(latAttr)) && !isNaN(parseFloat(lngAttr));
-    const coords: [number, number] = tieneCoordenadas
+    const tieneCoordsSanity =
+      latAttr && lngAttr && !isNaN(parseFloat(latAttr)) && !isNaN(parseFloat(lngAttr));
+
+    const coordsCiudad = ciudad ? obtenerCoordenadasCiudad(ciudad) : null;
+    const coordsDefault: [number, number] = [-33.4489, -70.6693];
+
+    const coordsIniciales: [number, number] = tieneCoordsSanity
       ? [parseFloat(latAttr), parseFloat(lngAttr)]
-      : coordsDefault;
+      : coordsCiudad || coordsDefault;
+
+    const zoomInicial = tieneCoordsSanity ? 15 : coordsCiudad ? 13 : 11;
 
     const mapa = L.map(contenedor, {
-      center: coords,
-      zoom: tieneCoordenadas ? 14 : 11,
+      center: coordsIniciales,
+      zoom: zoomInicial,
       scrollWheelZoom: false,
     });
+    mapaInstancia = mapa;
 
     L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
       subdomains: "abcd",
@@ -390,25 +437,69 @@ const structuredData = {
     const popupHtml = `
       <div style="font-family:sans-serif; font-size:12px; line-height:1.4;">
         <strong style="display:block; color:#0f172a; font-size:13px;">${nombre}</strong>
-        <span style="color:#64748b;">${direccion}</span><br />
+        ${direccion ? `<span style="color:#64748b;">${direccion}</span><br />` : ""}
         <span style="color:#0f172a; font-weight:600;">${ciudad}</span>
       </div>
     `;
 
-    if (tieneCoordenadas) {
-      L.marker(coords, { icon: icono }).addTo(mapa).bindPopup(popupHtml).openPopup();
-    } else if (ciudad) {
-      // Geocodificación asistida para centrar en la ciudad
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=cl&limit=1&q=${encodeURIComponent(ciudad)}`)
+    const marcador = L.marker(coordsIniciales, { icon: icono })
+      .addTo(mapa)
+      .bindPopup(popupHtml);
+
+    if (tieneCoordsSanity) {
+      marcador.openPopup();
+    }
+
+    setTimeout(() => {
+      mapa.invalidateSize();
+    }, 150);
+
+    if (!tieneCoordsSanity && (direccion || ciudad)) {
+      const consulta = [direccion, ciudad, "Chile"].filter(Boolean).join(", ");
+      const cacheKey = `fechitat:geo:${normalizarTexto(consulta)}`;
+
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const [cLat, cLon] = JSON.parse(cached);
+          marcador.setLatLng([cLat, cLon]);
+          mapa.setView([cLat, cLon], 15);
+          marcador.openPopup();
+          return;
+        }
+      } catch {}
+
+      fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&countrycodes=cl&limit=1&q=${encodeURIComponent(consulta)}`,
+        {
+          headers: { Accept: "application/json" },
+          signal: AbortSignal.timeout(6000),
+        }
+      )
         .then((res) => res.json())
         .then((data) => {
           if (data?.[0]) {
             const nuevasCoords: [number, number] = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-            mapa.setView(nuevasCoords, 13);
-            L.marker(nuevasCoords, { icon: icono }).addTo(mapa).bindPopup(popupHtml).openPopup();
+            try {
+              localStorage.setItem(cacheKey, JSON.stringify(nuevasCoords));
+            } catch {}
+            marcador.setLatLng(nuevasCoords);
+            mapa.setView(nuevasCoords, 15);
+            marcador.openPopup();
           }
         })
         .catch(() => {});
     }
   }
+
+  inicializarMapaEscuela();
+  document.addEventListener("astro:page-load", inicializarMapaEscuela);
+  document.addEventListener("astro:before-preparation", () => {
+    if (mapaInstancia) {
+      try {
+        mapaInstancia.remove();
+      } catch {}
+      mapaInstancia = null;
+    }
+  });
 </script>
