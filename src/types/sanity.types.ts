@@ -1218,6 +1218,152 @@ export type AllSanitySchemaTypes =
   | SanityImageAsset;
 
 // Source: ../src/lib/sanityQueries.ts
+// Variable: ESCUELAS_QUERY
+// Query: *[_type == "club" && active == true] | order(name asc) {    _id,    "nombre": name,    slug,    "ciudad": city,    region,    "direccion": address,    whatsapp,    "email": contactEmail,    description,    "foto": coverImage,    logo,    "instructor": president->name,    president-> {      _id,      name,      dan,      legacyTitle,      portrait    },    schedule,    location,    socialLinks  }
+export type ESCUELAS_QUERY_RESULT = Array<{
+  _id: string;
+  nombre: string | null;
+  slug: Slug | null;
+  ciudad: string | null;
+  region:
+    | "Antofagasta"
+    | "Arica y Parinacota"
+    | "Atacama"
+    | "Ays\xE9n"
+    | "Biob\xEDo"
+    | "Coquimbo"
+    | "La Araucan\xEDa"
+    | "Los Lagos"
+    | "Los R\xEDos"
+    | "Magallanes"
+    | "Maule"
+    | "Metropolitana"
+    | "\xD1uble"
+    | "O'Higgins"
+    | "Tarapac\xE1"
+    | "Valpara\xEDso"
+    | null;
+  direccion: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  description: string | null;
+  foto: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  logo: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  instructor: string | null;
+  president: {
+    _id: string;
+    name: string | null;
+    dan: number | null;
+    legacyTitle: string | null;
+    portrait: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  } | null;
+  schedule: Array<{
+    group?: string;
+    days?: Array<string>;
+    startTime?: string;
+    endTime?: string;
+    _key: string;
+  }> | null;
+  location: Geopoint | null;
+  socialLinks: Array<{
+    platform?: "facebook" | "instagram" | "other" | "tiktok" | "x" | "youtube";
+    url?: string;
+    _key: string;
+  }> | null;
+}>;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: ESCUELA_BY_SLUG_QUERY
+// Query: *[_type == "club" && slug.current == $slug][0] {    _id,    "nombre": name,    slug,    "ciudad": city,    region,    "direccion": address,    whatsapp,    "email": contactEmail,    description,    "foto": coverImage,    logo,    "instructor": president->name,    president-> {      _id,      name,      dan,      legacyTitle,      portrait    },    schedule,    location,    socialLinks  }
+export type ESCUELA_BY_SLUG_QUERY_RESULT = {
+  _id: string;
+  nombre: string | null;
+  slug: Slug | null;
+  ciudad: string | null;
+  region:
+    | "Antofagasta"
+    | "Arica y Parinacota"
+    | "Atacama"
+    | "Ays\xE9n"
+    | "Biob\xEDo"
+    | "Coquimbo"
+    | "La Araucan\xEDa"
+    | "Los Lagos"
+    | "Los R\xEDos"
+    | "Magallanes"
+    | "Maule"
+    | "Metropolitana"
+    | "\xD1uble"
+    | "O'Higgins"
+    | "Tarapac\xE1"
+    | "Valpara\xEDso"
+    | null;
+  direccion: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  description: string | null;
+  foto: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  logo: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  instructor: string | null;
+  president: {
+    _id: string;
+    name: string | null;
+    dan: number | null;
+    legacyTitle: string | null;
+    portrait: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  } | null;
+  schedule: Array<{
+    group?: string;
+    days?: Array<string>;
+    startTime?: string;
+    endTime?: string;
+    _key: string;
+  }> | null;
+  location: Geopoint | null;
+  socialLinks: Array<{
+    platform?: "facebook" | "instagram" | "other" | "tiktok" | "x" | "youtube";
+    url?: string;
+    _key: string;
+  }> | null;
+} | null;
+
+// Source: ../src/lib/sanityQueries.ts
 // Variable: DIRECTORIO_OFICIAL_QUERY
 // Query: *[_type == "organizationUnit" && type == "board"][0] {    _id,    name,    description,    "members": coalesce(members[] | order(order asc) {      _key,      role,      contactEmail,      order,      person-> {        _id,        name,        dan,        legacyTitle,        portrait,        shortBio      }    }, [])  }
 export type DIRECTORIO_OFICIAL_QUERY_RESULT = {
@@ -1339,12 +1485,45 @@ export type HITOS_HISTORICOS_QUERY_RESULT = Array<{
   } | null;
 }>;
 
+// Source: ../src/lib/sanityQueries.ts
+// Variable: ESCUELAS_MAPA_QUERY
+// Query: *[_type == "club" && active == true] | order(region asc, name asc) {    _id,    "nombre": name,    slug,    "ciudad": city,    region,    "ubicacion": location,    "logoUrl": logo.asset->url  }
+export type ESCUELAS_MAPA_QUERY_RESULT = Array<{
+  _id: string;
+  nombre: string | null;
+  slug: Slug | null;
+  ciudad: string | null;
+  region:
+    | "Antofagasta"
+    | "Arica y Parinacota"
+    | "Atacama"
+    | "Ays\xE9n"
+    | "Biob\xEDo"
+    | "Coquimbo"
+    | "La Araucan\xEDa"
+    | "Los Lagos"
+    | "Los R\xEDos"
+    | "Magallanes"
+    | "Maule"
+    | "Metropolitana"
+    | "\xD1uble"
+    | "O'Higgins"
+    | "Tarapac\xE1"
+    | "Valpara\xEDso"
+    | null;
+  ubicacion: Geopoint | null;
+  logoUrl: string | null;
+}>;
+
 // Query TypeMap
 declare global {
   interface SanityQueries {
+    '\n  *[_type == "club" && active == true] | order(name asc) {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "direccion": address,\n    whatsapp,\n    "email": contactEmail,\n    description,\n    "foto": coverImage,\n    logo,\n    "instructor": president->name,\n    president-> {\n      _id,\n      name,\n      dan,\n      legacyTitle,\n      portrait\n    },\n    schedule,\n    location,\n    socialLinks\n  }\n': ESCUELAS_QUERY_RESULT;
+    '\n  *[_type == "club" && slug.current == $slug][0] {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "direccion": address,\n    whatsapp,\n    "email": contactEmail,\n    description,\n    "foto": coverImage,\n    logo,\n    "instructor": president->name,\n    president-> {\n      _id,\n      name,\n      dan,\n      legacyTitle,\n      portrait\n    },\n    schedule,\n    location,\n    socialLinks\n  }\n': ESCUELA_BY_SLUG_QUERY_RESULT;
     '\n  *[_type == "organizationUnit" && type == "board"][0] {\n    _id,\n    name,\n    description,\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': DIRECTORIO_OFICIAL_QUERY_RESULT;
     '\n  *[_type == "organizationUnit" && type in ["commission", "other"]] | order(order asc) {\n    _id,\n    name,\n    description,\n    type,\n    order,\n    parentUnit-> {\n      _id,\n      name\n    },\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': COMISIONES_QUERY_RESULT;
     '\n  *[_type == "historicalMilestone"] | order(year asc, date asc, order asc) {\n    _id,\n    title,\n    slug,\n    year,\n    date,\n    description,\n    order,\n    image\n  }\n': HITOS_HISTORICOS_QUERY_RESULT;
+    '\n  *[_type == "club" && active == true] | order(region asc, name asc) {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "ubicacion": location,\n    "logoUrl": logo.asset->url\n  }\n': ESCUELAS_MAPA_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

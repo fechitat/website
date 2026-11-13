@@ -75,14 +75,70 @@ export async function getEventoBySlug(slug: string) {
   return sanity.fetch(`*[_type == "evento" && slug.current == $slug][0]`, {slug})
 }
 
-/** Obtener todas las escuelas */
+/** Consulta tipada GROQ para listado de escuelas/clubes */
+export const ESCUELAS_QUERY = defineQuery(`
+  *[_type == "club" && active == true] | order(name asc) {
+    _id,
+    "nombre": name,
+    slug,
+    "ciudad": city,
+    region,
+    "direccion": address,
+    whatsapp,
+    "email": contactEmail,
+    description,
+    "foto": coverImage,
+    logo,
+    "instructor": president->name,
+    president-> {
+      _id,
+      name,
+      dan,
+      legacyTitle,
+      portrait
+    },
+    schedule,
+    location,
+    socialLinks
+  }
+`);
+
+/** Obtener todas las escuelas activas normalizadas desde club */
 export async function getEscuelas() {
-  return sanity.fetch(`*[_type == "escuela" && activo == true] | order(nombre asc)`)
+  return sanity.fetch(ESCUELAS_QUERY);
 }
 
-/** Obtener escuela por slug */
+/** Consulta tipada GROQ para escuela/club por slug */
+export const ESCUELA_BY_SLUG_QUERY = defineQuery(`
+  *[_type == "club" && slug.current == $slug][0] {
+    _id,
+    "nombre": name,
+    slug,
+    "ciudad": city,
+    region,
+    "direccion": address,
+    whatsapp,
+    "email": contactEmail,
+    description,
+    "foto": coverImage,
+    logo,
+    "instructor": president->name,
+    president-> {
+      _id,
+      name,
+      dan,
+      legacyTitle,
+      portrait
+    },
+    schedule,
+    location,
+    socialLinks
+  }
+`);
+
+/** Obtener escuela por slug desde club */
 export async function getEscuelaBySlug(slug: string) {
-  return sanity.fetch(`*[_type == "escuela" && slug.current == $slug][0]`, {slug})
+  return sanity.fetch(ESCUELA_BY_SLUG_QUERY, {slug});
 }
 
 /** Obtener todos los competidores activos */
@@ -430,14 +486,25 @@ export async function getProximoEventoDestacado() {
   )
 }
 
+/** Consulta tipada GROQ para mapa de escuelas en portada */
+export const ESCUELAS_MAPA_QUERY = defineQuery(`
+  *[_type == "club" && active == true] | order(region asc, name asc) {
+    _id,
+    "nombre": name,
+    slug,
+    "ciudad": city,
+    region,
+    "ubicacion": location,
+    "logoUrl": logo.asset->url
+  }
+`);
+
 /** Obtener sólo los campos necesarios para el mapa de la portada. */
 export async function getEscuelasPorRegion() {
   return sanity.fetch<Array<{
     _id: string; nombre: string; slug?: {current: string}; ciudad?: string;
     region?: string; ubicacion?: {lat?: number; lng?: number}; logoUrl?: string;
-  }>>(`*[_type == "escuela" && activo == true] | order(region asc, nombre asc) {
-    _id, nombre, slug, ciudad, region, ubicacion, "logoUrl": logo.asset->url
-  }`)
+  }>>(ESCUELAS_MAPA_QUERY);
 }
 
 export interface FiltrosEscuelas {
@@ -447,10 +514,10 @@ export interface FiltrosEscuelas {
   pagina: number;
 }
 
-const FILTRO_ESCUELAS = `*[_type == "escuela" && activo == true
+const FILTRO_CLUBES = `*[_type == "club" && active == true
   && ($region == "" || coalesce(region, "Sin región") == $region)
-  && ($ciudad == "" || ciudad == $ciudad)
-  && ($busqueda == "" || nombre match $patron || ciudad match $patron || region match $patron)]`;
+  && ($ciudad == "" || city == $ciudad)
+  && ($busqueda == "" || name match $patron || city match $patron || region match $patron)]`;
 
 /** Obtiene una página de escuelas, su total y las ubicaciones disponibles sin enviar todas las fichas. */
 export async function getDirectorioEscuelas(filtros: FiltrosEscuelas, porPagina = 6) {
@@ -460,17 +527,48 @@ export async function getDirectorioEscuelas(filtros: FiltrosEscuelas, porPagina 
   return sanity.fetch<{
     total: number;
     escuelas: Array<{
-      _id: string; nombre: string; slug?: {current: string}; instructor?: string;
-      ciudad?: string; region?: string; foto?: unknown; logo?: unknown;
-      email?: string; whatsapp?: string;
+      _id: string;
+      nombre: string;
+      slug?: {current: string};
+      instructor?: string;
+      president?: {
+        _id: string;
+        name: string;
+        dan?: number | null;
+        legacyTitle?: string | null;
+      } | null;
+      ciudad?: string;
+      region?: string;
+      foto?: unknown;
+      logo?: unknown;
+      email?: string;
+      whatsapp?: string;
     }>;
     ubicaciones: Array<{ciudad?: string; region?: string}>;
   }>(`{
-    "total": count(${FILTRO_ESCUELAS}),
-    "escuelas": ${FILTRO_ESCUELAS} | order(nombre asc) [${inicio}...${inicio + porPagina}] {
-      _id, nombre, slug, instructor, ciudad, region, foto, logo, email, whatsapp
+    "total": count(${FILTRO_CLUBES}),
+    "escuelas": ${FILTRO_CLUBES} | order(name asc) [${inicio}...${inicio + porPagina}] {
+      _id,
+      "nombre": name,
+      slug,
+      "instructor": president->name,
+      president-> {
+        _id,
+        name,
+        dan,
+        legacyTitle
+      },
+      "ciudad": city,
+      region,
+      "foto": coverImage,
+      logo,
+      "email": contactEmail,
+      whatsapp
     },
-    "ubicaciones": *[_type == "escuela" && activo == true] {ciudad, region}
+    "ubicaciones": *[_type == "club" && active == true] {
+      "ciudad": city,
+      region
+    }
   }`, params);
 }
 

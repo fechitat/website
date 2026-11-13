@@ -4,6 +4,8 @@ import UIcon from './icons/UIcon.astro';
 import Button from './ui/Button.astro';
 import Card from './ui/Card.astro';
 import { normalizarTexto } from '../lib/utils';
+import { formatPersonFullName } from '../lib/honorifics';
+import { buildWhatsAppUrl } from '../lib/whatsapp';
 
 interface Props {
   escuela: {
@@ -11,6 +13,12 @@ interface Props {
     nombre: string;
     slug?: { current?: string };
     instructor?: string;
+    president?: {
+      _id: string;
+      name: string;
+      dan?: number | null;
+      legacyTitle?: string | null;
+    } | null;
     ciudad?: string;
     region?: string;
     foto?: any;
@@ -25,9 +33,10 @@ interface Props {
 const { escuela, regionNombre, class: className = '' } = Astro.props;
 
 const slug = escuela.slug?.current;
-const instructor = escuela.instructor;
+const instructor = escuela.president ? formatPersonFullName(escuela.president) : (escuela.instructor || '');
 const ciudad = escuela.ciudad;
 const region = regionNombre || escuela.region || '';
+const whatsappUrl = escuela.whatsapp ? buildWhatsAppUrl(escuela.whatsapp) : null;
 ---
 
 <Card
@@ -121,9 +130,9 @@ const region = regionNombre || escuela.region || '';
           <UIcon name="mail" size={16} />
         </Button>
       )}
-      {escuela.whatsapp && (
+      {whatsappUrl && (
         <Button
-          href={`https://wa.me/${escuela.whatsapp}`}
+          href={whatsappUrl}
           variant="dark-ghost"
           size="icon"
           class="border-0"

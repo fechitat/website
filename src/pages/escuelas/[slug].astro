@@ -6,6 +6,8 @@ import Button from "../../components/ui/Button.astro";
 import Card from "../../components/ui/Card.astro";
 import UIcon from "../../components/icons/UIcon.astro";
 import { getEscuelas, getEscuelaBySlug } from "../../lib/sanityQueries";
+import { formatPersonFullName } from "../../lib/honorifics";
+import { buildWhatsAppUrl, normalizeWhatsAppNumber } from "../../lib/whatsapp";
 import { urlFor } from "../../lib/sanity";
 import "leaflet/dist/leaflet.css";
 
@@ -32,14 +34,15 @@ if (!escuela) {
 
 const ciudad = escuela.ciudad || "Chile";
 const region = escuela.region || "Chile";
-const instructor = escuela.instructor || escuela.sensei || "Instructor Certificado ITF";
+const instructor = escuela.president
+  ? formatPersonFullName(escuela.president)
+  : (escuela.instructor || escuela.sensei || "Instructor Certificado ITF");
 const direccion = escuela.direccion || "Consultar dirección exacta por WhatsApp";
-const tieneWhatsapp = Boolean(escuela.whatsapp || escuela.telefono);
-const numeroWhatsapp = (escuela.whatsapp || escuela.telefono || "").replace(/\D/g, "");
-const mensajeWhatsapp = encodeURIComponent(
-  `Hola! Me comunico desde la plataforma oficial de FECHITAT. Me gustaría solicitar información sobre horarios y clases de prueba en ${escuela.nombre}.`
-);
-const enlaceWhatsapp = numeroWhatsapp ? `https://wa.me/${numeroWhatsapp}?text=${mensajeWhatsapp}` : null;
+const rawWhatsapp = escuela.whatsapp || escuela.telefono || "";
+const tieneWhatsapp = Boolean(rawWhatsapp);
+const numeroWhatsapp = rawWhatsapp ? normalizeWhatsAppNumber(rawWhatsapp) : "";
+const mensajeWhatsapp = `Hola! Me comunico desde la plataforma oficial de FECHITAT. Me gustaría solicitar información sobre horarios y clases de prueba en ${escuela.nombre}.`;
+const enlaceWhatsapp = rawWhatsapp ? buildWhatsAppUrl(rawWhatsapp, mensajeWhatsapp) : null;
 
 const titulo = `Taekwon-Do ITF en ${ciudad} | ${escuela.nombre}`;
 const descripcion = `Conoce ${escuela.nombre} en ${ciudad}, ${region}. Dojang oficial acreditado por FECHITAT e ITF. Horarios, instructor a cargo, dirección y clases de prueba.`;
@@ -204,26 +207,38 @@ const structuredData = {
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
-                  <tr>
-                    <td class="p-3 font-semibold text-slate-900">Taekwon-Do Infantil</td>
-                    <td class="p-3">Lunes, Miércoles y Viernes</td>
-                    <td class="p-3">17:30 – 18:30 hrs</td>
-                  </tr>
-                  <tr>
-                    <td class="p-3 font-semibold text-slate-900">Juveniles y Adultos</td>
-                    <td class="p-3">Lunes, Miércoles y Viernes</td>
-                    <td class="p-3">19:00 – 20:30 hrs</td>
-                  </tr>
-                  <tr>
-                    <td class="p-3 font-semibold text-slate-900">Avanzados y Cinturones Negros</td>
-                    <td class="p-3">Martes y Jueves</td>
-                    <td class="p-3">19:30 – 21:00 hrs</td>
-                  </tr>
-                  <tr>
-                    <td class="p-3 font-semibold text-slate-900">Equipo de Competición</td>
-                    <td class="p-3">Sábados</td>
-                    <td class="p-3">10:00 – 12:00 hrs</td>
-                  </tr>
+                  {escuela.schedule && escuela.schedule.length > 0 ? (
+                    escuela.schedule.map((item: any) => (
+                      <tr>
+                        <td class="p-3 font-semibold text-slate-900">{item.group}</td>
+                        <td class="p-3">{item.days}</td>
+                        <td class="p-3">{item.hours}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <>
+                      <tr>
+                        <td class="p-3 font-semibold text-slate-900">Taekwon-Do Infantil</td>
+                        <td class="p-3">Lunes, Miércoles y Viernes</td>
+                        <td class="p-3">17:30 – 18:30 hrs</td>
+                      </tr>
+                      <tr>
+                        <td class="p-3 font-semibold text-slate-900">Juveniles y Adultos</td>
+                        <td class="p-3">Lunes, Miércoles y Viernes</td>
+                        <td class="p-3">19:00 – 20:30 hrs</td>
+                      </tr>
+                      <tr>
+                        <td class="p-3 font-semibold text-slate-900">Avanzados y Cinturones Negros</td>
+                        <td class="p-3">Martes y Jueves</td>
+                        <td class="p-3">19:30 – 21:00 hrs</td>
+                      </tr>
+                      <tr>
+                        <td class="p-3 font-semibold text-slate-900">Equipo de Competición</td>
+                        <td class="p-3">Sábados</td>
+                        <td class="p-3">10:00 – 12:00 hrs</td>
+                      </tr>
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>
