@@ -548,31 +548,47 @@ export async function getComisionesTrabajo(): Promise<CommissionResult[]> {
   return sanity.fetch<CommissionResult[]>(COMISIONES_QUERY);
 }
 
+/** Consulta tipada GROQ para documentos oficiales */
+export const DOCUMENTOS_OFICIALES_QUERY = defineQuery(`
+  *[_type == "officialDocument" || _type == "documentoOficial"] | order(coalesce(publicationDate, fechaPublicacion) desc) {
+    _id,
+    _type,
+    "titulo": coalesce(title, titulo),
+    slug,
+    "tipo": coalesce(category, tipo),
+    "descripcion": coalesce(description, descripcion),
+    version,
+    "fechaPublicacion": coalesce(publicationDate, fechaPublicacion),
+    "fechaVigencia": coalesce(effectiveDate, fechaVigencia),
+    "estado": select(
+      status == "current" => "vigente",
+      status == "superseded" => "reemplazado",
+      status == "repealed" => "obsoleto",
+      status == "vigente" => "vigente",
+      defined(estado) => estado,
+      "vigente"
+    ),
+    tematicas,
+    palabrasClave,
+    prioridad,
+    fundamental,
+    destacadoCatalogo,
+    icono,
+    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),
+    "archivoUrl": coalesce(file.asset->url, archivo.asset->url),
+    "archivoNombre": coalesce(file.asset->originalFilename, archivo.asset->originalFilename),
+    "comisionNombre": coalesce(owner->name, comision->nombre, "FECHITAT")
+  }
+`);
+
 /** Obtener los documentos oficiales visibles en el sitio */
 export async function getDocumentosOficiales() {
-  return sanity.fetch(
-    `*[_type == "documentoOficial" && activo == true] | order(fechaPublicacion desc, orden asc) {
-      _id,
-      titulo,
-      slug,
-      tipo,
-      descripcion,
-      version,
-      fechaPublicacion,
-      fechaVigencia,
-      estado,
-      tematicas,
-      palabrasClave,
-      prioridad,
-      fundamental,
-      destacadoCatalogo,
-      icono,
-      "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),
-      "archivoUrl": archivo.asset->url,
-      "archivoNombre": archivo.asset->originalFilename,
-      "comisionNombre": comision->nombre
-    }`
-  )
+  const docs = await sanity.fetch(DOCUMENTOS_OFICIALES_QUERY);
+  const hasOfficial = docs.some((d) => d._type === 'officialDocument');
+  if (hasOfficial) {
+    return docs.filter((d) => d._type === 'officialDocument');
+  }
+  return docs;
 }
 
 /**

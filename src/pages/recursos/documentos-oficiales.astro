@@ -12,7 +12,7 @@ const descripcion =
   'Consulta los protocolos, reglamentos, estatutos y demás documentos oficiales de FECHITAT.';
 
 const documentos = await getDocumentosOficiales();
-const formateadorFecha = new Intl.DateTimeFormat('es-CL', {dateStyle: 'long'});
+const formateadorFecha = new Intl.DateTimeFormat('es-CL', {dateStyle: 'long', timeZone: 'UTC'});
 const estadosDocumento: Record<string, string> = { vigente: 'Vigente', archivado: 'Archivado', reemplazado: 'Reemplazado', obsoleto: 'Obsoleto' };
 ---
 

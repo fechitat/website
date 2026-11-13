@@ -1777,6 +1777,73 @@ export type COMISIONES_QUERY_RESULT = Array<{
 }>;
 
 // Source: ../src/lib/sanityQueries.ts
+// Variable: DOCUMENTOS_OFICIALES_QUERY
+// Query: *[_type == "officialDocument" || _type == "documentoOficial"] | order(coalesce(publicationDate, fechaPublicacion) desc) {    _id,    _type,    "titulo": coalesce(title, titulo),    slug,    "tipo": coalesce(category, tipo),    "descripcion": coalesce(description, descripcion),    version,    "fechaPublicacion": coalesce(publicationDate, fechaPublicacion),    "fechaVigencia": coalesce(effectiveDate, fechaVigencia),    "estado": select(      status == "current" => "vigente",      status == "superseded" => "reemplazado",      status == "repealed" => "obsoleto",      status == "vigente" => "vigente",      defined(estado) => estado,      "vigente"    ),    tematicas,    palabrasClave,    prioridad,    fundamental,    destacadoCatalogo,    icono,    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),    "archivoUrl": coalesce(file.asset->url, archivo.asset->url),    "archivoNombre": coalesce(file.asset->originalFilename, archivo.asset->originalFilename),    "comisionNombre": coalesce(owner->name, comision->nombre, "FECHITAT")  }
+export type DOCUMENTOS_OFICIALES_QUERY_RESULT = Array<
+  | {
+      _id: string;
+      _type: "documentoOficial";
+      titulo: string | null;
+      slug: Slug | null;
+      tipo:
+        | "comunicado"
+        | "estatuto"
+        | "formulario"
+        | "otro"
+        | "politica"
+        | "protocolo"
+        | "reglamento"
+        | null;
+      descripcion: string | null;
+      version: string | null;
+      fechaPublicacion: string | null;
+      fechaVigencia: string | null;
+      estado:
+        "archivado" | "obsoleto" | "reemplazado" | "sin-verificar" | "vigente";
+      tematicas: Array<string> | null;
+      palabrasClave: Array<string> | null;
+      prioridad: number | null;
+      fundamental: boolean | null;
+      destacadoCatalogo: boolean | null;
+      icono: "book-open" | "file-text" | "newspaper" | "wrench" | null;
+      fechaActualizacion: string;
+      archivoUrl: string | null;
+      archivoNombre: string | null;
+      comisionNombre: string | "FECHITAT";
+    }
+  | {
+      _id: string;
+      _type: "officialDocument";
+      titulo: string | null;
+      slug: Slug | null;
+      tipo:
+        | "circular"
+        | "minutes"
+        | "other"
+        | "protocol"
+        | "regulation"
+        | "resolution"
+        | "statutes"
+        | null;
+      descripcion: string | null;
+      version: string | null;
+      fechaPublicacion: string | null;
+      fechaVigencia: string | null;
+      estado: "obsoleto" | "reemplazado" | "vigente";
+      tematicas: Array<string> | null;
+      palabrasClave: Array<string> | null;
+      prioridad: number | null;
+      fundamental: boolean | null;
+      destacadoCatalogo: boolean | null;
+      icono: "book-open" | "file-text" | "newspaper" | "wrench" | null;
+      fechaActualizacion: string;
+      archivoUrl: string | null;
+      archivoNombre: string | null;
+      comisionNombre: string | "FECHITAT";
+    }
+>;
+
+// Source: ../src/lib/sanityQueries.ts
 // Variable: HITOS_HISTORICOS_QUERY
 // Query: *[_type == "historicalMilestone"] | order(year asc, date asc, order asc) {    _id,    title,    slug,    year,    date,    description,    order,    image  }
 export type HITOS_HISTORICOS_QUERY_RESULT = Array<{
@@ -1960,6 +2027,7 @@ declare global {
     '\n  *[_type == "post" && slug.current == $slug][0] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": publishedAt,\n    "autor": coalesce(author->name, "FECHITAT"),\n    "authorPerson": author->{\n      _id,\n      name,\n      dan,\n      legacyTitle\n    },\n    "extracto": excerpt,\n    "imagen": coverImage,\n    "imagenUrl": coverImage.asset->url,\n    "imagenAlt": coalesce(coverImage.alt, title),\n    "imagenFoco": coverImage.hotspot,\n    "categorias": categories,\n    palabrasClave,\n    tematicas,\n    prioridad,\n    fundamental,\n    destacadoCatalogo,\n    icono,\n    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),\n    "destacado": coalesce(featured, false),\n    "contenido": content\n  }\n': BLOG_POST_BY_SLUG_QUERY_RESULT;
     '\n  *[_type == "organizationUnit" && type == "board"][0] {\n    _id,\n    name,\n    description,\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': DIRECTORIO_OFICIAL_QUERY_RESULT;
     '\n  *[_type == "organizationUnit" && type in ["commission", "other"]] | order(order asc) {\n    _id,\n    name,\n    description,\n    type,\n    order,\n    parentUnit-> {\n      _id,\n      name\n    },\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': COMISIONES_QUERY_RESULT;
+    '\n  *[_type == "officialDocument" || _type == "documentoOficial"] | order(coalesce(publicationDate, fechaPublicacion) desc) {\n    _id,\n    _type,\n    "titulo": coalesce(title, titulo),\n    slug,\n    "tipo": coalesce(category, tipo),\n    "descripcion": coalesce(description, descripcion),\n    version,\n    "fechaPublicacion": coalesce(publicationDate, fechaPublicacion),\n    "fechaVigencia": coalesce(effectiveDate, fechaVigencia),\n    "estado": select(\n      status == "current" => "vigente",\n      status == "superseded" => "reemplazado",\n      status == "repealed" => "obsoleto",\n      status == "vigente" => "vigente",\n      defined(estado) => estado,\n      "vigente"\n    ),\n    tematicas,\n    palabrasClave,\n    prioridad,\n    fundamental,\n    destacadoCatalogo,\n    icono,\n    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),\n    "archivoUrl": coalesce(file.asset->url, archivo.asset->url),\n    "archivoNombre": coalesce(file.asset->originalFilename, archivo.asset->originalFilename),\n    "comisionNombre": coalesce(owner->name, comision->nombre, "FECHITAT")\n  }\n': DOCUMENTOS_OFICIALES_QUERY_RESULT;
     '\n  *[_type == "historicalMilestone"] | order(year asc, date asc, order asc) {\n    _id,\n    title,\n    slug,\n    year,\n    date,\n    description,\n    order,\n    image\n  }\n': HITOS_HISTORICOS_QUERY_RESULT;
     '\n  *[_type == "event" && status == "proximo" && startDate >= now()] | order(startDate asc)[0] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "destacado": featured,\n    "tieneGaleria": count(gallery) > 0\n  }\n': PROXIMO_EVENTO_DESTACADO_QUERY_RESULT;
     '\n  *[_type == "club" && active == true] | order(region asc, name asc) {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "ubicacion": location,\n    "logoUrl": logo.asset->url\n  }\n': ESCUELAS_MAPA_QUERY_RESULT;
