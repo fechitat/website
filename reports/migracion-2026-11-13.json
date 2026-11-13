@@ -1,7 +1,7 @@
 {
   "date": "2026-11-13",
-  "dataset": "production",
-  "mode": "dry-run",
+  "dataset": "staging",
+  "mode": "apply",
   "counts": {
     "source": {
       "miembroOrganigrama": 7,

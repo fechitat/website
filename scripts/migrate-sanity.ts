@@ -35,6 +35,16 @@ function getSanityToken(): string {
   if (process.env.SANITY_WRITE_TOKEN) {
     return process.env.SANITY_WRITE_TOKEN.trim();
   }
+  // Verificar credenciales de login Sanity CLI en ~/.config/sanity/config.json
+  const userConfigPath = path.join(process.env.HOME || '', '.config', 'sanity', 'config.json');
+  if (fs.existsSync(userConfigPath)) {
+    try {
+      const userCfg = JSON.parse(fs.readFileSync(userConfigPath, 'utf-8'));
+      if (userCfg.authToken) {
+        return userCfg.authToken.trim();
+      }
+    } catch {}
+  }
   const envPath = path.join(rootDir, 'sanity', '.env');
   if (fs.existsSync(envPath)) {
     const content = fs.readFileSync(envPath, 'utf-8');

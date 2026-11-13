@@ -1,8 +1,8 @@
 # Reporte de Migración Sanity FECHITAT — 2026-11-13
 
-**Dataset destino:** `production`  
-**Modo de ejecución:** `SIMULACIÓN (--dry-run)`  
-**Fecha:** 2026-11-13T01:42:31.122Z  
+**Dataset destino:** `staging`  
+**Modo de ejecución:** `APLICADO (--apply)`  
+**Fecha:** 2026-11-13T04:13:53.956Z  
 
 ---
 
