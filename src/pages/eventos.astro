@@ -32,11 +32,13 @@ const proximos = eventoPrincipal
   : proximosRaw;
 // Los eventos pasados restantes se cargan bajo demanda desde el endpoint.
 
-const labelTipo = (tipo: string) => {
-  if (tipo === "competencia") return "Competencia";
-  if (tipo === "examen") return "Examen";
-  if (tipo === "seminario") return "Seminario";
+const labelTipo = (tipo?: string | null) => {
+  if (tipo === "competencia" || tipo === "championship") return "Competencia";
+  if (tipo === "examen" || tipo === "exam") return "Examen";
+  if (tipo === "seminario" || tipo === "seminar") return "Seminario";
   if (tipo === "exhibicion") return "Exhibición";
+  if (tipo === "course") return "Curso";
+  if (tipo === "tournament") return "Torneo";
   return "Otro";
 };
 
@@ -276,6 +278,7 @@ const jsonLdEventoPrincipal = eventoPrincipal
                         {new Date(evento.fecha).toLocaleDateString("es-CL", {
                           day: "numeric",
                           month: "short",
+                          year: "numeric",
                         })}
                       </time>
                       {evento.fechaFin && (
@@ -285,6 +288,7 @@ const jsonLdEventoPrincipal = eventoPrincipal
                             {new Date(evento.fechaFin).toLocaleDateString("es-CL", {
                               day: "numeric",
                               month: "short",
+                              year: "numeric",
                             })}
                           </time>
                         </>
@@ -378,7 +382,7 @@ const jsonLdEventoPrincipal = eventoPrincipal
             } else contenido.appendChild(titulo);
             const fecha = document.createElement('p');
             fecha.className = 'text-text-soft text-sm mt-auto';
-            fecha.textContent = new Date(e.fecha).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' });
+            fecha.textContent = new Date(e.fecha).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' });
             contenido.appendChild(fecha);
             article.appendChild(contenido);
             fragmento.appendChild(article);

@@ -2,77 +2,155 @@ import {sanity} from './sanity.ts'
 import {defineQuery} from 'groq'
 import type { CatalogEntry } from '../features/recursos/catalogo.ts'
 
+/** Consulta tipada GROQ para todos los eventos ordenados por fecha */
+export const EVENTOS_QUERY = defineQuery(`
+  *[_type == "event"] | order(startDate desc) {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": startDate,
+    "fechaFin": endDate,
+    "tipo": type,
+    "estado": status,
+    "direccion": address,
+    "ciudad": city,
+    "lugar": venue,
+    "flyer": coverImage,
+    "descripcion": description,
+    "galeria": gallery,
+    "destacado": featured,
+    "tieneGaleria": count(gallery) > 0
+  }
+`);
+
 /** Obtener todos los eventos ordenados por fecha */
 export async function getEventos() {
-  return sanity.fetch(`*[_type == "evento"] | order(fecha desc)`)
+  return sanity.fetch(EVENTOS_QUERY);
 }
+
+/** Consulta tipada GROQ para rutas de eventos en el sitemap */
+export const EVENTOS_SITEMAP_QUERY = defineQuery(`
+  *[_type == "event" && defined(slug.current)] {
+    "slug": slug.current,
+    "updatedAt": _updatedAt
+  }
+`);
 
 /** Obtiene las rutas y fechas de actualización de eventos para el sitemap dinámico. */
 export async function getEventosSitemap(): Promise<Array<{ slug: string; updatedAt: string }>> {
-  return sanity.fetch<Array<{ slug: string; updatedAt: string }>>(
-    `*[_type == "evento" && defined(slug.current)] { "slug": slug.current, "updatedAt": _updatedAt }`,
-  );
+  return sanity.fetch<Array<{ slug: string; updatedAt: string }>>(EVENTOS_SITEMAP_QUERY);
 }
+
+/** Consulta tipada GROQ para próximos eventos (excluye el destacado principal) */
+export const PROXIMOS_EVENTOS_QUERY = defineQuery(`
+  *[_type == "event" && status == "proximo" && startDate >= now() && featured != true] | order(startDate asc) {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": startDate,
+    "fechaFin": endDate,
+    "tipo": type,
+    "estado": status,
+    "direccion": address,
+    "ciudad": city,
+    "lugar": venue,
+    "flyer": coverImage,
+    "descripcion": description,
+    "galeria": gallery,
+    "destacado": featured,
+    "tieneGaleria": count(gallery) > 0
+  }
+`);
 
 /** Obtener eventos próximos (excluye el destacado) */
 export async function getProximosEventos() {
-  return sanity.fetch(
-    `*[_type == "evento" && estado == "proximo" && fecha >= now() && destacado != true] | order(fecha asc) {
-      ...,
-      "tieneGaleria": count(galeria) > 0
-    }`
-  )
+  return sanity.fetch(PROXIMOS_EVENTOS_QUERY);
 }
+
+/** Consulta tipada GROQ para eventos pasados */
+export const EVENTOS_PASADOS_QUERY = defineQuery(`
+  *[_type == "event" && (status == "finalizado" || startDate < now())] | order(startDate desc) [0...$limite] {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": startDate,
+    "fechaFin": endDate,
+    "tipo": type,
+    "estado": status,
+    "direccion": address,
+    "ciudad": city,
+    "lugar": venue,
+    "flyer": coverImage,
+    "descripcion": description,
+    "galeria": gallery,
+    "tieneGaleria": count(gallery) > 0
+  }
+`);
 
 /** Obtener eventos pasados (limitado; el resto se carga con "Ver más") */
 export async function getEventosPasados(limite = 12) {
-  return sanity.fetch(
-    `*[_type == "evento" && (estado == "finalizado" || fecha < now())] | order(fecha desc) [0...${limite}] {
-      _id,
-      titulo,
-      slug,
-      fecha,
-      fechaFin,
-      tipo,
-      direccion,
-      ciudad,
-      lugar,
-      flyer,
-      descripcion,
-      "tieneGaleria": count(galeria) > 0
-    }`
-  )
+  return sanity.fetch(EVENTOS_PASADOS_QUERY, {limite});
 }
+
+/** Consulta tipada GROQ para eventos pasados paginados */
+export const EVENTOS_PASADOS_PAGINADOS_QUERY = defineQuery(`
+  *[_type == "event" && (status == "finalizado" || startDate < now())] | order(startDate desc) [$offset...$offsetEnd] {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": startDate,
+    "fechaFin": endDate,
+    "tipo": type,
+    "estado": status,
+    "direccion": address,
+    "ciudad": city,
+    "lugar": venue,
+    "flyer": coverImage,
+    "descripcion": description,
+    "tieneGaleria": count(gallery) > 0,
+    "flyerUrl": coverImage.asset->url
+  }
+`);
 
 /** Obtener eventos pasados paginados (offset/limite) para "Ver más" */
 export async function getEventosPasadosPaginados(offset = 0, limite = 12) {
-  return sanity.fetch(
-    `*[_type == "evento" && (estado == "finalizado" || fecha < now())] | order(fecha desc) [${offset}...${offset + limite}] {
-      _id,
-      titulo,
-      slug,
-      fecha,
-      fechaFin,
-      tipo,
-      direccion,
-      ciudad,
-      lugar,
-      flyer,
-      descripcion,
-      "tieneGaleria": count(galeria) > 0,
-      "flyerUrl": flyer.asset->url
-    }`
-  )
+  return sanity.fetch(EVENTOS_PASADOS_PAGINADOS_QUERY, {offset, offsetEnd: offset + limite});
 }
+
+/** Consulta tipada GROQ para total de eventos pasados */
+export const TOTAL_EVENTOS_PASADOS_QUERY = defineQuery(`
+  count(*[_type == "event" && (status == "finalizado" || startDate < now())])
+`);
 
 /** Contar eventos pasados (para saber si hay más) */
 export async function getTotalEventosPasados() {
-  return sanity.fetch(`count(*[_type == "evento" && (estado == "finalizado" || fecha < now())])`)
+  return sanity.fetch(TOTAL_EVENTOS_PASADOS_QUERY);
 }
+
+/** Consulta tipada GROQ para evento por slug */
+export const EVENTO_BY_SLUG_QUERY = defineQuery(`
+  *[_type == "event" && slug.current == $slug][0] {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": startDate,
+    "fechaFin": endDate,
+    "tipo": type,
+    "estado": status,
+    "direccion": address,
+    "ciudad": city,
+    "lugar": venue,
+    "flyer": coverImage,
+    "descripcion": description,
+    "galeria": gallery,
+    "destacado": featured,
+    "tieneGaleria": count(gallery) > 0
+  }
+`);
 
 /** Obtener evento por slug */
 export async function getEventoBySlug(slug: string) {
-  return sanity.fetch(`*[_type == "evento" && slug.current == $slug][0]`, {slug})
+  return sanity.fetch(EVENTO_BY_SLUG_QUERY, {slug});
 }
 
 /** Consulta tipada GROQ para listado de escuelas/clubes */
@@ -476,14 +554,29 @@ export async function getMetricas() {
   return sanity.fetch(`*[_type == "metrica" && activo == true] | order(orden asc)`)
 }
 
+/** Consulta tipada GROQ para próximo evento destacado */
+export const PROXIMO_EVENTO_DESTACADO_QUERY = defineQuery(`
+  *[_type == "event" && status == "proximo" && startDate >= now()] | order(startDate asc)[0] {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": startDate,
+    "fechaFin": endDate,
+    "tipo": type,
+    "estado": status,
+    "direccion": address,
+    "ciudad": city,
+    "lugar": venue,
+    "flyer": coverImage,
+    "descripcion": description,
+    "destacado": featured,
+    "tieneGaleria": count(gallery) > 0
+  }
+`);
+
 /** Obtener el próximo evento destacado */
 export async function getProximoEventoDestacado() {
-  return sanity.fetch(
-    `*[_type == "evento" && estado == "proximo" && fecha >= now()] | order(fecha asc)[0] {
-      ...,
-      "tieneGaleria": count(galeria) > 0
-    }`
-  )
+  return sanity.fetch(PROXIMO_EVENTO_DESTACADO_QUERY);
 }
 
 /** Consulta tipada GROQ para mapa de escuelas en portada */
@@ -582,24 +675,37 @@ export async function getTestimonios() {
   return sanity.fetch(`*[_type == "testimonio"] | order(orden asc)`)
 }
 
+/** Consulta tipada GROQ para eventos en calendario por rango de fechas */
+export const EVENTOS_CALENDARIO_QUERY = defineQuery(`
+  *[_type == "event" && startDate >= $inicio && startDate <= $fin] | order(startDate asc) {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": startDate,
+    "fechaFin": endDate,
+    "tipo": type,
+    "estado": status,
+    "direccion": address,
+    "ciudad": city,
+    "lugar": venue,
+    "flyer": coverImage,
+    "descripcion": description,
+    "tieneGaleria": count(gallery) > 0
+  }
+`);
+
 /** Obtener eventos del calendario (por mes/año) */
 export async function getEventosCalendario(anio: number, mes?: number) {
   if (mes) {
-    return sanity.fetch(
-      `*[_type == "evento" && fecha >= $inicio && fecha <= $fin] | order(fecha asc)`,
-      {
-        inicio: `${anio}-${String(mes).padStart(2, '0')}-01`,
-        fin: `${anio}-${String(mes).padStart(2, '0')}-31`,
-      }
-    )
+    return sanity.fetch(EVENTOS_CALENDARIO_QUERY, {
+      inicio: `${anio}-${String(mes).padStart(2, '0')}-01`,
+      fin: `${anio}-${String(mes).padStart(2, '0')}-31`,
+    });
   }
-  return sanity.fetch(
-    `*[_type == "evento" && fecha >= $inicio && fecha <= $fin] | order(fecha asc)`,
-    {
-      inicio: `${anio}-01-01`,
-      fin: `${anio}-12-31`,
-    }
-  )
+  return sanity.fetch(EVENTOS_CALENDARIO_QUERY, {
+    inicio: `${anio}-01-01`,
+    fin: `${anio}-12-31`,
+  });
 }
 
 /** Obtener camisetas/uniformes históricos ordenados cronológicamente */

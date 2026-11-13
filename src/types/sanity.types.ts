@@ -1218,6 +1218,180 @@ export type AllSanitySchemaTypes =
   | SanityImageAsset;
 
 // Source: ../src/lib/sanityQueries.ts
+// Variable: EVENTOS_QUERY
+// Query: *[_type == "event"] | order(startDate desc) {    _id,    "titulo": title,    slug,    "fecha": startDate,    "fechaFin": endDate,    "tipo": type,    "estado": status,    "direccion": address,    "ciudad": city,    "lugar": venue,    "flyer": coverImage,    "descripcion": description,    "galeria": gallery,    "destacado": featured,    "tieneGaleria": count(gallery) > 0  }
+export type EVENTOS_QUERY_RESULT = Array<{
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  fechaFin: string | null;
+  tipo: "championship" | "exam" | "other" | "seminar" | null;
+  estado: "cancelado" | "en_curso" | "finalizado" | "proximo" | null;
+  direccion: string | null;
+  ciudad: string | null;
+  lugar: string | null;
+  flyer: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  descripcion: string | null;
+  galeria: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  }> | null;
+  destacado: boolean | null;
+  tieneGaleria: boolean | null;
+}>;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: EVENTOS_SITEMAP_QUERY
+// Query: *[_type == "event" && defined(slug.current)] {    "slug": slug.current,    "updatedAt": _updatedAt  }
+export type EVENTOS_SITEMAP_QUERY_RESULT = Array<{
+  slug: string | null;
+  updatedAt: string;
+}>;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: PROXIMOS_EVENTOS_QUERY
+// Query: *[_type == "event" && status == "proximo" && startDate >= now() && featured != true] | order(startDate asc) {    _id,    "titulo": title,    slug,    "fecha": startDate,    "fechaFin": endDate,    "tipo": type,    "estado": status,    "direccion": address,    "ciudad": city,    "lugar": venue,    "flyer": coverImage,    "descripcion": description,    "galeria": gallery,    "destacado": featured,    "tieneGaleria": count(gallery) > 0  }
+export type PROXIMOS_EVENTOS_QUERY_RESULT = Array<{
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  fechaFin: string | null;
+  tipo: "championship" | "exam" | "other" | "seminar" | null;
+  estado: "cancelado" | "en_curso" | "finalizado" | "proximo" | null;
+  direccion: string | null;
+  ciudad: string | null;
+  lugar: string | null;
+  flyer: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  descripcion: string | null;
+  galeria: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  }> | null;
+  destacado: boolean | null;
+  tieneGaleria: boolean | null;
+}>;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: EVENTOS_PASADOS_QUERY
+// Query: *[_type == "event" && (status == "finalizado" || startDate < now())] | order(startDate desc) [0...$limite] {    _id,    "titulo": title,    slug,    "fecha": startDate,    "fechaFin": endDate,    "tipo": type,    "estado": status,    "direccion": address,    "ciudad": city,    "lugar": venue,    "flyer": coverImage,    "descripcion": description,    "galeria": gallery,    "tieneGaleria": count(gallery) > 0  }
+export type EVENTOS_PASADOS_QUERY_RESULT = Array<{
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  fechaFin: string | null;
+  tipo: "championship" | "exam" | "other" | "seminar" | null;
+  estado: "cancelado" | "en_curso" | "finalizado" | "proximo" | null;
+  direccion: string | null;
+  ciudad: string | null;
+  lugar: string | null;
+  flyer: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  descripcion: string | null;
+  galeria: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  }> | null;
+  tieneGaleria: boolean | null;
+}>;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: EVENTOS_PASADOS_PAGINADOS_QUERY
+// Query: *[_type == "event" && (status == "finalizado" || startDate < now())] | order(startDate desc) [$offset...$offsetEnd] {    _id,    "titulo": title,    slug,    "fecha": startDate,    "fechaFin": endDate,    "tipo": type,    "estado": status,    "direccion": address,    "ciudad": city,    "lugar": venue,    "flyer": coverImage,    "descripcion": description,    "tieneGaleria": count(gallery) > 0,    "flyerUrl": coverImage.asset->url  }
+export type EVENTOS_PASADOS_PAGINADOS_QUERY_RESULT = Array<{
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  fechaFin: string | null;
+  tipo: "championship" | "exam" | "other" | "seminar" | null;
+  estado: "cancelado" | "en_curso" | "finalizado" | "proximo" | null;
+  direccion: string | null;
+  ciudad: string | null;
+  lugar: string | null;
+  flyer: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  descripcion: string | null;
+  tieneGaleria: boolean | null;
+  flyerUrl: string | null;
+}>;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: TOTAL_EVENTOS_PASADOS_QUERY
+// Query: count(*[_type == "event" && (status == "finalizado" || startDate < now())])
+export type TOTAL_EVENTOS_PASADOS_QUERY_RESULT = number;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: EVENTO_BY_SLUG_QUERY
+// Query: *[_type == "event" && slug.current == $slug][0] {    _id,    "titulo": title,    slug,    "fecha": startDate,    "fechaFin": endDate,    "tipo": type,    "estado": status,    "direccion": address,    "ciudad": city,    "lugar": venue,    "flyer": coverImage,    "descripcion": description,    "galeria": gallery,    "destacado": featured,    "tieneGaleria": count(gallery) > 0  }
+export type EVENTO_BY_SLUG_QUERY_RESULT = {
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  fechaFin: string | null;
+  tipo: "championship" | "exam" | "other" | "seminar" | null;
+  estado: "cancelado" | "en_curso" | "finalizado" | "proximo" | null;
+  direccion: string | null;
+  ciudad: string | null;
+  lugar: string | null;
+  flyer: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  descripcion: string | null;
+  galeria: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  }> | null;
+  destacado: boolean | null;
+  tieneGaleria: boolean | null;
+} | null;
+
+// Source: ../src/lib/sanityQueries.ts
 // Variable: ESCUELAS_QUERY
 // Query: *[_type == "club" && active == true] | order(name asc) {    _id,    "nombre": name,    slug,    "ciudad": city,    region,    "direccion": address,    whatsapp,    "email": contactEmail,    description,    "foto": coverImage,    logo,    "instructor": president->name,    president-> {      _id,      name,      dan,      legacyTitle,      portrait    },    schedule,    location,    socialLinks  }
 export type ESCUELAS_QUERY_RESULT = Array<{
@@ -1486,6 +1660,32 @@ export type HITOS_HISTORICOS_QUERY_RESULT = Array<{
 }>;
 
 // Source: ../src/lib/sanityQueries.ts
+// Variable: PROXIMO_EVENTO_DESTACADO_QUERY
+// Query: *[_type == "event" && status == "proximo" && startDate >= now()] | order(startDate asc)[0] {    _id,    "titulo": title,    slug,    "fecha": startDate,    "fechaFin": endDate,    "tipo": type,    "estado": status,    "direccion": address,    "ciudad": city,    "lugar": venue,    "flyer": coverImage,    "descripcion": description,    "destacado": featured,    "tieneGaleria": count(gallery) > 0  }
+export type PROXIMO_EVENTO_DESTACADO_QUERY_RESULT = {
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  fechaFin: string | null;
+  tipo: "championship" | "exam" | "other" | "seminar" | null;
+  estado: "cancelado" | "en_curso" | "finalizado" | "proximo" | null;
+  direccion: string | null;
+  ciudad: string | null;
+  lugar: string | null;
+  flyer: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  descripcion: string | null;
+  destacado: boolean | null;
+  tieneGaleria: boolean | null;
+} | null;
+
+// Source: ../src/lib/sanityQueries.ts
 // Variable: ESCUELAS_MAPA_QUERY
 // Query: *[_type == "club" && active == true] | order(region asc, name asc) {    _id,    "nombre": name,    slug,    "ciudad": city,    region,    "ubicacion": location,    "logoUrl": logo.asset->url  }
 export type ESCUELAS_MAPA_QUERY_RESULT = Array<{
@@ -1515,15 +1715,49 @@ export type ESCUELAS_MAPA_QUERY_RESULT = Array<{
   logoUrl: string | null;
 }>;
 
+// Source: ../src/lib/sanityQueries.ts
+// Variable: EVENTOS_CALENDARIO_QUERY
+// Query: *[_type == "event" && startDate >= $inicio && startDate <= $fin] | order(startDate asc) {    _id,    "titulo": title,    slug,    "fecha": startDate,    "fechaFin": endDate,    "tipo": type,    "estado": status,    "direccion": address,    "ciudad": city,    "lugar": venue,    "flyer": coverImage,    "descripcion": description,    "tieneGaleria": count(gallery) > 0  }
+export type EVENTOS_CALENDARIO_QUERY_RESULT = Array<{
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  fechaFin: string | null;
+  tipo: "championship" | "exam" | "other" | "seminar" | null;
+  estado: "cancelado" | "en_curso" | "finalizado" | "proximo" | null;
+  direccion: string | null;
+  ciudad: string | null;
+  lugar: string | null;
+  flyer: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  descripcion: string | null;
+  tieneGaleria: boolean | null;
+}>;
+
 // Query TypeMap
 declare global {
   interface SanityQueries {
+    '\n  *[_type == "event"] | order(startDate desc) {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "galeria": gallery,\n    "destacado": featured,\n    "tieneGaleria": count(gallery) > 0\n  }\n': EVENTOS_QUERY_RESULT;
+    '\n  *[_type == "event" && defined(slug.current)] {\n    "slug": slug.current,\n    "updatedAt": _updatedAt\n  }\n': EVENTOS_SITEMAP_QUERY_RESULT;
+    '\n  *[_type == "event" && status == "proximo" && startDate >= now() && featured != true] | order(startDate asc) {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "galeria": gallery,\n    "destacado": featured,\n    "tieneGaleria": count(gallery) > 0\n  }\n': PROXIMOS_EVENTOS_QUERY_RESULT;
+    '\n  *[_type == "event" && (status == "finalizado" || startDate < now())] | order(startDate desc) [0...$limite] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "galeria": gallery,\n    "tieneGaleria": count(gallery) > 0\n  }\n': EVENTOS_PASADOS_QUERY_RESULT;
+    '\n  *[_type == "event" && (status == "finalizado" || startDate < now())] | order(startDate desc) [$offset...$offsetEnd] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "tieneGaleria": count(gallery) > 0,\n    "flyerUrl": coverImage.asset->url\n  }\n': EVENTOS_PASADOS_PAGINADOS_QUERY_RESULT;
+    '\n  count(*[_type == "event" && (status == "finalizado" || startDate < now())])\n': TOTAL_EVENTOS_PASADOS_QUERY_RESULT;
+    '\n  *[_type == "event" && slug.current == $slug][0] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "galeria": gallery,\n    "destacado": featured,\n    "tieneGaleria": count(gallery) > 0\n  }\n': EVENTO_BY_SLUG_QUERY_RESULT;
     '\n  *[_type == "club" && active == true] | order(name asc) {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "direccion": address,\n    whatsapp,\n    "email": contactEmail,\n    description,\n    "foto": coverImage,\n    logo,\n    "instructor": president->name,\n    president-> {\n      _id,\n      name,\n      dan,\n      legacyTitle,\n      portrait\n    },\n    schedule,\n    location,\n    socialLinks\n  }\n': ESCUELAS_QUERY_RESULT;
     '\n  *[_type == "club" && slug.current == $slug][0] {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "direccion": address,\n    whatsapp,\n    "email": contactEmail,\n    description,\n    "foto": coverImage,\n    logo,\n    "instructor": president->name,\n    president-> {\n      _id,\n      name,\n      dan,\n      legacyTitle,\n      portrait\n    },\n    schedule,\n    location,\n    socialLinks\n  }\n': ESCUELA_BY_SLUG_QUERY_RESULT;
     '\n  *[_type == "organizationUnit" && type == "board"][0] {\n    _id,\n    name,\n    description,\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': DIRECTORIO_OFICIAL_QUERY_RESULT;
     '\n  *[_type == "organizationUnit" && type in ["commission", "other"]] | order(order asc) {\n    _id,\n    name,\n    description,\n    type,\n    order,\n    parentUnit-> {\n      _id,\n      name\n    },\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': COMISIONES_QUERY_RESULT;
     '\n  *[_type == "historicalMilestone"] | order(year asc, date asc, order asc) {\n    _id,\n    title,\n    slug,\n    year,\n    date,\n    description,\n    order,\n    image\n  }\n': HITOS_HISTORICOS_QUERY_RESULT;
+    '\n  *[_type == "event" && status == "proximo" && startDate >= now()] | order(startDate asc)[0] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "destacado": featured,\n    "tieneGaleria": count(gallery) > 0\n  }\n': PROXIMO_EVENTO_DESTACADO_QUERY_RESULT;
     '\n  *[_type == "club" && active == true] | order(region asc, name asc) {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "ubicacion": location,\n    "logoUrl": logo.asset->url\n  }\n': ESCUELAS_MAPA_QUERY_RESULT;
+    '\n  *[_type == "event" && startDate >= $inicio && startDate <= $fin] | order(startDate asc) {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "tieneGaleria": count(gallery) > 0\n  }\n': EVENTOS_CALENDARIO_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

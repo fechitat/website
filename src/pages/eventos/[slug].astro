@@ -20,11 +20,13 @@ const fotosConUrl = fotos.map((foto, indice) => ({
   original: urlFor(foto).width(1400).auto('format').quality(80).url(),
 }));
 
-const labelTipo = (tipo: string) => {
-  if (tipo === 'competencia') return 'Competencia';
-  if (tipo === 'examen') return 'Examen';
-  if (tipo === 'seminario') return 'Seminario';
+const labelTipo = (tipo?: string | null) => {
+  if (tipo === 'competencia' || tipo === 'championship') return 'Competencia';
+  if (tipo === 'examen' || tipo === 'exam') return 'Examen';
+  if (tipo === 'seminario' || tipo === 'seminar') return 'Seminario';
   if (tipo === 'exhibicion') return 'Exhibición';
+  if (tipo === 'course') return 'Curso';
+  if (tipo === 'tournament') return 'Torneo';
   return 'Otro';
 };
 
