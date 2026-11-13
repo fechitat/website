@@ -323,7 +323,7 @@ Matriz exhaustiva que asegura que **ningún campo con uso se pierda** durante la
 | `redes.youtube` | `url` | `socialLinks[]` | `array (object)` | `{platform: 'youtube', url: '...'}`. |
 | `descripcion` | `text` | `description` | `text` | Descripción editorial del club. |
 | `activo` | `boolean` | `active` | `boolean` | Estado de afiliación activa. |
-| *(Nuevo)* | - | `schedule[]` | `array (object)` | `{group, days[], startTime, endTime}` para horarios estructurados. |
+| *(Plantilla Astro: `escuelas/[slug].astro` L193-233)* | HTML fijo en código | `schedule[]` | `array (object)` | `{group, days[], startTime, endTime}`. Pasa de tabla estática en plantilla a administrable en Sanity. |
 
 ### 8.5 Documentos Oficiales (`documentoOficial` → `officialDocument`)
 | Campo Antiguo (`documentoOficial`) | Tipo Antiguo | Destino Nuevo (`officialDocument`) | Tipo Nuevo | Transformación / Justificación |
@@ -350,7 +350,9 @@ Matriz exhaustiva que asegura que **ningún campo con uso se pierda** durante la
 | `fechaFin` | `datetime` | `endDate` | `datetime` | Fecha y hora de término (opcional). |
 | `tipo` | `string (enum)` | `type` | `string (enum)` | `competencia` → `championship`, `seminario` → `seminar`, `examen` → `exam`. |
 | `estado` | `string (enum)` | `status` | `string (enum)` | Se preserva para override manual, complementado con cálculo temporal en Chile. |
-| `direccion`, `ciudad`, `lugar` | `string` | `location` | `string` | Normalizado preservando `ciudad` y `lugar` requeridos por la vista y SEO. |
+| `ciudad` | `string` | `city` | `string` | Ciudad del evento (ej. "Santiago", "Turkistan"). |
+| `lugar` | `string` | `venue` | `string` | Recinto o venue del evento (ej. "Jesolo, Italia", "Santiago, Chile"). |
+| `direccion` | `string` | `address` | `string` | Dirección física detallada (ej. "Cerro Navia, Santiago"). |
 | `flyer` | `image (hotspot)` | `coverImage` | `image (hotspot)` | Afiche oficial del evento con hotspot. |
 | `galeria` | `array (image)` | `gallery` | `array (image)` | Fotografías del evento para el carrusel de detalle. |
 | `descripcion` | `text` | `description` | `text` | Detalles informativos y bases generales. |

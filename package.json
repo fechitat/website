@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "typegen": "pnpm --dir sanity typegen",
     "preview": "astro preview",
     "astro": "astro"
   },
