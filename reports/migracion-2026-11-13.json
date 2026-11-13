@@ -1,6 +1,6 @@
 {
   "date": "2026-11-13",
-  "dataset": "staging",
+  "dataset": "production",
   "mode": "apply",
   "counts": {
     "source": {
