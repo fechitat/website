@@ -1,0 +1,191 @@
+{
+  "date": "2026-11-13",
+  "dataset": "production",
+  "mode": "dry-run",
+  "counts": {
+    "source": {
+      "miembroOrganigrama": 7,
+      "comision": 2,
+      "escuela": 14,
+      "documentoOficial": 1,
+      "evento": 4,
+      "blogPost": 2,
+      "hitoHistorico": 5,
+      "metrica": 2
+    },
+    "target": {
+      "person": 8,
+      "organizationUnit": 3,
+      "club": 14,
+      "officialDocument": 1,
+      "event": 4,
+      "post": 2,
+      "historicalMilestone": 5,
+      "federation": 1
+    },
+    "draftsSkipped": 3
+  },
+  "personsDeduplicated": [
+    {
+      "normalizedName": "Juan Bravo",
+      "sources": [
+        "743db8c7-92f8-4c92-a5c1-efd8a11db2fa",
+        "escuela:quauhtli"
+      ],
+      "personId": "person.juan-bravo"
+    },
+    {
+      "normalizedName": "Osvaldo Rojas",
+      "sources": [
+        "b4a28fea-64e2-43a1-9b32-b47cc13aec06",
+        "escuela:silla-la-serena"
+      ],
+      "personId": "person.osvaldo-rojas"
+    },
+    {
+      "normalizedName": "Antonia Astorga",
+      "sources": [
+        "4d1d06bc-7e7f-4e8a-be1e-97216d4e6046",
+        "escuela:silla-santiago"
+      ],
+      "personId": "person.antonia-astorga"
+    }
+  ],
+  "normalizations": {
+    "persons": [
+      {
+        "original": "Sb.Antonia Astorga",
+        "normalizedName": "Antonia Astorga",
+        "dan": null,
+        "legacyTitle": "Sb.",
+        "resultingId": "person.antonia-astorga"
+      },
+      {
+        "original": "Sb.Jose Reyes",
+        "normalizedName": "Jose Reyes",
+        "dan": null,
+        "legacyTitle": "Sb.",
+        "resultingId": "person.jose-reyes"
+      },
+      {
+        "original": "Sb.Juan Bravo",
+        "normalizedName": "Juan Bravo",
+        "dan": null,
+        "legacyTitle": "Sb.",
+        "resultingId": "person.juan-bravo"
+      },
+      {
+        "original": "Sb.Jonathan Palma",
+        "normalizedName": "Jonathan Palma",
+        "dan": 4,
+        "legacyTitle": null,
+        "resultingId": "person.jonathan-palma"
+      },
+      {
+        "original": "Javier Muñoz",
+        "normalizedName": "Javier Muñoz",
+        "dan": 3,
+        "legacyTitle": null,
+        "resultingId": "person.javier-munoz"
+      },
+      {
+        "original": "Osvaldo Rojas",
+        "normalizedName": "Osvaldo Rojas",
+        "dan": null,
+        "legacyTitle": null,
+        "resultingId": "person.osvaldo-rojas"
+      },
+      {
+        "original": "Bs.Alfredo Puyol",
+        "normalizedName": "Alfredo Puyol",
+        "dan": null,
+        "legacyTitle": "Bs.",
+        "resultingId": "person.alfredo-puyol"
+      },
+      {
+        "original": "Bs.Felipe Plaza",
+        "normalizedName": "Felipe Plaza",
+        "dan": null,
+        "legacyTitle": "Bs.",
+        "resultingId": "person.felipe-plaza"
+      }
+    ],
+    "schools": [
+      {
+        "school": "Club Deportivo Quauhtli",
+        "field": "city",
+        "original": "Sindempart, Coquimbo",
+        "normalized": "Coquimbo"
+      },
+      {
+        "school": "Academia Sipjin Coquimbo",
+        "field": "whatsapp",
+        "original": "+56 9 9270 1908",
+        "normalized": "56992701908"
+      },
+      {
+        "school": "So San-Do",
+        "field": "whatsapp",
+        "original": "+56 9 7456 4339",
+        "normalized": "56974564339"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Expansión a regiones",
+        "year": 2011,
+        "date": null,
+        "order": 2,
+        "note": "Orden cronológico 2 (Sin fecha falsa)"
+      },
+      {
+        "title": "Creación de FECHITAT",
+        "year": 2011,
+        "date": "2011-06-01",
+        "order": 1,
+        "note": "Orden cronológico 1 (Fundación)"
+      }
+    ]
+  },
+  "missingData": {
+    "schoolsWithoutPresident": [
+      "Espiritu de Honor",
+      "Club Deportivo Espíritu Indomable",
+      "Jung Do Kwan Ovalle",
+      "Escuela Kings TKD",
+      "Club Deportivo Pyujeon Kwan",
+      "Escuela Pyujeon Kwan Iquique",
+      "Quauhtli Guanaqueros",
+      "Sil-la Coquimbo",
+      "So San-Do",
+      "Universidad del Alba"
+    ],
+    "schoolsWithoutLocationOrLogo": [
+      "Jung Do Kwan Ovalle",
+      "Escuela Kings TKD",
+      "Club Deportivo Pyujeon Kwan",
+      "Escuela Pyujeon Kwan Iquique"
+    ],
+    "lowResPortraits": [
+      "Antonia Astorga (image-18e9f68bbdd11d327bd99bf4986fe148ff6ae927-100x100-png)",
+      "Jose Reyes (image-5dfb78a9d81de4cdf923988756218a279a7982c8-100x100-png)",
+      "Juan Bravo (image-38325b7851716c87730d3101017e0612de62d471-100x100-png)",
+      "Jonathan Palma (image-340fd20e04c98ef63c528f5a973c3b7ceac0283e-100x100-png)",
+      "Javier Muñoz (image-50a0c8029f2eb1318544f72318c70a76186dc559-100x100-png)",
+      "Alfredo Puyol (image-6417c53b60fd4021df531ba9125ec6db60916ce2-100x100-png)"
+    ],
+    "personsWithoutDan": [
+      "Antonia Astorga",
+      "Jose Reyes",
+      "Juan Bravo",
+      "Osvaldo Rojas",
+      "Alfredo Puyol",
+      "Felipe Plaza"
+    ]
+  },
+  "draftsList": [
+    "drafts.98d4994b-dc04-4819-82f7-40a61bc7d756",
+    "drafts.PvZDPMYPRMMM1Fg3hgYISa",
+    "drafts.escuela-silla-la-serena"
+  ]
+}
