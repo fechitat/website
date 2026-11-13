@@ -203,7 +203,7 @@ async function runMigration() {
     }
 
     const personDoc = {
-      _id: `person.${slug}`,
+      _id: `person-${slug}`,
       _type: 'person',
       name: cleanName,
       slug: {_type: 'slug', current: slug},
@@ -255,7 +255,7 @@ async function runMigration() {
     } else {
       // Persona nueva originada desde escuela
       const personDoc = {
-        _id: `person.${slug}`,
+        _id: `person-${slug}`,
         _type: 'person',
         name: cleanName,
         slug: {_type: 'slug', current: slug},
@@ -325,7 +325,7 @@ async function runMigration() {
     }));
 
   const boardDoc = {
-    _id: 'unit.directorio-oficial',
+    _id: 'unit-directorio-oficial',
     _type: 'organizationUnit',
     name: 'Directorio Oficial',
     slug: {_type: 'slug', current: 'directorio-oficial'},
@@ -351,12 +351,12 @@ async function runMigration() {
   }) || [];
 
   const disciplinaDoc = {
-    _id: 'unit.comision-de-disciplina',
+    _id: 'unit-comision-de-disciplina',
     _type: 'organizationUnit',
     name: 'Comisión de Disciplina',
     slug: {_type: 'slug', current: 'comision-de-disciplina'},
     type: 'commission',
-    parentUnit: {_type: 'reference', _ref: 'unit.directorio-oficial'},
+    parentUnit: {_type: 'reference', _ref: 'unit-directorio-oficial'},
     order: 1,
     members: disciplinaMembers,
   };
@@ -369,17 +369,17 @@ async function runMigration() {
   const dpcPersonRef = findPersonRef(dpcOriginalMember?.nombre);
 
   const dpcDoc = {
-    _id: 'unit.proteccion-de-datos',
+    _id: 'unit-proteccion-de-datos',
     _type: 'organizationUnit',
     name: 'Coordinador de Protección de Datos (DPC)',
     slug: {_type: 'slug', current: 'proteccion-de-datos'},
     type: 'other',
-    parentUnit: {_type: 'reference', _ref: 'unit.directorio-oficial'},
+    parentUnit: {_type: 'reference', _ref: 'unit-directorio-oficial'},
     order: 2,
     members: [
       {
         _key: 'dpc-member-1',
-        person: dpcPersonRef || {_type: 'reference', _ref: 'person.alfredo-puyol'},
+        person: dpcPersonRef || {_type: 'reference', _ref: 'person-alfredo-puyol'},
         role: 'Coordinador',
         contactEmail: dpcOriginalMember?.email || 'dpc@fechitat.cl',
         order: 1,
@@ -434,7 +434,7 @@ async function runMigration() {
     const presidentRef = findPersonRef(esc.instructor);
 
     const clubDoc: any = {
-      _id: `club.${slug}`,
+      _id: `club-${slug}`,
       _type: 'club',
       name: esc.nombre,
       slug: {_type: 'slug', current: slug},
@@ -482,7 +482,7 @@ async function runMigration() {
     const cleanTitle = (doc.titulo || '').trim();
 
     const officialDoc = {
-      _id: `officialDocument.${slug}`,
+      _id: `doc-${slug}`,
       _type: 'officialDocument',
       title: cleanTitle,
       slug: {_type: 'slug', current: slug},
@@ -493,7 +493,7 @@ async function runMigration() {
       effectiveDate: doc.fechaVigencia || doc.fechaPublicacion,
       version: doc.version || 'Edición 2026',
       status: doc.estado === 'vigente' ? 'current' : doc.estado || 'current',
-      owner: {_type: 'reference', _ref: 'unit.comision-de-disciplina'},
+      owner: {_type: 'reference', _ref: 'unit-comision-de-disciplina'},
       order: doc.orden ?? 0,
       tematicas: doc.tematicas,
       palabrasClave: doc.palabrasClave,
@@ -518,7 +518,7 @@ async function runMigration() {
   for (const ev of eventos) {
     const slug = ev.slug?.current || slugify(ev.titulo);
     const eventDoc = {
-      _id: `event.${slug}`,
+      _id: `event-${slug}`,
       _type: 'event',
       title: ev.titulo,
       slug: {_type: 'slug', current: slug},
@@ -552,7 +552,7 @@ async function runMigration() {
   for (const post of posts) {
     const slug = post.slug?.current || slugify(post.titulo);
     const postDoc = {
-      _id: `post.${slug}`,
+      _id: `post-${slug}`,
       _type: 'post',
       title: post.titulo,
       slug: {_type: 'slug', current: slug},
@@ -617,7 +617,7 @@ async function runMigration() {
     }
 
     const milestoneDoc = {
-      _id: `historicalMilestone.${slug}`,
+      _id: `milestone-${slug}`,
       _type: 'historicalMilestone',
       title: hito.titulo,
       slug: {_type: 'slug', current: slug},
@@ -695,6 +695,24 @@ async function runMigration() {
   if (isApply) {
     console.log(`\n🚀 APLICANDO ${mutations.length} MUTACIONES EN SANITY [${targetDataset}]...`);
     const transaction = client.transaction();
+
+    // Eliminar documentos con prefijo de punto (incompatibles con ACL pública de Sanity)
+    const oldDotDocs = await client.fetch<Array<{_id: string}>>(`*[
+      _id in path("person.**") ||
+      _id in path("unit.**") ||
+      _id in path("club.**") ||
+      _id in path("officialDocument.**") ||
+      _id in path("event.**") ||
+      _id in path("post.**") ||
+      _id in path("historicalMilestone.**")
+    ]{_id}`);
+    if (oldDotDocs.length > 0) {
+      console.log(`   Limpiando ${oldDotDocs.length} IDs previos con prefijo de punto...`);
+      for (const d of oldDotDocs) {
+        transaction.delete(d._id);
+      }
+    }
+
     for (const m of mutations) {
       if (m.createOrReplace) {
         transaction.createOrReplace(m.createOrReplace);

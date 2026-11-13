@@ -1,4 +1,5 @@
 import {sanity} from './sanity.ts'
+import {defineQuery} from 'groq'
 import type { CatalogEntry } from '../features/recursos/catalogo.ts'
 
 /** Obtener todos los eventos ordenados por fecha */
@@ -179,7 +180,7 @@ export async function getBlogPostBySlug(slug: string) {
   return sanity.fetch(`*[_type == "blogPost" && slug.current == $slug][0]`, {slug})
 }
 
-/** Obtener integrantes del directorio, excluyendo las comisiones */
+/** Obtener integrantes del directorio, excluyendo las comisiones (Legado) */
 export async function getOrganigrama() {
   return sanity.fetch(
     `*[_type == "miembroOrganigrama" && activo == true && nivel != "comision"] | order(orden asc, nombre asc) {
@@ -195,7 +196,57 @@ export async function getOrganigrama() {
   )
 }
 
-/** Obtener las comisiones activas y sus integrantes */
+export interface BoardMemberResult {
+  _key: string;
+  role?: string | null;
+  contactEmail?: string | null;
+  order?: number | null;
+  person: {
+    _id: string;
+    name: string;
+    dan?: number | null;
+    legacyTitle?: string | null;
+    portrait?: any;
+    shortBio?: string | null;
+  };
+}
+
+export interface BoardResult {
+  _id: string;
+  name: string;
+  description?: unknown;
+  members: BoardMemberResult[];
+}
+
+/** Consulta tipada GROQ para el Directorio Oficial de FECHITAT */
+export const DIRECTORIO_OFICIAL_QUERY = defineQuery(`
+  *[_type == "organizationUnit" && type == "board"][0] {
+    _id,
+    name,
+    description,
+    "members": coalesce(members[] | order(order asc) {
+      _key,
+      role,
+      contactEmail,
+      order,
+      person-> {
+        _id,
+        name,
+        dan,
+        legacyTitle,
+        portrait,
+        shortBio
+      }
+    }, [])
+  }
+`);
+
+/** Obtiene el Directorio Oficial normalizado desde organizationUnit */
+export async function getDirectorioOficial(): Promise<BoardResult | null> {
+  return sanity.fetch<BoardResult | null>(DIRECTORIO_OFICIAL_QUERY);
+}
+
+/** Obtener las comisiones activas y sus integrantes (Legado) */
 export async function getComisiones() {
   return sanity.fetch(
     `*[_type == "comision" && activo == true] | order(orden asc, nombre asc) {
@@ -213,6 +264,68 @@ export async function getComisiones() {
       }
     }`
   )
+}
+
+export interface CommissionMemberResult {
+  _key: string;
+  role?: string | null;
+  contactEmail?: string | null;
+  order?: number | null;
+  person: {
+    _id: string;
+    name: string;
+    dan?: number | null;
+    legacyTitle?: string | null;
+    portrait?: any;
+    shortBio?: string | null;
+  };
+}
+
+export interface CommissionResult {
+  _id: string;
+  name: string;
+  description?: unknown;
+  type: string;
+  order?: number | null;
+  parentUnit?: {
+    _id: string;
+    name: string;
+  } | null;
+  members: CommissionMemberResult[];
+}
+
+/** Consulta tipada GROQ para comisiones y unidades de trabajo de FECHITAT */
+export const COMISIONES_QUERY = defineQuery(`
+  *[_type == "organizationUnit" && type in ["commission", "other"]] | order(order asc) {
+    _id,
+    name,
+    description,
+    type,
+    order,
+    parentUnit-> {
+      _id,
+      name
+    },
+    "members": coalesce(members[] | order(order asc) {
+      _key,
+      role,
+      contactEmail,
+      order,
+      person-> {
+        _id,
+        name,
+        dan,
+        legacyTitle,
+        portrait,
+        shortBio
+      }
+    }, [])
+  }
+`);
+
+/** Obtiene las comisiones y unidades operativas desde organizationUnit */
+export async function getComisionesTrabajo(): Promise<CommissionResult[]> {
+  return sanity.fetch<CommissionResult[]>(COMISIONES_QUERY);
 }
 
 /** Obtener los documentos oficiales visibles en el sitio */
@@ -257,14 +370,44 @@ export async function getCatalogEntries(): Promise<CatalogEntry[]> {
   }`);
 }
 
-/** Obtener campeones del salón de campeones */
-export async function getCampeones() {
-  return sanity.fetch(`*[_type == "campeon"] | order(anio desc)`)
+export interface HistoricalMilestoneResult {
+  _id: string;
+  title: string;
+  slug?: { current: string };
+  year: number;
+  date?: string | null;
+  description?: string;
+  order?: number | null;
+  image?: any;
 }
 
-/** Obtener hitos históricos para la línea de tiempo */
+/** Consulta tipada GROQ para la línea de tiempo histórica de FECHITAT */
+export const HITOS_HISTORICOS_QUERY = defineQuery(`
+  *[_type == "historicalMilestone"] | order(year asc, date asc, order asc) {
+    _id,
+    title,
+    slug,
+    year,
+    date,
+    description,
+    order,
+    image
+  }
+`);
+
+/** Obtiene los hitos históricos ordenados cronológicamente */
+export async function getHitosHistoricos(): Promise<HistoricalMilestoneResult[]> {
+  return sanity.fetch<HistoricalMilestoneResult[]>(HITOS_HISTORICOS_QUERY);
+}
+
+/** Obtener campeones del salón de la fama / reconocimientos */
+export async function getCampeones() {
+  return sanity.fetch(`*[_type == "recognition" && active == true] | order(year desc)`);
+}
+
+/** Obtener hitos históricos para la línea de tiempo (Legado) */
 export async function getHitoHistorico() {
-  return sanity.fetch(`*[_type == "hitoHistorico"] | order(anio asc)`)
+  return sanity.fetch(`*[_type == "hitoHistorico"] | order(anio asc)`);
 }
 
 /** Obtener hitos destacados */

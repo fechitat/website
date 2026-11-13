@@ -125,3 +125,5 @@ export function extractHonorificAndName(rawName: string = ''): {
     legacyTitle: foundPrefix,
   };
 }
+
+export { formatSpanishOrdinal } from './metrics.ts';

@@ -2,7 +2,7 @@
 
 **Dataset destino:** `production`  
 **Modo de ejecución:** `APLICADO (--apply)`  
-**Fecha:** 2026-11-13T04:15:37.742Z  
+**Fecha:** 2026-11-13T04:30:12.044Z  
 
 ---
 
@@ -39,14 +39,14 @@ Las siguientes personas fueron identificadas en múltiples orígenes y unificada
 ### 3.1 Nombres y Títulos de Personas
 | String Origen | Nombre Limpio (`name`) | Grado Dan (`dan`) | Título Legado (`legacyTitle`) | ID Resultante |
 | :--- | :--- | :---: | :--- | :--- |
-| `Sb.Antonia Astorga` | `Antonia Astorga` | — | `Sb.` | `person.antonia-astorga` |
-| `Sb.Jose Reyes` | `Jose Reyes` | — | `Sb.` | `person.jose-reyes` |
-| `Sb.Juan Bravo` | `Juan Bravo` | — | `Sb.` | `person.juan-bravo` |
-| `Sb.Jonathan Palma` | `Jonathan Palma` | 4 | — | `person.jonathan-palma` |
-| `Javier Muñoz` | `Javier Muñoz` | 3 | — | `person.javier-munoz` |
-| `Osvaldo Rojas` | `Osvaldo Rojas` | — | — | `person.osvaldo-rojas` |
-| `Bs.Alfredo Puyol` | `Alfredo Puyol` | — | `Bs.` | `person.alfredo-puyol` |
-| `Bs.Felipe Plaza` | `Felipe Plaza` | — | `Bs.` | `person.felipe-plaza` |
+| `Sb.Antonia Astorga` | `Antonia Astorga` | — | `Sb.` | `person-antonia-astorga` |
+| `Sb.Jose Reyes` | `Jose Reyes` | — | `Sb.` | `person-jose-reyes` |
+| `Sb.Juan Bravo` | `Juan Bravo` | — | `Sb.` | `person-juan-bravo` |
+| `Sb.Jonathan Palma` | `Jonathan Palma` | 4 | — | `person-jonathan-palma` |
+| `Javier Muñoz` | `Javier Muñoz` | 3 | — | `person-javier-munoz` |
+| `Osvaldo Rojas` | `Osvaldo Rojas` | — | — | `person-osvaldo-rojas` |
+| `Bs.Alfredo Puyol` | `Alfredo Puyol` | — | `Bs.` | `person-alfredo-puyol` |
+| `Bs.Felipe Plaza` | `Felipe Plaza` | — | `Bs.` | `person-felipe-plaza` |
 
 ### 3.2 Escuelas y Contacto
 | Club | Campo | Valor Origen | Valor Normalizado |

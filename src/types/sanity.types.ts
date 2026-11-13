@@ -1216,3 +1216,138 @@ export type AllSanitySchemaTypes =
   | SanityFileAsset
   | SanityAssetSourceData
   | SanityImageAsset;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: DIRECTORIO_OFICIAL_QUERY
+// Query: *[_type == "organizationUnit" && type == "board"][0] {    _id,    name,    description,    "members": coalesce(members[] | order(order asc) {      _key,      role,      contactEmail,      order,      person-> {        _id,        name,        dan,        legacyTitle,        portrait,        shortBio      }    }, [])  }
+export type DIRECTORIO_OFICIAL_QUERY_RESULT = {
+  _id: string;
+  name: string | null;
+  description: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+  members:
+    | Array<{
+        _key: string;
+        role: string | null;
+        contactEmail: string | null;
+        order: number | null;
+        person: {
+          _id: string;
+          name: string | null;
+          dan: number | null;
+          legacyTitle: string | null;
+          portrait: {
+            asset?: SanityImageAssetReference;
+            media?: unknown;
+            hotspot?: SanityImageHotspot;
+            crop?: SanityImageCrop;
+            _type: "image";
+          } | null;
+          shortBio: string | null;
+        } | null;
+      }>
+    | Array<never>;
+} | null;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: COMISIONES_QUERY
+// Query: *[_type == "organizationUnit" && type in ["commission", "other"]] | order(order asc) {    _id,    name,    description,    type,    order,    parentUnit-> {      _id,      name    },    "members": coalesce(members[] | order(order asc) {      _key,      role,      contactEmail,      order,      person-> {        _id,        name,        dan,        legacyTitle,        portrait,        shortBio      }    }, [])  }
+export type COMISIONES_QUERY_RESULT = Array<{
+  _id: string;
+  name: string | null;
+  description: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+  type: "board" | "commission" | "other" | "subcommission" | null;
+  order: number | null;
+  parentUnit: {
+    _id: string;
+    name: string | null;
+  } | null;
+  members:
+    | Array<{
+        _key: string;
+        role: string | null;
+        contactEmail: string | null;
+        order: number | null;
+        person: {
+          _id: string;
+          name: string | null;
+          dan: number | null;
+          legacyTitle: string | null;
+          portrait: {
+            asset?: SanityImageAssetReference;
+            media?: unknown;
+            hotspot?: SanityImageHotspot;
+            crop?: SanityImageCrop;
+            _type: "image";
+          } | null;
+          shortBio: string | null;
+        } | null;
+      }>
+    | Array<never>;
+}>;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: HITOS_HISTORICOS_QUERY
+// Query: *[_type == "historicalMilestone"] | order(year asc, date asc, order asc) {    _id,    title,    slug,    year,    date,    description,    order,    image  }
+export type HITOS_HISTORICOS_QUERY_RESULT = Array<{
+  _id: string;
+  title: string | null;
+  slug: Slug | null;
+  year: number | null;
+  date: string | null;
+  description: string | null;
+  order: number | null;
+  image: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+}>;
+
+// Query TypeMap
+declare global {
+  interface SanityQueries {
+    '\n  *[_type == "organizationUnit" && type == "board"][0] {\n    _id,\n    name,\n    description,\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': DIRECTORIO_OFICIAL_QUERY_RESULT;
+    '\n  *[_type == "organizationUnit" && type in ["commission", "other"]] | order(order asc) {\n    _id,\n    name,\n    description,\n    type,\n    order,\n    parentUnit-> {\n      _id,\n      name\n    },\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': COMISIONES_QUERY_RESULT;
+    '\n  *[_type == "historicalMilestone"] | order(year asc, date asc, order asc) {\n    _id,\n    title,\n    slug,\n    year,\n    date,\n    description,\n    order,\n    image\n  }\n': HITOS_HISTORICOS_QUERY_RESULT;
+  }
+}
+// Lets @sanity/client releases that predate the global registry read it too
+declare module "@sanity/client" {
+  interface SanityQueries extends globalThis.SanityQueries {}
+}

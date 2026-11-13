@@ -6,7 +6,7 @@ export const sanity = createClient({
   projectId: 'wyg7m2t0',
   dataset: 'production',
   apiVersion: '2024-01-01',
-  useCdn: true,
+  useCdn: process.env.SANITY_USE_CDN === 'false' ? false : true,
 })
 
 /** Builder para generar URLs de imágenes de Sanity */

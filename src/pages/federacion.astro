@@ -3,7 +3,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import Timeline from '../components/Timeline.astro';
 import Button from '../components/ui/Button.astro';
-import { getOrganigrama, getComisiones, getCampeones, getHitoHistorico } from '../lib/sanityQueries';
+import {
+  getDirectorioOficial,
+  getComisionesTrabajo,
+  getCampeones,
+  getHitosHistoricos,
+} from '../lib/sanityQueries';
+import { formatPersonFullName, formatSpanishOrdinal } from '../lib/honorifics';
 import { urlFor } from '../lib/sanity';
 
 export const prerender = true;
@@ -13,13 +19,49 @@ const titulo = 'Sobre FECHITAT — Federación de Taekwon-Do ITF';
 const descripcion =
   'Conoce FECHITAT, la federación chilena de Taekwon-Do ITF: historia, directiva, comisiones, campeones y afiliación oficial.';
 
-// Obtener datos de Sanity
-const [directivos, comisiones, campeones, hitos] = await Promise.all([
-  getOrganigrama(),
-  getComisiones(),
+// Obtener datos normalizados de Sanity
+const [boardDoc, comisionesList, campeones, hitosRaw] = await Promise.all([
+  getDirectorioOficial(),
+  getComisionesTrabajo(),
   getCampeones(),
-  getHitoHistorico(),
+  getHitosHistoricos(),
 ]);
+
+const directivos = (boardDoc?.members || []).map((m) => {
+  const p = m.person;
+  const fullName = p ? formatPersonFullName(p) : 'Sin nombre';
+  const grado = p?.dan ? `${formatSpanishOrdinal(p.dan)} Dan` : undefined;
+  return {
+    _id: p?._id || m._key,
+    nombre: fullName,
+    cargo: m.role || 'Directivo',
+    grado,
+    foto: p?.portrait,
+    email: m.contactEmail,
+  };
+});
+
+const comisiones = comisionesList.map((c) => ({
+  _id: c._id,
+  nombre: c.name,
+  descripcion: typeof c.description === 'string' ? c.description : undefined,
+  miembros: (c.members || []).map((m) => {
+    const p = m.person;
+    const fullName = p ? formatPersonFullName(p) : 'Sin nombre';
+    return {
+      _id: p?._id || m._key,
+      nombre: fullName,
+      foto: p?.portrait,
+      email: m.contactEmail,
+    };
+  }),
+}));
+
+const hitos = hitosRaw.map((h) => ({
+  anio: String(h.year || ''),
+  titulo: h.title || '',
+  descripcion: h.description || '',
+}));
 ---
 
 <BaseLayout title={titulo} description={descripcion}>

@@ -32,7 +32,7 @@
         "743db8c7-92f8-4c92-a5c1-efd8a11db2fa",
         "escuela:quauhtli"
       ],
-      "personId": "person.juan-bravo"
+      "personId": "person-juan-bravo"
     },
     {
       "normalizedName": "Osvaldo Rojas",
@@ -40,7 +40,7 @@
         "b4a28fea-64e2-43a1-9b32-b47cc13aec06",
         "escuela:silla-la-serena"
       ],
-      "personId": "person.osvaldo-rojas"
+      "personId": "person-osvaldo-rojas"
     },
     {
       "normalizedName": "Antonia Astorga",
@@ -48,7 +48,7 @@
         "4d1d06bc-7e7f-4e8a-be1e-97216d4e6046",
         "escuela:silla-santiago"
       ],
-      "personId": "person.antonia-astorga"
+      "personId": "person-antonia-astorga"
     }
   ],
   "normalizations": {
@@ -58,56 +58,56 @@
         "normalizedName": "Antonia Astorga",
         "dan": null,
         "legacyTitle": "Sb.",
-        "resultingId": "person.antonia-astorga"
+        "resultingId": "person-antonia-astorga"
       },
       {
         "original": "Sb.Jose Reyes",
         "normalizedName": "Jose Reyes",
         "dan": null,
         "legacyTitle": "Sb.",
-        "resultingId": "person.jose-reyes"
+        "resultingId": "person-jose-reyes"
       },
       {
         "original": "Sb.Juan Bravo",
         "normalizedName": "Juan Bravo",
         "dan": null,
         "legacyTitle": "Sb.",
-        "resultingId": "person.juan-bravo"
+        "resultingId": "person-juan-bravo"
       },
       {
         "original": "Sb.Jonathan Palma",
         "normalizedName": "Jonathan Palma",
         "dan": 4,
         "legacyTitle": null,
-        "resultingId": "person.jonathan-palma"
+        "resultingId": "person-jonathan-palma"
       },
       {
         "original": "Javier Muñoz",
         "normalizedName": "Javier Muñoz",
         "dan": 3,
         "legacyTitle": null,
-        "resultingId": "person.javier-munoz"
+        "resultingId": "person-javier-munoz"
       },
       {
         "original": "Osvaldo Rojas",
         "normalizedName": "Osvaldo Rojas",
         "dan": null,
         "legacyTitle": null,
-        "resultingId": "person.osvaldo-rojas"
+        "resultingId": "person-osvaldo-rojas"
       },
       {
         "original": "Bs.Alfredo Puyol",
         "normalizedName": "Alfredo Puyol",
         "dan": null,
         "legacyTitle": "Bs.",
-        "resultingId": "person.alfredo-puyol"
+        "resultingId": "person-alfredo-puyol"
       },
       {
         "original": "Bs.Felipe Plaza",
         "normalizedName": "Felipe Plaza",
         "dan": null,
         "legacyTitle": "Bs.",
-        "resultingId": "person.felipe-plaza"
+        "resultingId": "person-felipe-plaza"
       }
     ],
     "schools": [
