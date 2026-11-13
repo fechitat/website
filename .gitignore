@@ -26,3 +26,8 @@ pnpm-debug.log*
 
 .turbo/
 *.log
+
+# audit and backups
+.audit/
+backups/
+
