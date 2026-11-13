@@ -1,6 +1,33 @@
 import {sanity} from './sanity.ts'
 import {defineQuery} from 'groq'
 import type { CatalogEntry } from '../features/recursos/catalogo.ts'
+import { formatPersonFullName } from './honorifics.ts'
+
+function normalizePostCategories(categories?: (string | null)[] | null): string[] {
+  if (!categories || categories.length === 0) return ['noticias'];
+  const cleaned = categories
+    .filter((c): c is string => Boolean(c))
+    .map((cat) => {
+      const lower = cat.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      if (lower.includes('tecnic')) return 'tecnica';
+      if (lower.includes('notici')) return 'noticias';
+      if (lower.includes('entrevist')) return 'entrevistas';
+      if (lower.includes('histori')) return 'historia';
+      if (lower.includes('arbitr')) return 'arbitraje';
+      return lower;
+    });
+  return [...new Set(cleaned)];
+}
+
+function resolvePostAuthor(
+  authorPerson?: { name: string; dan?: number | null; legacyTitle?: string | null } | null,
+  fallbackAutor?: string | null
+): string {
+  if (authorPerson?.name) {
+    return formatPersonFullName(authorPerson);
+  }
+  return fallbackAutor || 'FECHITAT';
+}
 
 /** Consulta tipada GROQ para todos los eventos ordenados por fecha */
 export const EVENTOS_QUERY = defineQuery(`
@@ -234,37 +261,58 @@ export async function getCompetidorBySlug(slug: string) {
   return sanity.fetch(`*[_type == "competidor" && slug.current == $slug][0]`, {slug})
 }
 
+/** Consulta tipada GROQ para posts del blog con paginación */
+export const BLOG_POSTS_QUERY = defineQuery(`
+  *[_type == "post"] | order(publishedAt desc) [$inicio...$fin] {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": publishedAt,
+    "autor": coalesce(author->name, "FECHITAT"),
+    "authorPerson": author->{
+      _id,
+      name,
+      dan,
+      legacyTitle
+    },
+    "extracto": excerpt,
+    "imagen": coverImage,
+    "imagenUrl": coverImage.asset->url,
+    "imagenAlt": coalesce(coverImage.alt, title),
+    "imagenFoco": coverImage.hotspot,
+    "categorias": categories,
+    palabrasClave,
+    tematicas,
+    prioridad,
+    fundamental,
+    destacadoCatalogo,
+    icono,
+    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),
+    "destacado": coalesce(featured, false),
+    "contenido": content
+  }
+`);
+
+/** Consulta tipada GROQ para contar posts del blog */
+export const TOTAL_BLOG_POSTS_QUERY = defineQuery(`count(*[_type == "post"])`);
+
 /** Obtener posts del blog con paginación */
 export async function getBlogPosts(pagina = 1, porPagina = 12) {
-  const inicio = (pagina - 1) * porPagina
-  return sanity.fetch(
-    `*[_type == "blogPost"] | order(fecha desc) [${inicio}...${inicio + porPagina}] {
-      _id,
-      titulo,
-      slug,
-      fecha,
-      autor,
-      extracto,
-      imagen,
-      "imagenUrl": imagen.asset->url,
-      "imagenAlt": imagen.alt,
-      "imagenFoco": imagen.hotspot,
-      categorias,
-      palabrasClave,
-      tematicas,
-      prioridad,
-      fundamental,
-      destacadoCatalogo,
-      icono,
-      "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),
-      destacado
-    }`
-  )
+  const inicio = (pagina - 1) * porPagina;
+  const rawPosts = await sanity.fetch(BLOG_POSTS_QUERY, {
+    inicio,
+    fin: inicio + porPagina,
+  });
+  return rawPosts.map((post) => ({
+    ...post,
+    autor: resolvePostAuthor(post.authorPerson, post.autor),
+    categorias: normalizePostCategories(post.categorias),
+  }));
 }
 
 /** Contar posts del blog (para paginación) */
-export async function getTotalBlogPosts() {
-  return sanity.fetch(`count(*[_type == "blogPost"])`)
+export async function getTotalBlogPosts(): Promise<number> {
+  return sanity.fetch(TOTAL_BLOG_POSTS_QUERY);
 }
 
 /** Obtener material de estudio activo, ordenado manualmente */
@@ -309,9 +357,47 @@ export async function getProgramaExamen() {
   )
 }
 
+/** Consulta tipada GROQ para un post del blog por slug */
+export const BLOG_POST_BY_SLUG_QUERY = defineQuery(`
+  *[_type == "post" && slug.current == $slug][0] {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": publishedAt,
+    "autor": coalesce(author->name, "FECHITAT"),
+    "authorPerson": author->{
+      _id,
+      name,
+      dan,
+      legacyTitle
+    },
+    "extracto": excerpt,
+    "imagen": coverImage,
+    "imagenUrl": coverImage.asset->url,
+    "imagenAlt": coalesce(coverImage.alt, title),
+    "imagenFoco": coverImage.hotspot,
+    "categorias": categories,
+    palabrasClave,
+    tematicas,
+    prioridad,
+    fundamental,
+    destacadoCatalogo,
+    icono,
+    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),
+    "destacado": coalesce(featured, false),
+    "contenido": content
+  }
+`);
+
 /** Obtener post por slug */
 export async function getBlogPostBySlug(slug: string) {
-  return sanity.fetch(`*[_type == "blogPost" && slug.current == $slug][0]`, {slug})
+  const post = await sanity.fetch(BLOG_POST_BY_SLUG_QUERY, { slug });
+  if (!post) return null;
+  return {
+    ...post,
+    autor: resolvePostAuthor(post.authorPerson, post.autor),
+    categorias: normalizePostCategories(post.categorias),
+  };
 }
 
 /** Obtener integrantes del directorio, excluyendo las comisiones (Legado) */
@@ -665,9 +751,46 @@ export async function getDirectorioEscuelas(filtros: FiltrosEscuelas, porPagina 
   }`, params);
 }
 
-/** Obtener las tres publicaciones destacadas para la portada. */
+/** Consulta tipada GROQ para posts destacados del blog */
+export const BLOG_POSTS_DESTACADOS_QUERY = defineQuery(`
+  *[_type == "post" && featured == true] | order(publishedAt desc)[0...3] {
+    _id,
+    "titulo": title,
+    slug,
+    "fecha": publishedAt,
+    "autor": coalesce(author->name, "FECHITAT"),
+    "authorPerson": author->{
+      _id,
+      name,
+      dan,
+      legacyTitle
+    },
+    "extracto": excerpt,
+    "imagen": coverImage,
+    "imagenUrl": coverImage.asset->url,
+    "imagenAlt": coalesce(coverImage.alt, title),
+    "imagenFoco": coverImage.hotspot,
+    "categorias": categories,
+    palabrasClave,
+    tematicas,
+    prioridad,
+    fundamental,
+    destacadoCatalogo,
+    icono,
+    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),
+    "destacado": coalesce(featured, false),
+    "contenido": content
+  }
+`);
+
+/** Obtener las publicaciones destacadas para la portada */
 export async function getBlogPostsDestacados() {
-  return sanity.fetch(`*[_type == "blogPost" && destacado == true] | order(fecha desc)[0...3] { ..., "imagenUrl": imagen.asset->url, "imagenAlt": imagen.alt }`)
+  const rawPosts = await sanity.fetch(BLOG_POSTS_DESTACADOS_QUERY);
+  return rawPosts.map((post) => ({
+    ...post,
+    autor: resolvePostAuthor(post.authorPerson, post.autor),
+    categorias: normalizePostCategories(post.categorias),
+  }));
 }
 
 /** Obtener testimonios */

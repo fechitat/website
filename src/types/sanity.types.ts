@@ -1538,6 +1538,143 @@ export type ESCUELA_BY_SLUG_QUERY_RESULT = {
 } | null;
 
 // Source: ../src/lib/sanityQueries.ts
+// Variable: BLOG_POSTS_QUERY
+// Query: *[_type == "post"] | order(publishedAt desc) [$inicio...$fin] {    _id,    "titulo": title,    slug,    "fecha": publishedAt,    "autor": coalesce(author->name, "FECHITAT"),    "authorPerson": author->{      _id,      name,      dan,      legacyTitle    },    "extracto": excerpt,    "imagen": coverImage,    "imagenUrl": coverImage.asset->url,    "imagenAlt": coalesce(coverImage.alt, title),    "imagenFoco": coverImage.hotspot,    "categorias": categories,    palabrasClave,    tematicas,    prioridad,    fundamental,    destacadoCatalogo,    icono,    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),    "destacado": coalesce(featured, false),    "contenido": content  }
+export type BLOG_POSTS_QUERY_RESULT = Array<{
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  autor: string | "FECHITAT";
+  authorPerson: {
+    _id: string;
+    name: string | null;
+    dan: number | null;
+    legacyTitle: string | null;
+  } | null;
+  extracto: string | null;
+  imagen: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  imagenUrl: string | null;
+  imagenAlt: string | null;
+  imagenFoco: SanityImageHotspot | null;
+  categorias: Array<string> | null;
+  palabrasClave: Array<string> | null;
+  tematicas: Array<string> | null;
+  prioridad: number | null;
+  fundamental: boolean | null;
+  destacadoCatalogo: boolean | null;
+  icono: "book-open" | "file-text" | "newspaper" | "wrench" | null;
+  fechaActualizacion: string;
+  destacado: boolean | false;
+  contenido: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        _type: "image";
+        _key: string;
+      }
+  > | null;
+}>;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: TOTAL_BLOG_POSTS_QUERY
+// Query: count(*[_type == "post"])
+export type TOTAL_BLOG_POSTS_QUERY_RESULT = number;
+
+// Source: ../src/lib/sanityQueries.ts
+// Variable: BLOG_POST_BY_SLUG_QUERY
+// Query: *[_type == "post" && slug.current == $slug][0] {    _id,    "titulo": title,    slug,    "fecha": publishedAt,    "autor": coalesce(author->name, "FECHITAT"),    "authorPerson": author->{      _id,      name,      dan,      legacyTitle    },    "extracto": excerpt,    "imagen": coverImage,    "imagenUrl": coverImage.asset->url,    "imagenAlt": coalesce(coverImage.alt, title),    "imagenFoco": coverImage.hotspot,    "categorias": categories,    palabrasClave,    tematicas,    prioridad,    fundamental,    destacadoCatalogo,    icono,    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),    "destacado": coalesce(featured, false),    "contenido": content  }
+export type BLOG_POST_BY_SLUG_QUERY_RESULT = {
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  autor: string | "FECHITAT";
+  authorPerson: {
+    _id: string;
+    name: string | null;
+    dan: number | null;
+    legacyTitle: string | null;
+  } | null;
+  extracto: string | null;
+  imagen: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  imagenUrl: string | null;
+  imagenAlt: string | null;
+  imagenFoco: SanityImageHotspot | null;
+  categorias: Array<string> | null;
+  palabrasClave: Array<string> | null;
+  tematicas: Array<string> | null;
+  prioridad: number | null;
+  fundamental: boolean | null;
+  destacadoCatalogo: boolean | null;
+  icono: "book-open" | "file-text" | "newspaper" | "wrench" | null;
+  fechaActualizacion: string;
+  destacado: boolean | false;
+  contenido: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        _type: "image";
+        _key: string;
+      }
+  > | null;
+} | null;
+
+// Source: ../src/lib/sanityQueries.ts
 // Variable: DIRECTORIO_OFICIAL_QUERY
 // Query: *[_type == "organizationUnit" && type == "board"][0] {    _id,    name,    description,    "members": coalesce(members[] | order(order asc) {      _key,      role,      contactEmail,      order,      person-> {        _id,        name,        dan,        legacyTitle,        portrait,        shortBio      }    }, [])  }
 export type DIRECTORIO_OFICIAL_QUERY_RESULT = {
@@ -1716,6 +1853,72 @@ export type ESCUELAS_MAPA_QUERY_RESULT = Array<{
 }>;
 
 // Source: ../src/lib/sanityQueries.ts
+// Variable: BLOG_POSTS_DESTACADOS_QUERY
+// Query: *[_type == "post" && featured == true] | order(publishedAt desc)[0...3] {    _id,    "titulo": title,    slug,    "fecha": publishedAt,    "autor": coalesce(author->name, "FECHITAT"),    "authorPerson": author->{      _id,      name,      dan,      legacyTitle    },    "extracto": excerpt,    "imagen": coverImage,    "imagenUrl": coverImage.asset->url,    "imagenAlt": coalesce(coverImage.alt, title),    "imagenFoco": coverImage.hotspot,    "categorias": categories,    palabrasClave,    tematicas,    prioridad,    fundamental,    destacadoCatalogo,    icono,    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),    "destacado": coalesce(featured, false),    "contenido": content  }
+export type BLOG_POSTS_DESTACADOS_QUERY_RESULT = Array<{
+  _id: string;
+  titulo: string | null;
+  slug: Slug | null;
+  fecha: string | null;
+  autor: string | "FECHITAT";
+  authorPerson: {
+    _id: string;
+    name: string | null;
+    dan: number | null;
+    legacyTitle: string | null;
+  } | null;
+  extracto: string | null;
+  imagen: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  imagenUrl: string | null;
+  imagenAlt: string | null;
+  imagenFoco: SanityImageHotspot | null;
+  categorias: Array<string> | null;
+  palabrasClave: Array<string> | null;
+  tematicas: Array<string> | null;
+  prioridad: number | null;
+  fundamental: boolean | null;
+  destacadoCatalogo: boolean | null;
+  icono: "book-open" | "file-text" | "newspaper" | "wrench" | null;
+  fechaActualizacion: string;
+  destacado: true;
+  contenido: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        _type: "image";
+        _key: string;
+      }
+  > | null;
+}>;
+
+// Source: ../src/lib/sanityQueries.ts
 // Variable: EVENTOS_CALENDARIO_QUERY
 // Query: *[_type == "event" && startDate >= $inicio && startDate <= $fin] | order(startDate asc) {    _id,    "titulo": title,    slug,    "fecha": startDate,    "fechaFin": endDate,    "tipo": type,    "estado": status,    "direccion": address,    "ciudad": city,    "lugar": venue,    "flyer": coverImage,    "descripcion": description,    "tieneGaleria": count(gallery) > 0  }
 export type EVENTOS_CALENDARIO_QUERY_RESULT = Array<{
@@ -1752,11 +1955,15 @@ declare global {
     '\n  *[_type == "event" && slug.current == $slug][0] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "galeria": gallery,\n    "destacado": featured,\n    "tieneGaleria": count(gallery) > 0\n  }\n': EVENTO_BY_SLUG_QUERY_RESULT;
     '\n  *[_type == "club" && active == true] | order(name asc) {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "direccion": address,\n    whatsapp,\n    "email": contactEmail,\n    description,\n    "foto": coverImage,\n    logo,\n    "instructor": president->name,\n    president-> {\n      _id,\n      name,\n      dan,\n      legacyTitle,\n      portrait\n    },\n    schedule,\n    location,\n    socialLinks\n  }\n': ESCUELAS_QUERY_RESULT;
     '\n  *[_type == "club" && slug.current == $slug][0] {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "direccion": address,\n    whatsapp,\n    "email": contactEmail,\n    description,\n    "foto": coverImage,\n    logo,\n    "instructor": president->name,\n    president-> {\n      _id,\n      name,\n      dan,\n      legacyTitle,\n      portrait\n    },\n    schedule,\n    location,\n    socialLinks\n  }\n': ESCUELA_BY_SLUG_QUERY_RESULT;
+    '\n  *[_type == "post"] | order(publishedAt desc) [$inicio...$fin] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": publishedAt,\n    "autor": coalesce(author->name, "FECHITAT"),\n    "authorPerson": author->{\n      _id,\n      name,\n      dan,\n      legacyTitle\n    },\n    "extracto": excerpt,\n    "imagen": coverImage,\n    "imagenUrl": coverImage.asset->url,\n    "imagenAlt": coalesce(coverImage.alt, title),\n    "imagenFoco": coverImage.hotspot,\n    "categorias": categories,\n    palabrasClave,\n    tematicas,\n    prioridad,\n    fundamental,\n    destacadoCatalogo,\n    icono,\n    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),\n    "destacado": coalesce(featured, false),\n    "contenido": content\n  }\n': BLOG_POSTS_QUERY_RESULT;
+    'count(*[_type == "post"])': TOTAL_BLOG_POSTS_QUERY_RESULT;
+    '\n  *[_type == "post" && slug.current == $slug][0] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": publishedAt,\n    "autor": coalesce(author->name, "FECHITAT"),\n    "authorPerson": author->{\n      _id,\n      name,\n      dan,\n      legacyTitle\n    },\n    "extracto": excerpt,\n    "imagen": coverImage,\n    "imagenUrl": coverImage.asset->url,\n    "imagenAlt": coalesce(coverImage.alt, title),\n    "imagenFoco": coverImage.hotspot,\n    "categorias": categories,\n    palabrasClave,\n    tematicas,\n    prioridad,\n    fundamental,\n    destacadoCatalogo,\n    icono,\n    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),\n    "destacado": coalesce(featured, false),\n    "contenido": content\n  }\n': BLOG_POST_BY_SLUG_QUERY_RESULT;
     '\n  *[_type == "organizationUnit" && type == "board"][0] {\n    _id,\n    name,\n    description,\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': DIRECTORIO_OFICIAL_QUERY_RESULT;
     '\n  *[_type == "organizationUnit" && type in ["commission", "other"]] | order(order asc) {\n    _id,\n    name,\n    description,\n    type,\n    order,\n    parentUnit-> {\n      _id,\n      name\n    },\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': COMISIONES_QUERY_RESULT;
     '\n  *[_type == "historicalMilestone"] | order(year asc, date asc, order asc) {\n    _id,\n    title,\n    slug,\n    year,\n    date,\n    description,\n    order,\n    image\n  }\n': HITOS_HISTORICOS_QUERY_RESULT;
     '\n  *[_type == "event" && status == "proximo" && startDate >= now()] | order(startDate asc)[0] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "destacado": featured,\n    "tieneGaleria": count(gallery) > 0\n  }\n': PROXIMO_EVENTO_DESTACADO_QUERY_RESULT;
     '\n  *[_type == "club" && active == true] | order(region asc, name asc) {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "ubicacion": location,\n    "logoUrl": logo.asset->url\n  }\n': ESCUELAS_MAPA_QUERY_RESULT;
+    '\n  *[_type == "post" && featured == true] | order(publishedAt desc)[0...3] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": publishedAt,\n    "autor": coalesce(author->name, "FECHITAT"),\n    "authorPerson": author->{\n      _id,\n      name,\n      dan,\n      legacyTitle\n    },\n    "extracto": excerpt,\n    "imagen": coverImage,\n    "imagenUrl": coverImage.asset->url,\n    "imagenAlt": coalesce(coverImage.alt, title),\n    "imagenFoco": coverImage.hotspot,\n    "categorias": categories,\n    palabrasClave,\n    tematicas,\n    prioridad,\n    fundamental,\n    destacadoCatalogo,\n    icono,\n    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),\n    "destacado": coalesce(featured, false),\n    "contenido": content\n  }\n': BLOG_POSTS_DESTACADOS_QUERY_RESULT;
     '\n  *[_type == "event" && startDate >= $inicio && startDate <= $fin] | order(startDate asc) {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "tieneGaleria": count(gallery) > 0\n  }\n': EVENTOS_CALENDARIO_QUERY_RESULT;
   }
 }
