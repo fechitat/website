@@ -1864,6 +1864,29 @@ export type HITOS_HISTORICOS_QUERY_RESULT = Array<{
 }>;
 
 // Source: ../src/lib/sanityQueries.ts
+// Variable: FEDERATION_METRICS_QUERY
+// Query: {    "metrics": *[_type == "federation"][0].metrics,    "recognitions": *[_type == "recognition"] {      _id,      scope,      placement,      year,      title    }  }
+export type FEDERATION_METRICS_QUERY_RESULT = {
+  metrics: Array<{
+    key?:
+      "activeCompetitors" | "bestAchievement" | "blackBelts" | "worldMedals";
+    label?: string;
+    mode?: "computed" | "manual";
+    value?: string;
+    order?: number;
+    showOn?: Array<string>;
+    _key: string;
+  }> | null;
+  recognitions: Array<{
+    _id: string;
+    scope: "national" | "other" | "panamerican" | "world" | null;
+    placement: number | null;
+    year: number | null;
+    title: string | null;
+  }>;
+};
+
+// Source: ../src/lib/sanityQueries.ts
 // Variable: PROXIMO_EVENTO_DESTACADO_QUERY
 // Query: *[_type == "event" && status == "proximo" && startDate >= now()] | order(startDate asc)[0] {    _id,    "titulo": title,    slug,    "fecha": startDate,    "fechaFin": endDate,    "tipo": type,    "estado": status,    "direccion": address,    "ciudad": city,    "lugar": venue,    "flyer": coverImage,    "descripcion": description,    "destacado": featured,    "tieneGaleria": count(gallery) > 0  }
 export type PROXIMO_EVENTO_DESTACADO_QUERY_RESULT = {
@@ -2029,6 +2052,7 @@ declare global {
     '\n  *[_type == "organizationUnit" && type in ["commission", "other"]] | order(order asc) {\n    _id,\n    name,\n    description,\n    type,\n    order,\n    parentUnit-> {\n      _id,\n      name\n    },\n    "members": coalesce(members[] | order(order asc) {\n      _key,\n      role,\n      contactEmail,\n      order,\n      person-> {\n        _id,\n        name,\n        dan,\n        legacyTitle,\n        portrait,\n        shortBio\n      }\n    }, [])\n  }\n': COMISIONES_QUERY_RESULT;
     '\n  *[_type == "officialDocument" || _type == "documentoOficial"] | order(coalesce(publicationDate, fechaPublicacion) desc) {\n    _id,\n    _type,\n    "titulo": coalesce(title, titulo),\n    slug,\n    "tipo": coalesce(category, tipo),\n    "descripcion": coalesce(description, descripcion),\n    version,\n    "fechaPublicacion": coalesce(publicationDate, fechaPublicacion),\n    "fechaVigencia": coalesce(effectiveDate, fechaVigencia),\n    "estado": select(\n      status == "current" => "vigente",\n      status == "superseded" => "reemplazado",\n      status == "repealed" => "obsoleto",\n      status == "vigente" => "vigente",\n      defined(estado) => estado,\n      "vigente"\n    ),\n    tematicas,\n    palabrasClave,\n    prioridad,\n    fundamental,\n    destacadoCatalogo,\n    icono,\n    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),\n    "archivoUrl": coalesce(file.asset->url, archivo.asset->url),\n    "archivoNombre": coalesce(file.asset->originalFilename, archivo.asset->originalFilename),\n    "comisionNombre": coalesce(owner->name, comision->nombre, "FECHITAT")\n  }\n': DOCUMENTOS_OFICIALES_QUERY_RESULT;
     '\n  *[_type == "historicalMilestone"] | order(year asc, date asc, order asc) {\n    _id,\n    title,\n    slug,\n    year,\n    date,\n    description,\n    order,\n    image\n  }\n': HITOS_HISTORICOS_QUERY_RESULT;
+    '\n  {\n    "metrics": *[_type == "federation"][0].metrics,\n    "recognitions": *[_type == "recognition"] {\n      _id,\n      scope,\n      placement,\n      year,\n      title\n    }\n  }\n': FEDERATION_METRICS_QUERY_RESULT;
     '\n  *[_type == "event" && status == "proximo" && startDate >= now()] | order(startDate asc)[0] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": startDate,\n    "fechaFin": endDate,\n    "tipo": type,\n    "estado": status,\n    "direccion": address,\n    "ciudad": city,\n    "lugar": venue,\n    "flyer": coverImage,\n    "descripcion": description,\n    "destacado": featured,\n    "tieneGaleria": count(gallery) > 0\n  }\n': PROXIMO_EVENTO_DESTACADO_QUERY_RESULT;
     '\n  *[_type == "club" && active == true] | order(region asc, name asc) {\n    _id,\n    "nombre": name,\n    slug,\n    "ciudad": city,\n    region,\n    "ubicacion": location,\n    "logoUrl": logo.asset->url\n  }\n': ESCUELAS_MAPA_QUERY_RESULT;
     '\n  *[_type == "post" && featured == true] | order(publishedAt desc)[0...3] {\n    _id,\n    "titulo": title,\n    slug,\n    "fecha": publishedAt,\n    "autor": coalesce(author->name, "FECHITAT"),\n    "authorPerson": author->{\n      _id,\n      name,\n      dan,\n      legacyTitle\n    },\n    "extracto": excerpt,\n    "imagen": coverImage,\n    "imagenUrl": coverImage.asset->url,\n    "imagenAlt": coalesce(coverImage.alt, title),\n    "imagenFoco": coverImage.hotspot,\n    "categorias": categories,\n    palabrasClave,\n    tematicas,\n    prioridad,\n    fundamental,\n    destacadoCatalogo,\n    icono,\n    "fechaActualizacion": coalesce(fechaActualizacion, _updatedAt),\n    "destacado": coalesce(featured, false),\n    "contenido": content\n  }\n': BLOG_POSTS_DESTACADOS_QUERY_RESULT;

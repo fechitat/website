@@ -4,6 +4,7 @@ import Stat from '../components/Stat.astro';
 import PageHero from '../components/PageHero.astro';
 import BeltBar from '../components/BeltBar.astro';
 import { img } from '../lib/imagenes';
+import { getFederationMetrics } from '../lib/sanityQueries';
 
 export const prerender = true;
 export const revalidate = 3600;
@@ -11,6 +12,10 @@ export const revalidate = 3600;
 const titulo = 'Para jóvenes competidores — FECHITAT';
 const descripcion =
   'Descubre cómo competir en Taekwon-Do ITF, avanzar de cinturón y llegar a la selección nacional con FECHITAT.';
+
+const metricasJovenes = await getFederationMetrics('jovenes');
+const medallasMundiales = metricasJovenes.find((m) => m.key === 'worldMedals');
+const mejorLogro = metricasJovenes.find((m) => m.key === 'bestAchievement');
 
 const grados = [
   {
@@ -89,12 +94,21 @@ const grados = [
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
         <article class="bg-ink-soft border border-dark-soft rounded-sm p-6 md:p-8">
-          <Stat count={2} label="Medallas mundiales" dark />
+          <Stat
+            count={medallasMundiales ? medallasMundiales.valor : 2}
+            suffix={medallasMundiales?.sufijo ?? ''}
+            label={medallasMundiales?.label ?? "Medallas mundiales"}
+            dark
+          />
         </article>
         <article class="bg-ink-soft border border-dark-soft rounded-sm p-6 md:p-8">
           <div>
-            <div class="font-heading font-extrabold text-5xl leading-none text-white tracking-tight">3.er</div>
-            <div class="font-mono text-xs font-semibold tracking-widest uppercase text-light-muted mt-2">Lugar mundial</div>
+            <div class="font-heading font-extrabold text-5xl leading-none text-white tracking-tight">
+              {mejorLogro ? mejorLogro.value : '3.er'}
+            </div>
+            <div class="font-mono text-xs font-semibold tracking-widest uppercase text-light-muted mt-2">
+              {mejorLogro?.label ?? "Lugar mundial"}
+            </div>
           </div>
           <p class="text-light-muted text-sm mt-5">
             Un podio mundial que demuestra el nivel y la proyección del Taekwon-Do chileno.

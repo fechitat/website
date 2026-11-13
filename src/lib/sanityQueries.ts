@@ -2,6 +2,27 @@ import {sanity} from './sanity.ts'
 import {defineQuery} from 'groq'
 import type { CatalogEntry } from '../features/recursos/catalogo.ts'
 import { formatPersonFullName } from './honorifics.ts'
+import {
+  computeMetrics,
+  type FederationMetricConfig,
+  type MetricShowOn,
+} from './metrics.ts'
+
+function parseMetricValue(val: string): { count: number; suffix: string; rawValue: string } {
+  const match = (val || '').match(/^(\d+)(.*)$/);
+  if (match) {
+    return {
+      count: parseInt(match[1], 10),
+      suffix: match[2] || '',
+      rawValue: val,
+    };
+  }
+  return {
+    count: 0,
+    suffix: '',
+    rawValue: val || '',
+  };
+}
 
 function normalizePostCategories(categories?: (string | null)[] | null): string[] {
   if (!categories || categories.length === 0) return ['noticias'];
@@ -651,9 +672,51 @@ export async function getHitosDestacados() {
   return sanity.fetch(`*[_type == "hitoHistorico" && destacado == true] | order(anio asc)`)
 }
 
-/** Obtener métricas de la federación */
+/** Consulta tipada GROQ para métricas federativas y reconocimientos */
+export const FEDERATION_METRICS_QUERY = defineQuery(`
+  {
+    "metrics": *[_type == "federation"][0].metrics,
+    "recognitions": *[_type == "recognition"] {
+      _id,
+      scope,
+      placement,
+      year,
+      title
+    }
+  }
+`);
+
+/** Obtiene métricas federativas resueltas (manuales o calculadas) */
+export async function getFederationMetrics(target?: MetricShowOn) {
+  const data = await sanity.fetch(FEDERATION_METRICS_QUERY);
+  const metricConfigs = (data?.metrics ?? []) as FederationMetricConfig[];
+  const recognitions = data?.recognitions ?? [];
+  const resolved = computeMetrics(metricConfigs, recognitions);
+
+  const filtered = target
+    ? resolved.filter((m) => m.showOn.includes(target))
+    : resolved;
+
+  return filtered.map((m) => {
+    const parsed = parseMetricValue(m.value);
+    return {
+      key: m.key,
+      label: m.label,
+      titulo: m.label,
+      valor: parsed.count,
+      sufijo: parsed.suffix,
+      value: m.value,
+      rawValue: m.value,
+      order: m.order,
+      showOn: m.showOn,
+      isComputed: m.isComputed,
+    };
+  });
+}
+
+/** Obtener métricas para la portada (retrocompatibilidad) */
 export async function getMetricas() {
-  return sanity.fetch(`*[_type == "metrica" && activo == true] | order(orden asc)`)
+  return getFederationMetrics('home');
 }
 
 /** Consulta tipada GROQ para próximo evento destacado */
